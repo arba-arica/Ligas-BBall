@@ -2,7 +2,7 @@
  * netlify/functions/admin.js — LIGAS BBALL v1.0
  *
  * Variables de entorno en Netlify:
- *   SUPABASE_URL         = https://bhnmdkfvfpvvddqalaql.supabase.co
+ *   SUPABASE_URL         = https://bhnmdkfvfpvvddqalazl.supabase.co
  *   SUPABASE_SERVICE_KEY = eyJ...service_role...
  *   SUPER_ADMIN_PASSWORD = (elige una contraseña segura)
  *   TURNSTILE_SECRET_KEY = (desde Cloudflare Turnstile dashboard)
