@@ -20,7 +20,8 @@ const db = createClient(
   process.env.SUPABASE_SERVICE_KEY  // service role: bypasea RLS
 );
 
-const SUPER_PWD  = process.env.SUPER_ADMIN_PASSWORD || 'BballAdmin2026!';
+const SUPER_PWD   = process.env.SUPER_ADMIN_PASSWORD || 'BballAdmin2026*';
+const SUPER_EMAIL = process.env.SUPER_ADMIN_EMAIL    || 'arba.arica@gmail.com';
 const TS_SECRET  = process.env.TURNSTILE_SECRET_KEY || '';
 
 const HEADERS = {
@@ -67,8 +68,8 @@ exports.handler = async (event) => {
       // ══════════════════════════════════════════════════════════════════════
 
       case 'checkLogin': {
-        // 1. Super Admin por password fijo
-        if (data.password === SUPER_PWD) {
+        // 1. Super Admin por email + password fijo
+        if (data.email?.toLowerCase() === SUPER_EMAIL && data.password === SUPER_PWD) {
           const token = generateToken();
           await db.from('usuarios_roles').upsert({
             user_id:    '00000000-0000-0000-0000-000000000000',
