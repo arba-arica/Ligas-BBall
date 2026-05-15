@@ -39,7 +39,7 @@ exports.handler = async (event) => {
     const { action, adminPassword, turnstileToken, ...data } = body;
 
     // ── Acciones sin autenticación ───────────────────────────────────────────
-    const PUBLIC_ACTIONS = ['checkLogin', 'likeNoticia', 'getCiudades'];
+    const PUBLIC_ACTIONS = ['checkLogin', 'likeNoticia', 'getCiudades', 'crearSolicitud'];
 
     // ── Verificar Turnstile en login ─────────────────────────────────────────
     if (action === 'checkLogin' && TS_SECRET && turnstileToken) {
@@ -51,6 +51,9 @@ exports.handler = async (event) => {
     let session = null;
     if (!PUBLIC_ACTIONS.includes(action) && adminPassword) {
       session = await getSession(adminPassword);
+      if (!session && adminPassword === SUPER_PWD) {
+        session = { rol: 'super_admin', id_ciudad: null, id_equipo: null };
+      }
       if (!session) return ok({ success: false, message: 'Sesión inválida o expirada' });
     }
 
@@ -676,25 +679,29 @@ async function assertCiudadAccess(session, tabla, id) {
   if (!row || row.id_ciudad !== session.id_ciudad) throw new Error('Sin acceso a este recurso');
 }
 
-// Obtener sesión desde token
+// Obtener sesión desde token o password
 async function getSession(token) {
+  if (!token) return null;
   // Super admin: password directo
   if (token === SUPER_PWD) {
     return { rol: 'super_admin', id_ciudad: null, id_equipo: null };
   }
-  // JWT de Supabase Auth
-  try {
-    const { data: { user }, error } = await db.auth.getUser(token);
-    if (error || !user) return null;
-    const { data: rolData } = await db.from('usuarios_roles')
-      .select('rol, id_ciudad, id_equipo')
-      .eq('user_id', user.id)
-      .eq('activo', true)
-      .maybeSingle();
-    return rolData || null;
-  } catch {
-    return null;
+  // JWT de Supabase Auth (empieza con eyJ y tiene 2 puntos)
+  if (token.startsWith('eyJ') && token.split('.').length === 3) {
+    try {
+      const { data: { user }, error } = await db.auth.getUser(token);
+      if (error || !user) return null;
+      const { data: rolData } = await db.from('usuarios_roles')
+        .select('rol, id_ciudad, id_equipo')
+        .eq('user_id', user.id)
+        .eq('activo', true)
+        .maybeSingle();
+      return rolData || null;
+    } catch {
+      return null;
+    }
   }
+  return null;
 }
 
 // Verificar Cloudflare Turnstile
