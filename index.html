@@ -478,13 +478,17 @@ textarea.f-input{resize:none}
         <ellipse cx="35" cy="30" rx="10" ry="6" fill="rgba(255,255,255,0.15)" transform="rotate(-30 35 30)"/>
       </svg>
     </div>
-    <div style="font-size:11px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:8px">Básquetbol · Chile</div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:8px">Básquetbol</div>
     <div style="font-family:'Archivo Black',sans-serif;font-size:44px;letter-spacing:3px;color:#fff;line-height:1;margin-bottom:4px">LIGAS <span style="color:#f97316">BBALL</span></div>
     <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:28px">Plataforma multi-liga</div>
     <div style="width:48px;height:3px;background:#f97316;border-radius:2px;margin:0 auto 28px"></div>
     <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;text-align:left">Elige tu ciudad</div>
-    <div id="city-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-bottom:16px"></div>
-    <div style="font-size:10px;color:rgba(255,255,255,.2);letter-spacing:.5px;margin-top:8px">ligasbball.cl</div>
+    <div id="city-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-bottom:20px"></div>
+    <button onclick="openAdminFromSplash()" style="width:100%;padding:13px;border-radius:12px;background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);font-family:'Archivo',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;margin-bottom:16px" onmouseover="this.style.borderColor='rgba(249,115,22,0.5)';this.style.color='#f97316'" onmouseout="this.style.borderColor='rgba(255,255,255,0.2)';this.style.color='rgba(255,255,255,0.6)'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg>
+      Acceso Administrador
+    </button>
+    <div style="font-size:10px;color:rgba(255,255,255,.2);letter-spacing:.5px">ligasbball.cl</div>
   </div>
 </div>
 
@@ -1663,9 +1667,10 @@ async function doLogin() {
     const res = await fetch(NETLIFY_FN, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'checkLogin', email, password: pass }),
+      body: JSON.stringify({ action: 'checkLogin', email, password: pass, turnstileToken: _turnstileToken || null }),
     });
     const json = JSON.parse(await res.text());
+    _turnstileToken = null; // resetear token Turnstile
     if (json && json.success) {
       adminPass = pass;
       _currentUser = json.usuario;
@@ -2366,12 +2371,12 @@ var _selectedCity = null;
 // Ciudades demo — en producción vendrán de Supabase (tabla 'ciudades')
 // ─── DATOS DE EJEMPLO ─────────────────────────────────────────────────────
 // Reemplazar con fetch de tabla 'ciudades' en Supabase al conectar
-var CIUDADES_DEMO = [
-  { id:'arica',       nombre:'Arica',        region:'Arica y Parinacota', torneos:1, activo:true  },
-  { id:'iquique',     nombre:'Iquique',       region:'Tarapacá',           torneos:1, activo:true  },
-  { id:'antofagasta', nombre:'Antofagasta',   region:'Antofagasta',        torneos:2, activo:true  },
+var CIUDADES_DEMO = [ // Ciudades base — torneos se cargan desde Supabase
+  { id:'arica',       nombre:'Arica',        region:'Arica y Parinacota', torneos:0, activo:true  },
+  { id:'iquique',     nombre:'Iquique',       region:'Tarapacá',           torneos:0, activo:true  },
+  { id:'antofagasta', nombre:'Antofagasta',   region:'Antofagasta',        torneos:0, activo:true  },
   { id:'calama',      nombre:'Calama',        region:'Antofagasta',        torneos:0, activo:false },
-  { id:'copiapo',     nombre:'Copiapó',       region:'Atacama',            torneos:1, activo:true  },
+  { id:'copiapo',     nombre:'Copiapó',       region:'Atacama',            torneos:0, activo:true  },
   { id:'laserena',    nombre:'La Serena',     region:'Coquimbo',           torneos:0, activo:false },
 ];
 
@@ -2514,14 +2519,23 @@ var DEMO_DATA = {
 };
 
 
+
+function openAdminFromSplash() {
+  // Entrar a la app sin ciudad y abrir el panel admin
+  window.enterApp();
+  setTimeout(() => {
+    const adminBtn = document.getElementById('admin-btn');
+    if (adminBtn) adminBtn.click();
+  }, 300);
+}
 function renderCityGrid() {
   const grid = document.getElementById('city-grid');
   if (!grid) return;
   grid.innerHTML = CIUDADES_DEMO.map(c => `
     <div onclick="${c.torneos ? 'selectCity(\'' + c.id + '\')' : ''}"
          style="background:#1a1a1a;border:1px solid ${c.torneos ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.05)'};
-                border-radius:14px;padding:18px 14px;cursor:${c.torneos ? 'pointer' : 'default'};
-                text-align:left;transition:all .2s;opacity:${c.torneos ? '1' : '0.4'}">
+                border-radius:14px;padding:18px 14px;cursor:${c.activo ? 'pointer' : 'default'};
+                text-align:left;transition:all .2s;opacity:${c.activo ? '1' : '0.4'}">
       <div style="font-family:'Archivo Black',sans-serif;font-size:16px;color:#fff;letter-spacing:.5px">${c.nombre}</div>
       <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">${c.region}</div>
       <div style="font-size:10px;font-weight:700;color:${c.torneos ? '#f97316' : 'rgba(255,255,255,0.2)'};
@@ -3261,6 +3275,7 @@ window.createNoticia = async function() {
       }),
     });
     const json = JSON.parse(await res.text());
+    _turnstileToken = null; // resetear token Turnstile
     if (json && json.success) {
       toast('✓ Noticia publicada','ok');
       document.getElementById('nt-titulo').value = '';
@@ -3318,6 +3333,7 @@ async function createJugador() {
       }),
     });
     const json = JSON.parse(await res.text());
+    _turnstileToken = null; // resetear token Turnstile
     if (json && json.success) {
       toast(`✓ ${nombre} agregado al equipo`,'ok');
       document.getElementById('jug-nombre').value = '';
