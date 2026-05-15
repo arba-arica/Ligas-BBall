@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<!-- Turnstile activar cuando tengas site key: <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script> -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script>
@@ -467,9 +467,10 @@ textarea.f-input{resize:none}
 <div id="splash-screen" style="position:fixed;inset:0;z-index:999;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow:hidden">
   <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:rgba(255,255,255,.05);top:-100px;right:-100px"></div>
   <div style="position:absolute;width:300px;height:300px;border-radius:50%;background:rgba(249,115,22,.06);bottom:-50px;left:-80px"></div>
-  <div style="position:relative;z-index:1;text-align:center;max-width:360px;width:100%">
-    <div style="margin-bottom:24px;animation:float 3s ease-in-out infinite">
-      <svg width="90" height="90" viewBox="0 0 100 100" fill="none">
+  <!-- Vista principal splash -->
+  <div id="splash-main" style="position:relative;z-index:1;text-align:center;max-width:380px;width:100%">
+    <div style="margin-bottom:20px;animation:float 3s ease-in-out infinite">
+      <svg width="72" height="72" viewBox="0 0 100 100" fill="none">
         <circle cx="50" cy="50" r="46" fill="#f97316" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
         <path d="M50 4 C50 4 50 96 50 96" stroke="rgba(0,0,0,0.25)" stroke-width="2.5" fill="none"/>
         <path d="M4 50 C4 50 96 50 96 50" stroke="rgba(0,0,0,0.25)" stroke-width="2.5" fill="none"/>
@@ -478,17 +479,165 @@ textarea.f-input{resize:none}
         <ellipse cx="35" cy="30" rx="10" ry="6" fill="rgba(255,255,255,0.15)" transform="rotate(-30 35 30)"/>
       </svg>
     </div>
-    <div style="font-size:11px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:8px">Básquetbol</div>
-    <div style="font-family:'Archivo Black',sans-serif;font-size:44px;letter-spacing:3px;color:#fff;line-height:1;margin-bottom:4px">LIGAS <span style="color:#f97316">BBALL</span></div>
-    <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:28px">Plataforma multi-liga</div>
-    <div style="width:48px;height:3px;background:#f97316;border-radius:2px;margin:0 auto 28px"></div>
-    <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;text-align:left">Elige tu ciudad</div>
-    <div id="city-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-bottom:20px"></div>
-    <button onclick="openAdminFromSplash()" style="width:100%;padding:13px;border-radius:12px;background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);font-family:'Archivo',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;margin-bottom:16px" onmouseover="this.style.borderColor='rgba(249,115,22,0.5)';this.style.color='#f97316'" onmouseout="this.style.borderColor='rgba(255,255,255,0.2)';this.style.color='rgba(255,255,255,0.6)'">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg>
+    <div style="font-size:10px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,.35);text-transform:uppercase;margin-bottom:6px">Básquetbol</div>
+    <div style="font-family:'Archivo Black',sans-serif;font-size:40px;letter-spacing:3px;color:#fff;line-height:1;margin-bottom:6px">LIGAS <span style="color:#f97316">BBALL</span></div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:20px">Plataforma multi-liga · Chile</div>
+    <div style="width:40px;height:3px;background:#f97316;border-radius:2px;margin:0 auto 24px"></div>
+
+    <!-- Mensaje motivacional -->
+    <div style="background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.2);border-radius:16px;padding:20px 18px;margin-bottom:20px;text-align:left">
+      <div style="font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff;line-height:1.3;margin-bottom:8px">¿Organizas básquetbol en tu ciudad?</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.6;margin-bottom:14px">Publica tu liga, gestiona tu torneo y lleva el control de equipos, jugadores y resultados — todo desde el celular.</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.6)"><span style="color:#f97316;font-size:14px">✓</span> Tablas de posiciones automáticas</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.6)"><span style="color:#f97316;font-size:14px">✓</span> Registro de jugadores y equipos</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.6)"><span style="color:#f97316;font-size:14px">✓</span> Resultados y estadísticas en tiempo real</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.6)"><span style="color:#f97316;font-size:14px">✓</span> Acceso público para hinchas y familias</div>
+      </div>
+    </div>
+
+    <!-- CTA principal -->
+    <button onclick="showSplashForm()" style="width:100%;padding:15px;border-radius:14px;background:#f97316;border:none;color:#fff;font-family:'Archivo Black',sans-serif;font-size:16px;letter-spacing:1px;cursor:pointer;box-shadow:0 8px 24px rgba(249,115,22,.35);margin-bottom:10px;transition:opacity .2s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+      PUBLICAR MI LIGA →
+    </button>
+
+    <!-- Ligas activas (dinámico desde Supabase) -->
+    <div id="city-grid-wrap" style="display:none;margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;text-align:left">Ligas activas</div>
+      <div id="city-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%"></div>
+    </div>
+
+    <!-- Acceso admin -->
+    <button onclick="openAdminFromSplash()" style="width:100%;padding:11px;border-radius:12px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);font-family:'Archivo',sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;margin-bottom:14px" onmouseover="this.style.borderColor='rgba(249,115,22,0.4)';this.style.color='rgba(249,115,22,0.8)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)';this.style.color='rgba(255,255,255,0.4)'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg>
       Acceso Administrador
     </button>
-    <div style="font-size:10px;color:rgba(255,255,255,.2);letter-spacing:.5px">ligasbball.cl</div>
+    <div style="font-size:10px;color:rgba(255,255,255,.15);letter-spacing:.5px">ligasbball.cl</div>
+  </div>
+
+  <!-- Formulario solicitud -->
+  <div id="splash-form" style="display:none;position:relative;z-index:1;width:100%;max-width:400px;max-height:90vh;overflow-y:auto">
+    <div style="background:#141414;border:1px solid rgba(249,115,22,0.2);border-radius:20px;padding:28px 22px">
+
+      <!-- Header formulario -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+        <button onclick="hideSplashForm()" style="background:rgba(255,255,255,.08);border:none;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,.6);flex-shrink:0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </button>
+        <div>
+          <div style="font-family:'Archivo Black',sans-serif;font-size:17px;color:#fff">Inscribe tu liga</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px">Quedarás pendiente de aprobación</div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:rgba(255,255,255,.06);margin:16px 0"></div>
+
+      <!-- SECCIÓN 1: Datos personales -->
+      <div style="font-size:10px;font-weight:700;color:#f97316;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px">1 · Tus datos</div>
+      <form id="solicitud-form" onsubmit="enviarSolicitud();return false;" autocomplete="on">
+        <div style="margin-bottom:10px">
+          <label style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">Nombre completo</label>
+          <input id="sol-nombre" class="f-input" type="text" placeholder="Tu nombre" required autocomplete="name">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+          <div>
+            <label style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">Email</label>
+            <input id="sol-email" class="f-input" type="email" placeholder="tu@email.com" required autocomplete="email">
+          </div>
+          <div>
+            <label style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">Teléfono</label>
+            <input id="sol-telefono" class="f-input" type="tel" placeholder="+56 9..." autocomplete="tel">
+          </div>
+        </div>
+
+        <div style="height:1px;background:rgba(255,255,255,.06);margin:16px 0"></div>
+
+        <!-- SECCIÓN 2: Liga -->
+        <div style="font-size:10px;font-weight:700;color:#f97316;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px">2 · Tu liga</div>
+        <div style="margin-bottom:10px">
+          <label style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">Ciudad</label>
+          <input id="sol-ciudad" class="f-input" type="text" placeholder="Nombre de tu ciudad" required>
+        </div>
+        <div style="margin-bottom:10px">
+          <label style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">Nombre de la liga o torneo</label>
+          <input id="sol-liga" class="f-input" type="text" placeholder="Ej: Liga Apertura 2026" required>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+          <div>
+            <label style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">Categoría</label>
+            <select id="sol-categoria" class="f-input f-select">
+              <option value="">Elegir...</option>
+              <option>Masculino A</option>
+              <option>Masculino B</option>
+              <option>Femenino</option>
+              <option>Mixto</option>
+              <option>Masters +35</option>
+              <option>Juvenil</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">N° equipos est.</label>
+            <input id="sol-equipos" class="f-input" type="number" placeholder="Ej: 8" min="2" max="32">
+          </div>
+        </div>
+        <div style="margin-bottom:10px">
+          <label style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">Temporada estimada</label>
+          <input id="sol-temporada" class="f-input" type="text" placeholder="Ej: Apertura 2026 · Mayo–Agosto">
+        </div>
+
+        <div style="height:1px;background:rgba(255,255,255,.06);margin:16px 0"></div>
+
+        <!-- SECCIÓN 3: Plan -->
+        <div style="font-size:10px;font-weight:700;color:#f97316;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px">3 · Plan</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px" id="plan-options">
+          <div class="plan-opt" data-plan="basico" onclick="selectPlan(this)" style="background:#1a1a1a;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .2s">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div style="font-family:'Archivo Black',sans-serif;font-size:14px;color:#fff">Básico</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">1 liga · hasta 8 equipos</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-family:'Archivo Black',sans-serif;font-size:16px;color:#f97316">$9.990</div>
+                <div style="font-size:10px;color:rgba(255,255,255,.3)">/mes</div>
+              </div>
+            </div>
+          </div>
+          <div class="plan-opt" data-plan="pro" onclick="selectPlan(this)" style="background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.4);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .2s;position:relative">
+            <div style="position:absolute;top:-8px;right:12px;background:#f97316;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:100px;letter-spacing:.5px">MÁS POPULAR</div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div style="font-family:'Archivo Black',sans-serif;font-size:14px;color:#fff">Pro</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">Ligas ilimitadas · equipos ilimitados</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-family:'Archivo Black',sans-serif;font-size:16px;color:#f97316">$19.990</div>
+                <div style="font-size:10px;color:rgba(255,255,255,.3)">/mes</div>
+              </div>
+            </div>
+          </div>
+          <div class="plan-opt" data-plan="anual" onclick="selectPlan(this)" style="background:#1a1a1a;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .2s">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div style="font-family:'Archivo Black',sans-serif;font-size:14px;color:#fff">Anual Pro</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">Todo incluido · 2 meses gratis</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-family:'Archivo Black',sans-serif;font-size:16px;color:#f97316">$199.990</div>
+                <div style="font-size:10px;color:rgba(255,255,255,.3)">/año</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <input type="hidden" id="sol-plan" value="">
+
+        <div id="sol-error" style="display:none;color:#ef4444;font-size:12px;margin-bottom:10px;padding:8px 12px;background:rgba(239,68,68,.1);border-radius:8px;border:1px solid rgba(239,68,68,.2)"></div>
+
+        <button type="submit" id="sol-btn" style="width:100%;padding:14px;border-radius:12px;background:#f97316;border:none;color:#fff;font-family:'Archivo Black',sans-serif;font-size:15px;letter-spacing:.5px;cursor:pointer;transition:opacity .2s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+          ENVIAR SOLICITUD
+        </button>
+        <div style="font-size:11px;color:rgba(255,255,255,.25);text-align:center;margin-top:10px">Tu solicitud quedará pendiente hasta que el administrador la apruebe</div>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -722,34 +871,18 @@ textarea.f-input{resize:none}
         <div style="font-family:'Archivo Black',sans-serif;font-size:20px;letter-spacing:2px;color:var(--primary)">LIGAS <span style="color:#f97316">BBALL</span></div>
         <div style="font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:1px;text-transform:uppercase">Panel administrativo</div>
       </div>
+      <form id="login-form" onsubmit="doLogin();return false;" autocomplete="on">
       <label class="f-label">Email</label>
-      <input class="f-input" type="email" id="admin-email" placeholder="correo@ejemplo.com" autocomplete="email">
+      <input class="f-input" type="email" id="admin-email" placeholder="arba.arica@gmail.com" autocomplete="email">
       <label class="f-label">Contraseña</label>
       <input class="f-input" type="password" id="admin-pass" placeholder="••••••••" autocomplete="current-password">
+      </form>
       <div class="login-error" id="login-error">Email o contraseña incorrectos</div>
       
-      <!-- Cloudflare Turnstile -->
-      <div id="cf-turnstile-wrap" style="margin-bottom:14px">
-        <div class="cf-turnstile"
-             data-sitekey="TURNSTILE_SITE_KEY_AQUI"
-             data-callback="onTurnstileVerified"
-             data-theme="auto"
-             data-size="flexible">
-        </div>
-        <!-- Fallback visual mientras carga Turnstile -->
-        <div id="ts-fallback" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between">
-          <div style="display:flex;align-items:center;gap:10px">
-            <div id="ts-dot" style="width:22px;height:22px;border-radius:50%;background:var(--primary-light);border:2px solid rgba(249,115,22,0.4);display:flex;align-items:center;justify-content:center">
-              <svg id="ts-dot-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <span style="font-size:12px;color:var(--muted);font-weight:600" id="ts-msg">Verificando que no eres un robot...</span>
-          </div>
-          <div style="text-align:center">
-            <div style="font-size:18px;color:#f6821f">☁</div>
-            <div style="font-size:8px;color:var(--muted2);font-weight:700;letter-spacing:.5px">Turnstile</div>
-          </div>
-        </div>
-      </div>
+      <!-- Turnstile: activar cuando tengas site key de Cloudflare -->
+      <!-- <div id="cf-turnstile-wrap" style="margin-bottom:14px">
+        <div class="cf-turnstile" data-sitekey="TU_SITE_KEY" data-callback="onTurnstileVerified" data-theme="auto" data-size="flexible"></div>
+      </div> -->
 <button class="btn-primary" id="do-login" style="margin-top:4px">
         <span id="login-btn-txt">Ingresar</span>
       </button>
@@ -1200,6 +1333,7 @@ async function callGAS(action, data) {
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
   renderCityGrid();
+  loadCiudadesActivas();
   setupNav();
   setupAdmin();
 });
@@ -2518,6 +2652,129 @@ var DEMO_DATA = {
   },
 };
 
+
+
+// ─── SPLASH FORM ──────────────────────────────────────────────────────────────
+var _planSeleccionado = '';
+
+function showSplashForm() {
+  document.getElementById('splash-main').style.display = 'none';
+  document.getElementById('splash-form').style.display = 'block';
+}
+
+function hideSplashForm() {
+  document.getElementById('splash-form').style.display = 'none';
+  document.getElementById('splash-main').style.display = 'block';
+}
+
+function selectPlan(el) {
+  document.querySelectorAll('.plan-opt').forEach(p => {
+    p.style.borderColor = 'rgba(255,255,255,.1)';
+    p.style.background = '#1a1a1a';
+  });
+  el.style.borderColor = 'rgba(249,115,22,0.6)';
+  el.style.background = 'rgba(249,115,22,0.12)';
+  _planSeleccionado = el.getAttribute('data-plan');
+  document.getElementById('sol-plan').value = _planSeleccionado;
+}
+
+async function enviarSolicitud() {
+  const nombre   = document.getElementById('sol-nombre').value.trim();
+  const email    = document.getElementById('sol-email').value.trim();
+  const telefono = document.getElementById('sol-telefono').value.trim();
+  const ciudad   = document.getElementById('sol-ciudad').value.trim();
+  const liga     = document.getElementById('sol-liga').value.trim();
+  const categoria= document.getElementById('sol-categoria').value;
+  const equipos  = document.getElementById('sol-equipos').value;
+  const temporada= document.getElementById('sol-temporada').value.trim();
+  const plan     = document.getElementById('sol-plan').value;
+  const errEl    = document.getElementById('sol-error');
+
+  if (!nombre || !email || !ciudad || !liga) {
+    errEl.textContent = 'Completa los campos obligatorios (nombre, email, ciudad y nombre de liga)';
+    errEl.style.display = 'block'; return;
+  }
+  if (!plan) {
+    errEl.textContent = 'Elige un plan para continuar';
+    errEl.style.display = 'block'; return;
+  }
+  errEl.style.display = 'none';
+
+  const btn = document.getElementById('sol-btn');
+  btn.textContent = 'Enviando...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(NETLIFY_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'crearSolicitud',
+        nombre, email, telefono, ciudad, liga,
+        categoria, equipos: parseInt(equipos)||0,
+        temporada, plan,
+      }),
+    });
+    const json = await res.json();
+    if (json && json.success) {
+      // Mostrar confirmación
+      document.getElementById('solicitud-form').innerHTML = `
+        <div style="text-align:center;padding:20px 0">
+          <div style="width:60px;height:60px;background:rgba(34,197,94,0.15);border:2px solid rgba(34,197,94,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div style="font-family:'Archivo Black',sans-serif;font-size:20px;color:#fff;margin-bottom:8px">¡Solicitud enviada!</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.6;margin-bottom:20px">
+            Revisaremos tu solicitud y te contactaremos a <strong style="color:#f97316">${email}</strong> para confirmar el acceso.
+          </div>
+          <button onclick="hideSplashForm()" style="padding:12px 28px;border-radius:12px;background:#f97316;border:none;color:#fff;font-family:'Archivo Black',sans-serif;font-size:14px;cursor:pointer">
+            Volver al inicio
+          </button>
+        </div>`;
+    } else {
+      errEl.textContent = json.message || 'Error al enviar. Intenta nuevamente.';
+      errEl.style.display = 'block';
+      btn.textContent = 'ENVIAR SOLICITUD';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    errEl.textContent = 'Error de conexión. Intenta nuevamente.';
+    errEl.style.display = 'block';
+    btn.textContent = 'ENVIAR SOLICITUD';
+    btn.disabled = false;
+  }
+}
+
+// Cargar ciudades con ligas activas desde Supabase
+async function loadCiudadesActivas() {
+  try {
+    const { data, error } = await _supa.from('ciudades')
+      .select('id, nombre, slug')
+      .eq('activo', true)
+      .order('orden');
+    if (error || !data || !data.length) return;
+    // Verificar cuáles tienen ligas
+    const { data: ligas } = await _supa.from('ligas')
+      .select('id_ciudad')
+      .eq('EstadoTorneo', 'Activo');
+    const conLiga = new Set((ligas||[]).map(l => l.id_ciudad));
+    const activas = data.filter(c => conLiga.has(c.id));
+    if (!activas.length) return;
+    const grid = document.getElementById('city-grid');
+    const wrap = document.getElementById('city-grid-wrap');
+    if (!grid || !wrap) return;
+    grid.innerHTML = activas.map(c => `
+      <div onclick="selectCity('${c.slug}')"
+           style="background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 12px;cursor:pointer;text-align:left;transition:all .2s"
+           onmouseover="this.style.borderColor='rgba(249,115,22,0.4)'"
+           onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:15px;color:#fff">${c.nombre}</div>
+        <div style="font-size:10px;font-weight:700;color:#f97316;margin-top:6px;letter-spacing:.5px;text-transform:uppercase">● Ver ligas</div>
+      </div>
+    `).join('');
+    wrap.style.display = 'block';
+  } catch(e) {}
+}
 
 
 function openAdminFromSplash() {
