@@ -63,6 +63,63 @@ exports.handler = async (event) => {
 
     switch (action) {
 
+
+      // ══════════════════════════════════════════════════════════════════════
+      //  SOLICITUDES
+      // ══════════════════════════════════════════════════════════════════════
+
+      case 'crearSolicitud': {
+        // Público — sin auth
+        if (!data.nombre || !data.email || !data.ciudad || !data.liga) {
+          result = { success: false, message: 'Faltan campos obligatorios' }; break;
+        }
+        const { error } = await db.from('solicitudes').insert({
+          nombre:    data.nombre,
+          email:     data.email.toLowerCase(),
+          telefono:  data.telefono || null,
+          ciudad:    data.ciudad,
+          liga:      data.liga,
+          categoria: data.categoria || null,
+          equipos:   data.equipos || 0,
+          temporada: data.temporada || null,
+          plan:      data.plan || null,
+          estado:    'pendiente',
+        });
+        result = error ? fail(error) : { success: true, message: 'Solicitud enviada correctamente' };
+        break;
+      }
+
+      case 'listarSolicitudes': {
+        requireRole(session, ['super_admin']);
+        const { data: sols, error } = await db.from('solicitudes')
+          .select('*')
+          .order('created_at', { ascending: false });
+        result = error ? fail(error) : { success: true, data: sols || [] };
+        break;
+      }
+
+      case 'aprobarSolicitud': {
+        requireRole(session, ['super_admin']);
+        const { error } = await db.from('solicitudes').update({
+          estado:      'aprobada',
+          notas_admin: data.notas || null,
+        }).eq('id', data.id);
+        // Aquí se podría crear el usuario sub_admin automáticamente
+        // Por ahora solo marca como aprobada y el super_admin crea el usuario manualmente
+        result = error ? fail(error) : { success: true, message: 'Solicitud aprobada' };
+        break;
+      }
+
+      case 'rechazarSolicitud': {
+        requireRole(session, ['super_admin']);
+        const { error } = await db.from('solicitudes').update({
+          estado:      'rechazada',
+          notas_admin: data.notas || null,
+        }).eq('id', data.id);
+        result = error ? fail(error) : { success: true, message: 'Solicitud rechazada' };
+        break;
+      }
+
       // ══════════════════════════════════════════════════════════════════════
       //  AUTH
       // ══════════════════════════════════════════════════════════════════════
