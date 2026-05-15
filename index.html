@@ -535,6 +535,20 @@ textarea.f-input{resize:none}
       <!-- SECCIÓN 1: Datos personales -->
       <div style="font-size:10px;font-weight:700;color:#f97316;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px">1 · Tus datos</div>
       <form id="solicitud-form" onsubmit="enviarSolicitud();return false;" autocomplete="on">
+        <div style="margin-bottom:12px">
+          <label style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:8px">Tipo de solicitud</label>
+          <div style="display:flex;gap:8px">
+            <div id="tipo-subadmin" onclick="selTipo('sub_admin')" style="flex:1;background:rgba(249,115,22,0.15);border:1.5px solid rgba(249,115,22,0.5);border-radius:10px;padding:10px;cursor:pointer;text-align:center">
+              <div style="font-family:'Archivo Black',sans-serif;font-size:13px;color:#f97316">Organizador</div>
+              <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:3px">Creo y gestiono la liga</div>
+            </div>
+            <div id="tipo-delegado" onclick="selTipo('delegado')" style="flex:1;background:#1a1a1a;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px;cursor:pointer;text-align:center">
+              <div style="font-family:'Archivo Black',sans-serif;font-size:13px;color:rgba(255,255,255,.7)">Delegado</div>
+              <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:3px">Represento un club/equipo</div>
+            </div>
+          </div>
+          <input type="hidden" id="sol-tipo" value="sub_admin">
+        </div>
         <div style="margin-bottom:10px">
           <label style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">Nombre completo</label>
           <input id="sol-nombre" class="f-input" type="text" placeholder="Tu nombre" required autocomplete="name">
@@ -970,6 +984,17 @@ textarea.f-input{resize:none}
           </div>
         </div>
         <div style="flex:1"></div>
+        <!-- SOLICITUDES — solo super_admin -->
+        <button class="adm-icon-btn" data-sec="solicitudes" id="btn-solicitudes" onclick="admToggleSection('solicitudes',this)" style="display:none">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+          Solicitudes
+          <span id="solicitudes-badge" style="display:none;background:#f97316;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:100px;margin-left:auto">0</span>
+          <svg class="chv" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="adm-submenu-inner" id="sub-solicitudes">
+          <button class="adm-sub-item" onclick="admSetTab('tab-solicitudes',this)">Pendientes</button>
+          <button class="adm-sub-item" onclick="admSetTab('tab-solicitudes-hist',this)">Historial</button>
+        </div>
         <!-- USUARIOS -->
         <button class="adm-icon-btn" data-sec="usuarios" onclick="admToggleSection('usuarios',this)">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -1162,6 +1187,23 @@ textarea.f-input{resize:none}
             <div id="stats-ranking-list"></div>
           </div>
 
+          <!-- SOLICITUDES PENDIENTES -->
+          <div id="tab-solicitudes" class="adm-panel-new" style="display:none">
+            <div id="solicitudes-list">
+              <div style="text-align:center;padding:40px 20px;color:var(--muted)">
+                <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 12px;display:block;opacity:.4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+                <div style="font-size:13px">Cargando solicitudes...</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- HISTORIAL SOLICITUDES -->
+          <div id="tab-solicitudes-hist" class="adm-panel-new" style="display:none">
+            <div id="solicitudes-hist-list">
+              <div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:13px">Cargando historial...</div>
+            </div>
+          </div>
+
           <div id="tab-usuarios-adm" class="adm-panel-new" style="display:none">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
               <div style="font-family:'Archivo Black',sans-serif;font-size:15px">Usuarios del sistema</div>
@@ -1348,7 +1390,15 @@ async function loadData(cityId) {
   try {
     D = await fetchAllData(cityId || (_selectedCity && _selectedCity.id));
     renderAll();
-    if (adminPass) renderAdmin();
+    if (adminPass) {
+    renderAdmin();
+    // Mostrar solicitudes solo para super_admin
+    if (window._userRol === 'super_admin') {
+      const btnSol = document.getElementById('btn-solicitudes');
+      if (btnSol) btnSol.style.display = 'flex';
+      loadSolicitudes();
+    }
+  }
   } catch(e) {
     toast('Error al cargar datos: ' + e.message, 'err');
   }
@@ -2114,6 +2164,132 @@ function populateEqForLiga(ligaId, sel1, sel2) {
   [sel1, sel2].forEach(id => { if(id){ const el=document.getElementById(id); if(el) el.innerHTML=opts; }});
 }
 
+
+// ─── SOLICITUDES ──────────────────────────────────────────────────────────────
+async function loadSolicitudes() {
+  try {
+    const res = await fetch(NETLIFY_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'listarSolicitudes', adminPassword }),
+    });
+    const json = await res.json();
+    if (!json.success) return;
+    const sols = json.data || [];
+    const pendientes = sols.filter(s => s.estado === 'pendiente');
+    const historial  = sols.filter(s => s.estado !== 'pendiente');
+
+    // Badge en sidebar
+    const badge = document.getElementById('solicitudes-badge');
+    if (badge) {
+      badge.textContent = pendientes.length;
+      badge.style.display = pendientes.length ? 'inline' : 'none';
+    }
+
+    renderSolicitudesList(pendientes, 'solicitudes-list', true);
+    renderSolicitudesList(historial,  'solicitudes-hist-list', false);
+  } catch(e) {
+    console.error('loadSolicitudes:', e);
+  }
+}
+
+function renderSolicitudesList(sols, containerId, esPendiente) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (!sols.length) {
+    el.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:13px">${esPendiente ? 'No hay solicitudes pendientes' : 'Sin historial aún'}</div>`;
+    return;
+  }
+  const PLANES = { basico:'Básico · $4.990/mes', pro:'Pro · $9.990/mes', anual:'Anual Pro · $59.990/año' };
+  const ESTADOS = {
+    pendiente: { label:'Pendiente', color:'#f97316' },
+    aprobada:  { label:'Aprobada',  color:'#22c55e' },
+    rechazada: { label:'Rechazada', color:'#ef4444' },
+  };
+  el.innerHTML = sols.map(s => {
+    const st = ESTADOS[s.estado] || ESTADOS.pendiente;
+    const ini = (s.nombre||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const fecha = s.created_at ? new Date(s.created_at).toLocaleDateString('es-CL',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+    return `
+    <div style="background:var(--card);border:1px solid var(--border);border-left:3px solid ${st.color};border-radius:12px;padding:14px 16px;margin-bottom:10px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:38px;height:38px;border-radius:50%;background:rgba(249,115,22,.15);border:1.5px solid rgba(249,115,22,.3);display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:13px;color:#f97316;flex-shrink:0">${ini}</div>
+          <div>
+            <div style="font-family:'Archivo Black',sans-serif;font-size:14px;color:var(--text)">${s.nombre}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">${s.email}${s.telefono?' · '+s.telefono:''}</div>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:10px;font-weight:700;color:${st.color};text-transform:uppercase;letter-spacing:.5px">${st.label}</div>
+          <div style="font-size:10px;color:var(--muted2);margin-top:2px">${fecha}</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div style="background:var(--surface);border-radius:8px;padding:8px 10px">
+          <div style="font-size:10px;color:var(--muted2);margin-bottom:2px">Ciudad</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${s.ciudad}</div>
+        </div>
+        <div style="background:var(--surface);border-radius:8px;padding:8px 10px">
+          <div style="font-size:10px;color:var(--muted2);margin-bottom:2px">Liga</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${s.liga}</div>
+        </div>
+        <div style="background:var(--surface);border-radius:8px;padding:8px 10px">
+          <div style="font-size:10px;color:var(--muted2);margin-bottom:2px">Categoría</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${s.categoria||'—'}</div>
+        </div>
+        <div style="background:var(--surface);border-radius:8px;padding:8px 10px">
+          <div style="font-size:10px;color:var(--muted2);margin-bottom:2px">Equipos est.</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${s.equipos||'—'}</div>
+        </div>
+        <div style="background:var(--surface);border-radius:8px;padding:8px 10px">
+          <div style="font-size:10px;color:var(--muted2);margin-bottom:2px">Temporada</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${s.temporada||'—'}</div>
+        </div>
+        <div style="background:var(--surface);border-radius:8px;padding:8px 10px">
+          <div style="font-size:10px;color:var(--muted2);margin-bottom:2px">Plan</div>
+          <div style="font-size:13px;font-weight:600;color:#f97316">${PLANES[s.plan]||s.plan||'—'}</div>
+        </div>
+      </div>
+      ${esPendiente ? `
+      <div style="display:flex;gap:8px">
+        <button onclick="accionSolicitud('${s.id}','aprobarSolicitud',this)" style="flex:1;padding:9px;border-radius:8px;background:#f97316;border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.3px">
+          ✓ APROBAR
+        </button>
+        <button onclick="accionSolicitud('${s.id}','rechazarSolicitud',this)" style="flex:1;padding:9px;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer">
+          ✕ RECHAZAR
+        </button>
+        <button onclick="window.open('mailto:${s.email}')" style="padding:9px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:16px;cursor:pointer" title="Contactar por email">✉</button>
+      </div>` : `
+      <div style="font-size:11px;color:var(--muted2)">${s.notas_admin ? 'Nota: '+s.notas_admin : ''}</div>`}
+    </div>`;
+  }).join('');
+}
+
+async function accionSolicitud(id, action, btn) {
+  const card = btn.closest('div[style*="border-left"]');
+  btn.disabled = true;
+  btn.textContent = '...';
+  try {
+    const res = await fetch(NETLIFY_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, id, adminPassword }),
+    });
+    const json = await res.json();
+    if (json.success) {
+      toast(action === 'aprobarSolicitud' ? '✓ Solicitud aprobada' : 'Solicitud rechazada', 'ok');
+      await loadSolicitudes();
+    } else {
+      toast(json.message || 'Error', 'err');
+      btn.disabled = false;
+    }
+  } catch(e) {
+    toast('Error de conexión', 'err');
+    btn.disabled = false;
+  }
+}
+
 function renderAdmin() {
   populateAdminSelects();
   // Poblar selects específicos
@@ -2390,7 +2566,15 @@ async function gasCall(action, data) {
     if (res && res.success) {
       await refreshData();
       renderAll();
-      if (adminPass) renderAdmin();
+      if (adminPass) {
+    renderAdmin();
+    // Mostrar solicitudes solo para super_admin
+    if (window._userRol === 'super_admin') {
+      const btnSol = document.getElementById('btn-solicitudes');
+      if (btnSol) btnSol.style.display = 'flex';
+      loadSolicitudes();
+    }
+  }
       toast(res.message || 'Guardado ✓', 'ok');
     } else {
       toast((res && res.message) || 'Error', 'err');
@@ -2667,6 +2851,27 @@ function hideSplashForm() {
   document.getElementById('splash-main').style.display = 'block';
 }
 
+function selTipo(tipo) {
+  document.getElementById('sol-tipo').value = tipo;
+  const sa = document.getElementById('tipo-subadmin');
+  const de = document.getElementById('tipo-delegado');
+  if (tipo === 'sub_admin') {
+    sa.style.background = 'rgba(249,115,22,0.15)';
+    sa.style.border = '1.5px solid rgba(249,115,22,0.5)';
+    sa.querySelector('div').style.color = '#f97316';
+    de.style.background = '#1a1a1a';
+    de.style.border = '1px solid rgba(255,255,255,.1)';
+    de.querySelector('div').style.color = 'rgba(255,255,255,.7)';
+  } else {
+    de.style.background = 'rgba(249,115,22,0.15)';
+    de.style.border = '1.5px solid rgba(249,115,22,0.5)';
+    de.querySelector('div').style.color = '#f97316';
+    sa.style.background = '#1a1a1a';
+    sa.style.border = '1px solid rgba(255,255,255,.1)';
+    sa.querySelector('div').style.color = 'rgba(255,255,255,.7)';
+  }
+}
+
 function selectPlan(el) {
   document.querySelectorAll('.plan-opt').forEach(p => {
     p.style.borderColor = 'rgba(255,255,255,.1)';
@@ -2705,6 +2910,7 @@ async function enviarSolicitud() {
   btn.disabled = true;
 
   try {
+    const tipo = document.getElementById('sol-tipo')?.value || 'sub_admin';
     const res = await fetch(NETLIFY_FN, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -2712,7 +2918,7 @@ async function enviarSolicitud() {
         action: 'crearSolicitud',
         nombre, email, telefono, ciudad, liga,
         categoria, equipos: parseInt(equipos)||0,
-        temporada, plan,
+        temporada, plan, tipo,
       }),
     });
     const json = await res.json();
@@ -4426,7 +4632,15 @@ gasCall = async function(action, data) {
     if (res && res.success) {
       await refreshData();
       renderAll();
-      if (adminPass) renderAdmin();
+      if (adminPass) {
+    renderAdmin();
+    // Mostrar solicitudes solo para super_admin
+    if (window._userRol === 'super_admin') {
+      const btnSol = document.getElementById('btn-solicitudes');
+      if (btnSol) btnSol.style.display = 'flex';
+      loadSolicitudes();
+    }
+  }
       closeConfirmV3();
     } else {
       toast(res?.message || 'Error', 'err');
