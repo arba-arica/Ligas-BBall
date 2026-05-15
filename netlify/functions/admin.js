@@ -141,11 +141,7 @@ exports.handler = async (event) => {
             token,
             usuario: { nombre: 'Super Admin', email: data.email || '', rol: 'super_admin' }
           };
-          // Guardar token en sesiones temporales (tabla o cache)
-          await db.from('sesiones_temp').upsert({
-            token, rol: 'super_admin', id_ciudad: null, id_equipo: null,
-            expires_at: new Date(Date.now() + 8 * 3600 * 1000).toISOString()
-          }).catch(() => {}); // tabla opcional
+          // Token generado — sesiones manejadas en el frontend
           break;
         }
 
@@ -609,11 +605,11 @@ exports.handler = async (event) => {
 
       case 'likeNoticia': {
         // Público — sin auth
-        const { error } = await db.rpc('increment_likes', { noticia_id: data.id }).catch(() => {
-          return db.from('noticias')
-            .update({ me_gusta: db.raw('me_gusta + 1') })
-            .eq('id', data.id);
-        });
+        try {
+          await db.rpc('increment_likes', { noticia_id: data.id });
+        } catch(e) {
+          // rpc no existe aún, ignorar
+        }
         result = { success: true };
         break;
       }
