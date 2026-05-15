@@ -87,6 +87,7 @@ exports.handler = async (event) => {
           temporada: data.temporada || null,
           plan:      data.plan || null,
           estado:    'pendiente',
+          tipo:      data.tipo || 'sub_admin',
         });
         result = error ? fail(error) : { success: true, message: 'Solicitud enviada correctamente' };
         break;
@@ -109,7 +110,14 @@ exports.handler = async (event) => {
         }).eq('id', data.id);
         // Aquí se podría crear el usuario sub_admin automáticamente
         // Por ahora solo marca como aprobada y el super_admin crea el usuario manualmente
-        result = error ? fail(error) : { success: true, message: 'Solicitud aprobada' };
+        if (!error) {
+          // Al aprobar: registrar fecha de inicio de suscripción
+          await db.from('solicitudes').update({
+            suscripcion_inicio: new Date().toISOString(),
+            suscripcion_estado: 'activa',
+          }).eq('id', data.id).catch(()=>{});
+        }
+        result = error ? fail(error) : { success: true, message: 'Solicitud aprobada — crea el usuario sub-admin en Configuración' };
         break;
       }
 
@@ -120,6 +128,38 @@ exports.handler = async (event) => {
           notas_admin: data.notas || null,
         }).eq('id', data.id);
         result = error ? fail(error) : { success: true, message: 'Solicitud rechazada' };
+        break;
+      }
+
+      // ══════════════════════════════════════════════════════════════════════
+      //  SUSCRIPCIONES (paso 10)
+      // ══════════════════════════════════════════════════════════════════════
+
+      case 'renovarSuscripcion': {
+        requireRole(session, ['super_admin']);
+        const { error } = await db.from('solicitudes').update({
+          suscripcion_estado: 'activa',
+          suscripcion_inicio: new Date().toISOString(),
+        }).eq('id', data.id);
+        result = error ? fail(error) : { success: true, message: 'Suscripción renovada' };
+        break;
+      }
+
+      case 'cancelarSuscripcion': {
+        requireRole(session, ['super_admin']);
+        const { error } = await db.from('solicitudes').update({
+          suscripcion_estado: 'cancelada',
+        }).eq('id', data.id);
+        result = error ? fail(error) : { success: true, message: 'Suscripción cancelada' };
+        break;
+      }
+
+      case 'expirarSuscripcion': {
+        requireRole(session, ['super_admin']);
+        const { error } = await db.from('solicitudes').update({
+          suscripcion_estado: 'expirada',
+        }).eq('id', data.id);
+        result = error ? fail(error) : { success: true, message: 'Suscripción marcada como expirada' };
         break;
       }
 
