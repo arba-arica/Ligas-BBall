@@ -21,7 +21,7 @@ const db = createClient(
 );
 
 const SUPER_PWD   = process.env.SUPER_ADMIN_PASSWORD || 'BballAdmin2026*';
-const SUPER_EMAIL = process.env.SUPER_ADMIN_EMAIL    || 'arba.arica@gmail.com';
+const SUPER_EMAIL = process.env.SUPER_ADMIN_EMAIL    || 'n.moraganavarro@gmail.com';
 const TS_SECRET  = process.env.TURNSTILE_SECRET_KEY || '';
 
 const HEADERS = {
