@@ -976,12 +976,14 @@ textarea.f-input{resize:none}
           <!-- PANELS — se muestran según la navegación -->
           <div id="tab-ligas" class="adm-panel-new">
             <div style="font-family:'Archivo Black',sans-serif;font-size:15px;margin-bottom:14px">Ligas del torneo</div>
+            <label class="f-label">Ciudad</label>
+            <input class="f-input" id="lg-ciudad" type="text" placeholder="Ej: Santiago, Arica, Medellín...">
             <label class="f-label">Nombre de fantasía</label>
             <input class="f-input" id="lg-nombre" type="text" placeholder="Ej: Apertura Varones 2026">
             <div class="f-row">
               <div>
                 <label class="f-label">Categoría</label>
-                <select class="f-select" id="lg-cat"><option>Varones</option><option>Damas</option><option>Mixto</option></select>
+                <input class="f-input" id="lg-cat" type="text" placeholder="Ej: Masculino, Femenino, Mixto...">
               </div>
               <div>
                 <label class="f-label">Estado</label>
@@ -2147,7 +2149,7 @@ async function loadSubAdmins() {
     const res = await fetch(NETLIFY_FN, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'listarSubAdmins', adminPassword }),
+      body: JSON.stringify({ action: 'listarSubAdmins', adminPassword: adminPass }),
     });
     const json = await res.json();
     if (!json.success) { el.innerHTML = '<div style="padding:20px;color:var(--muted)">Error al cargar</div>'; return; }
@@ -2215,7 +2217,7 @@ async function accionSubAdmin(userId, accion, btn) {
     const res = await fetch(NETLIFY_FN, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'toggleSubAdmin', userId, activo, adminPassword }),
+      body: JSON.stringify({ action: 'toggleSubAdmin', userId, activo, adminPassword: adminPass }),
     });
     const json = await res.json();
     if (json.success) {
@@ -2237,7 +2239,7 @@ async function loadSolicitudes() {
     const res = await fetch(NETLIFY_FN, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'listarSolicitudes', adminPassword }),
+      body: JSON.stringify({ action: 'listarSolicitudes', adminPassword: adminPass }),
     });
     const json = await res.json();
     if (!json.success) return;
@@ -2340,7 +2342,7 @@ async function accionSolicitud(id, action, btn) {
     const res = await fetch(NETLIFY_FN, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, id, adminPassword }),
+      body: JSON.stringify({ action, id, adminPassword: adminPass }),
     });
     const json = await res.json();
     if (json.success) {
@@ -4694,7 +4696,15 @@ window.createLiga = function() {
   const nombre = document.getElementById('lg-nombre').value.trim();
   if (!nombre) return toast('El nombre es obligatorio','err');
   showConfirmV3(`¿Crear liga "${nombre}"?`,'',async()=>{
-    await _origGasCall('createLeague',{nombreDeporte:'Básquetbol',categoria:document.getElementById('lg-cat').value,nombreFantasia:nombre,estadoTorneo:document.getElementById('lg-estado').value});
+    const ciudad = document.getElementById('lg-ciudad')?.value.trim() || '';
+    await _origGasCall('createLeague',{
+      nombreDeporte:'Básquetbol',
+      categoria: document.getElementById('lg-cat').value,
+      nombreFantasia: nombre,
+      estadoTorneo: document.getElementById('lg-estado').value,
+      ciudadNombre: ciudad,
+    });
+    if (document.getElementById('lg-ciudad')) document.getElementById('lg-ciudad').value='';
     document.getElementById('lg-nombre').value='';
   },'ok');
 };
