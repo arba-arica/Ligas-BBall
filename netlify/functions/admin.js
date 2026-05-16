@@ -428,20 +428,42 @@ exports.handler = async (event) => {
 
       case 'createLeague': {
         requireRole(session, ['super_admin', 'sub_admin']);
-        const ciudadId = session.rol === 'sub_admin' ? session.id_ciudad : data.id_ciudad;
+        let ciudadId = session.rol === 'sub_admin' ? session.id_ciudad : data.id_ciudad;
+
+        // Si viene ciudadNombre (texto libre), buscar o crear la ciudad
+        if (!ciudadId && data.ciudadNombre) {
+          const slug = slugify(data.ciudadNombre);
+          // Buscar ciudad existente
+          const { data: ciudadExist } = await db.from('ciudades')
+            .select('id').eq('slug', slug).maybeSingle();
+          if (ciudadExist) {
+            ciudadId = ciudadExist.id;
+          } else {
+            // Crear ciudad nueva automáticamente
+            const { data: nuevaCiudad, error: errCiudad } = await db.from('ciudades').insert({
+              nombre: data.ciudadNombre.trim(),
+              slug:   slug,
+              activo: true,
+              orden:  99,
+            }).select('id').single();
+            if (errCiudad) { result = fail(errCiudad); break; }
+            ciudadId = nuevaCiudad.id;
+          }
+        }
+
         const { error } = await db.from('ligas').insert({
-          id_ciudad:          ciudadId,
-          id_temporada:       data.id_temporada || null,
-          NombreFantasia:     data.nombreFantasia,
-          NombreDeporte:      data.nombreDeporte || 'Básquetbol',
-          Categoria:          data.categoria || 'Masculino A',
-          EstadoTorneo:       data.estadoTorneo || 'Activo',
-          PuntosVictoria:     data.puntosVictoria || 2,
-          PuntosEmpate:       data.puntosEmpate || 0,
-          PuntosDerrota:      data.puntosDerrota || 1,
-          NroFechas:          data.nroFechas || 0,
+          id_ciudad:      ciudadId || null,
+          id_temporada:   data.id_temporada || null,
+          NombreFantasia: data.nombreFantasia,
+          NombreDeporte:  data.nombreDeporte || 'Básquetbol',
+          Categoria:      data.categoria || '',
+          EstadoTorneo:   data.estadoTorneo || 'Activo',
+          PuntosVictoria: data.puntosVictoria || 2,
+          PuntosEmpate:   data.puntosEmpate || 0,
+          PuntosDerrota:  data.puntosDerrota || 1,
+          NroFechas:      data.nroFechas || 0,
         });
-        result = error ? fail(error) : { success: true, message: 'Liga creada' };
+        result = error ? fail(error) : { success: true, message: `Liga creada${data.ciudadNombre ? ' en ' + data.ciudadNombre : ''}` };
         break;
       }
 
