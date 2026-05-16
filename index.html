@@ -599,50 +599,27 @@ textarea.f-input{resize:none}
           <input id="sol-temporada" class="f-input" type="text" placeholder="Ej: Apertura 2026 · Mayo–Agosto">
         </div>
 
+        <!-- Info de precios — sin selector, el super admin asigna -->
         <div style="height:1px;background:rgba(255,255,255,.06);margin:16px 0"></div>
-
-        <!-- SECCIÓN 3: Plan -->
-        <div style="font-size:10px;font-weight:700;color:#f97316;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px">3 · Plan</div>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px" id="plan-options">
-          <div class="plan-opt" data-plan="basico" onclick="selectPlan(this)" style="background:#1a1a1a;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .2s">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div>
-                <div style="font-family:'Archivo Black',sans-serif;font-size:14px;color:#fff">Básico</div>
-                <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">1 liga · hasta 8 equipos</div>
-              </div>
-              <div style="text-align:right">
-                <div style="font-family:'Archivo Black',sans-serif;font-size:16px;color:#f97316">$4.990</div>
-                <div style="font-size:10px;color:rgba(255,255,255,.3)">/mes</div>
-              </div>
+        <div style="background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.15);border-radius:12px;padding:14px 16px;margin-bottom:16px">
+          <div style="font-size:10px;font-weight:700;color:#f97316;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Precios por ligas activas</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;justify-content:space-between;font-size:12px">
+              <span style="color:rgba(255,255,255,.6)">1 liga activa</span>
+              <span style="font-weight:700;color:#fff">$4.990/mes</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px">
+              <span style="color:rgba(255,255,255,.6)">2 a 4 ligas activas</span>
+              <span style="font-weight:700;color:#fff">$9.990/mes</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px">
+              <span style="color:rgba(255,255,255,.6)">5 o más ligas activas</span>
+              <span style="font-weight:700;color:#fff">$14.990/mes</span>
             </div>
           </div>
-          <div class="plan-opt" data-plan="pro" onclick="selectPlan(this)" style="background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.4);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .2s;position:relative">
-            <div style="position:absolute;top:-8px;right:12px;background:#f97316;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:100px;letter-spacing:.5px">MÁS POPULAR</div>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div>
-                <div style="font-family:'Archivo Black',sans-serif;font-size:14px;color:#fff">Pro</div>
-                <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">Ligas ilimitadas · equipos ilimitados</div>
-              </div>
-              <div style="text-align:right">
-                <div style="font-family:'Archivo Black',sans-serif;font-size:16px;color:#f97316">$9.990</div>
-                <div style="font-size:10px;color:rgba(255,255,255,.3)">/mes</div>
-              </div>
-            </div>
-          </div>
-          <div class="plan-opt" data-plan="anual" onclick="selectPlan(this)" style="background:#1a1a1a;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .2s">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div>
-                <div style="font-family:'Archivo Black',sans-serif;font-size:14px;color:#fff">Anual Pro</div>
-                <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">Todo incluido · 2 meses gratis</div>
-              </div>
-              <div style="text-align:right">
-                <div style="font-family:'Archivo Black',sans-serif;font-size:16px;color:#f97316">$59.990</div>
-                <div style="font-size:10px;color:rgba(255,255,255,.3)">/año</div>
-              </div>
-            </div>
-          </div>
+          <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:10px">El administrador te contactará para coordinar el pago y activar tu acceso.</div>
         </div>
-        <input type="hidden" id="sol-plan" value="">
+        <input type="hidden" id="sol-plan" value="por_ligas">
 
         <div id="sol-error" style="display:none;color:#ef4444;font-size:12px;margin-bottom:10px;padding:8px 12px;background:rgba(239,68,68,.1);border-radius:8px;border:1px solid rgba(239,68,68,.2)"></div>
 
@@ -1002,6 +979,7 @@ textarea.f-input{resize:none}
           <svg class="chv" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="adm-submenu-inner" id="sub-usuarios">
+          <button class="adm-sub-item" id="btn-subadmins-tab" onclick="admSetTab('tab-subadmins',this);loadSubAdmins()">Organizadores</button>
           <button class="adm-sub-item" onclick="admSetTab('tab-usuarios-adm',this)">Usuarios</button>
         </div>
       </div>
@@ -1204,6 +1182,13 @@ textarea.f-input{resize:none}
             </div>
           </div>
 
+          <!-- PANEL SUB-ADMINS (solo super_admin) -->
+          <div id="tab-subadmins" class="adm-panel-new" style="display:none">
+            <div id="subadmins-list">
+              <div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:13px">Cargando organizadores...</div>
+            </div>
+          </div>
+
           <div id="tab-usuarios-adm" class="adm-panel-new" style="display:none">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
               <div style="font-family:'Archivo Black',sans-serif;font-size:15px">Usuarios del sistema</div>
@@ -1393,7 +1378,8 @@ async function loadData(cityId) {
     if (adminPass) {
     renderAdmin();
     // Mostrar solicitudes solo para super_admin
-    if (window._userRol === 'super_admin') {
+    const esSuper = window._userRol === 'super_admin' || !window._userRol;
+    if (esSuper) {
       const btnSol = document.getElementById('btn-solicitudes');
       if (btnSol) btnSol.style.display = 'flex';
       loadSolicitudes();
@@ -2165,6 +2151,107 @@ function populateEqForLiga(ligaId, sel1, sel2) {
 }
 
 
+
+// ─── SUB-ADMINS / ORGANIZADORES ───────────────────────────────────────────────
+function calcPrecio(nLigas) {
+  if (nLigas <= 0) return { precio: 0, label: 'Sin ligas activas' };
+  if (nLigas === 1) return { precio: 4990, label: '$4.990/mes' };
+  if (nLigas <= 4) return { precio: 9990, label: '$9.990/mes' };
+  return { precio: 14990, label: '$14.990/mes' };
+}
+
+async function loadSubAdmins() {
+  const el = document.getElementById('subadmins-list');
+  if (!el) return;
+  el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);font-size:13px">Cargando...</div>';
+  try {
+    const res = await fetch(NETLIFY_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'listarSubAdmins', adminPassword }),
+    });
+    const json = await res.json();
+    if (!json.success) { el.innerHTML = '<div style="padding:20px;color:var(--muted)">Error al cargar</div>'; return; }
+    const admins = json.data || [];
+    if (!admins.length) {
+      el.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:13px">No hay organizadores aún.<br>Aprueba solicitudes para crear el primero.</div>';
+      return;
+    }
+    el.innerHTML = admins.map(a => {
+      const nLigas = a.ligas_activas || 0;
+      const { precio, label } = calcPrecio(nLigas);
+      const estadoColor = a.activo ? '#22c55e' : '#ef4444';
+      const ini = (a.nombre||a.email||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      return `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:38px;height:38px;border-radius:50%;background:rgba(249,115,22,.15);border:1.5px solid rgba(249,115,22,.3);display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:13px;color:#f97316;flex-shrink:0">${ini}</div>
+            <div>
+              <div style="font-family:'Archivo Black',sans-serif;font-size:14px;color:var(--text)">${a.nombre||'Sin nombre'}</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">${a.email} · ${a.ciudad_nombre||'Sin ciudad'}</div>
+            </div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:10px;font-weight:700;color:${estadoColor};text-transform:uppercase;letter-spacing:.5px">${a.activo?'Activo':'Suspendido'}</div>
+            <div style="font-family:'Archivo Black',sans-serif;font-size:15px;color:#f97316;margin-top:2px">${label}</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+          <div style="background:var(--surface);border-radius:8px;padding:8px 10px;text-align:center">
+            <div style="font-family:'Archivo Black',sans-serif;font-size:22px;color:#f97316">${nLigas}</div>
+            <div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px">Ligas activas</div>
+          </div>
+          <div style="background:var(--surface);border-radius:8px;padding:8px 10px;text-align:center">
+            <div style="font-family:'Archivo Black',sans-serif;font-size:22px;color:var(--text)">${a.ligas_finalizadas||0}</div>
+            <div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px">Finalizadas</div>
+          </div>
+          <div style="background:var(--surface);border-radius:8px;padding:8px 10px;text-align:center">
+            <div style="font-family:'Archivo Black',sans-serif;font-size:22px;color:var(--text)">${a.equipos_total||0}</div>
+            <div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px">Equipos</div>
+          </div>
+        </div>
+        <!-- Botones suscripción -->
+        <div style="display:flex;gap:8px">
+          <button onclick="accionSubAdmin('${a.user_id}','activar',this)" style="flex:1;padding:8px;border-radius:8px;background:${a.activo?'var(--surface)':'#f97316'};border:1px solid ${a.activo?'var(--border)':'#f97316'};color:${a.activo?'var(--muted)':'#fff'};font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.3px">
+            ✓ ACTIVAR
+          </button>
+          <button onclick="accionSubAdmin('${a.user_id}','suspender',this)" style="flex:1;padding:8px;border-radius:8px;background:${!a.activo?'var(--surface)':'var(--surface)'};border:1px solid var(--border);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer">
+            ⏸ SUSPENDER
+          </button>
+          <button onclick="window.open('mailto:${a.email}')" style="padding:8px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:14px;cursor:pointer" title="Contactar">✉</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="padding:20px;color:var(--muted)">Error: ' + e.message + '</div>';
+  }
+}
+
+async function accionSubAdmin(userId, accion, btn) {
+  btn.disabled = true;
+  btn.textContent = '...';
+  const activo = accion === 'activar';
+  try {
+    const res = await fetch(NETLIFY_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'toggleSubAdmin', userId, activo, adminPassword }),
+    });
+    const json = await res.json();
+    if (json.success) {
+      toast(activo ? '✓ Organizador activado' : 'Organizador suspendido', 'ok');
+      await loadSubAdmins();
+    } else {
+      toast(json.message || 'Error', 'err');
+      btn.disabled = false;
+    }
+  } catch(e) {
+    toast('Error de conexión', 'err');
+    btn.disabled = false;
+  }
+}
+
 // ─── SOLICITUDES ──────────────────────────────────────────────────────────────
 async function loadSolicitudes() {
   try {
@@ -2569,7 +2656,8 @@ async function gasCall(action, data) {
       if (adminPass) {
     renderAdmin();
     // Mostrar solicitudes solo para super_admin
-    if (window._userRol === 'super_admin') {
+    const esSuper = window._userRol === 'super_admin' || !window._userRol;
+    if (esSuper) {
       const btnSol = document.getElementById('btn-solicitudes');
       if (btnSol) btnSol.style.display = 'flex';
       loadSolicitudes();
@@ -2897,10 +2985,6 @@ async function enviarSolicitud() {
 
   if (!nombre || !email || !ciudad || !liga) {
     errEl.textContent = 'Completa los campos obligatorios (nombre, email, ciudad y nombre de liga)';
-    errEl.style.display = 'block'; return;
-  }
-  if (!plan) {
-    errEl.textContent = 'Elige un plan para continuar';
     errEl.style.display = 'block'; return;
   }
   errEl.style.display = 'none';
@@ -4635,7 +4719,8 @@ gasCall = async function(action, data) {
       if (adminPass) {
     renderAdmin();
     // Mostrar solicitudes solo para super_admin
-    if (window._userRol === 'super_admin') {
+    const esSuper = window._userRol === 'super_admin' || !window._userRol;
+    if (esSuper) {
       const btnSol = document.getElementById('btn-solicitudes');
       if (btnSol) btnSol.style.display = 'flex';
       loadSolicitudes();
