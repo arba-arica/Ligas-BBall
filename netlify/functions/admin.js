@@ -85,7 +85,7 @@ exports.handler = async (event) => {
           categoria: data.categoria || null,
           equipos:   data.equipos || 0,
           temporada: data.temporada || null,
-          plan:      data.plan || null,
+          plan:      'por_ligas',
           estado:    'pendiente',
           tipo:      data.tipo || 'sub_admin',
         });
@@ -112,10 +112,12 @@ exports.handler = async (event) => {
         // Por ahora solo marca como aprobada y el super_admin crea el usuario manualmente
         if (!error) {
           // Al aprobar: registrar fecha de inicio de suscripción
-          await db.from('solicitudes').update({
-            suscripcion_inicio: new Date().toISOString(),
-            suscripcion_estado: 'activa',
-          }).eq('id', data.id).catch(()=>{});
+          try {
+            await db.from('solicitudes').update({
+              suscripcion_inicio: new Date().toISOString(),
+              suscripcion_estado: 'activa',
+            }).eq('id', data.id);
+          } catch(e) {}
         }
         result = error ? fail(error) : { success: true, message: 'Solicitud aprobada — crea el usuario sub-admin en Configuración' };
         break;
@@ -221,6 +223,87 @@ exports.handler = async (event) => {
             equipo_nombre: rolData.equipos?.NombreEquipo || '',
           }
         };
+        break;
+      }
+
+
+      // ══════════════════════════════════════════════════════════════════════
+      //  SUB-ADMINS / ORGANIZADORES
+      // ══════════════════════════════════════════════════════════════════════
+
+      case 'listarSubAdmins': {
+        requireRole(session, ['super_admin']);
+        // Obtener todos los sub-admins con sus ligas
+        const { data: roles, error } = await db
+          .from('usuarios_roles')
+          .select('user_id, rol, activo, id_ciudad, ciudades(nombre)')
+          .eq('rol', 'sub_admin')
+          .order('created_at', { ascending: false });
+        if (error) { result = fail(error); break; }
+
+        // Para cada sub-admin contar sus ligas activas y finalizadas
+        const admins = await Promise.all((roles||[]).map(async r => {
+          // Obtener info del usuario desde Auth
+          let userData = { user: null };
+          try { userData = (await db.auth.admin.getUserById(r.user_id)).data; } catch(e) {}
+          const user = userData?.user;
+
+          // Contar ligas activas
+          const { count: activas } = await db.from('ligas')
+            .select('id', { count: 'exact', head: true })
+            .eq('id_ciudad', r.id_ciudad)
+            .eq('EstadoTorneo', 'Activo');
+
+          // Contar ligas finalizadas
+          const { count: finalizadas } = await db.from('ligas')
+            .select('id', { count: 'exact', head: true })
+            .eq('id_ciudad', r.id_ciudad)
+            .eq('EstadoTorneo', 'Finalizado');
+
+          // Contar equipos totales
+          const { data: ligaIds } = await db.from('ligas')
+            .select('id')
+            .eq('id_ciudad', r.id_ciudad);
+          let equiposTotal = 0;
+          if (ligaIds?.length) {
+            const { count } = await db.from('equipos')
+              .select('id', { count: 'exact', head: true })
+              .in('ID_Liga', ligaIds.map(l => l.id));
+            equiposTotal = count || 0;
+          }
+
+          // Calcular precio según ligas activas
+          const nLigas = activas || 0;
+          let precio = 0;
+          if (nLigas === 1) precio = 4990;
+          else if (nLigas <= 4) precio = 9990;
+          else if (nLigas >= 5) precio = 14990;
+
+          return {
+            user_id:           r.user_id,
+            nombre:            user?.user_metadata?.nombre || '',
+            email:             user?.email || '',
+            activo:            r.activo,
+            ciudad_nombre:     r.ciudades?.nombre || '',
+            id_ciudad:         r.id_ciudad,
+            ligas_activas:     nLigas,
+            ligas_finalizadas: finalizadas || 0,
+            equipos_total:     equiposTotal,
+            precio_mes:        precio,
+          };
+        }));
+
+        result = { success: true, data: admins };
+        break;
+      }
+
+      case 'toggleSubAdmin': {
+        requireRole(session, ['super_admin']);
+        const { error } = await db.from('usuarios_roles')
+          .update({ activo: data.activo })
+          .eq('user_id', data.userId)
+          .eq('rol', 'sub_admin');
+        result = error ? fail(error) : { success: true, message: data.activo ? 'Organizador activado' : 'Organizador suspendido' };
         break;
       }
 
