@@ -535,20 +535,7 @@ textarea.f-input{resize:none}
       <!-- SECCIÓN 1: Datos personales -->
       <div style="font-size:10px;font-weight:700;color:#f97316;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px">1 · Tus datos</div>
       <form id="solicitud-form" onsubmit="enviarSolicitud();return false;" autocomplete="on">
-        <div style="margin-bottom:12px">
-          <label style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:8px">Tipo de solicitud</label>
-          <div style="display:flex;gap:8px">
-            <div id="tipo-subadmin" onclick="selTipo('sub_admin')" style="flex:1;background:rgba(249,115,22,0.15);border:1.5px solid rgba(249,115,22,0.5);border-radius:10px;padding:10px;cursor:pointer;text-align:center">
-              <div style="font-family:'Archivo Black',sans-serif;font-size:13px;color:#f97316">Organizador</div>
-              <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:3px">Creo y gestiono la liga</div>
-            </div>
-            <div id="tipo-delegado" onclick="selTipo('delegado')" style="flex:1;background:#1a1a1a;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px;cursor:pointer;text-align:center">
-              <div style="font-family:'Archivo Black',sans-serif;font-size:13px;color:rgba(255,255,255,.7)">Delegado</div>
-              <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:3px">Represento un club/equipo</div>
-            </div>
-          </div>
-          <input type="hidden" id="sol-tipo" value="sub_admin">
-        </div>
+        <input type="hidden" id="sol-tipo" value="sub_admin">
         <div style="margin-bottom:10px">
           <label style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">Nombre completo</label>
           <input id="sol-nombre" class="f-input" type="text" placeholder="Tu nombre" required autocomplete="name">
@@ -579,15 +566,7 @@ textarea.f-input{resize:none}
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
           <div>
             <label style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">Categoría</label>
-            <select id="sol-categoria" class="f-input f-select">
-              <option value="">Elegir...</option>
-              <option>Masculino A</option>
-              <option>Masculino B</option>
-              <option>Femenino</option>
-              <option>Mixto</option>
-              <option>Masters +35</option>
-              <option>Juvenil</option>
-            </select>
+            <input id="sol-categoria" class="f-input" type="text" placeholder="Ej: Masculino, Femenino, Mixto...">
           </div>
           <div>
             <label style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">N° equipos est.</label>
@@ -2939,37 +2918,9 @@ function hideSplashForm() {
   document.getElementById('splash-main').style.display = 'block';
 }
 
-function selTipo(tipo) {
-  document.getElementById('sol-tipo').value = tipo;
-  const sa = document.getElementById('tipo-subadmin');
-  const de = document.getElementById('tipo-delegado');
-  if (tipo === 'sub_admin') {
-    sa.style.background = 'rgba(249,115,22,0.15)';
-    sa.style.border = '1.5px solid rgba(249,115,22,0.5)';
-    sa.querySelector('div').style.color = '#f97316';
-    de.style.background = '#1a1a1a';
-    de.style.border = '1px solid rgba(255,255,255,.1)';
-    de.querySelector('div').style.color = 'rgba(255,255,255,.7)';
-  } else {
-    de.style.background = 'rgba(249,115,22,0.15)';
-    de.style.border = '1.5px solid rgba(249,115,22,0.5)';
-    de.querySelector('div').style.color = '#f97316';
-    sa.style.background = '#1a1a1a';
-    sa.style.border = '1px solid rgba(255,255,255,.1)';
-    sa.querySelector('div').style.color = 'rgba(255,255,255,.7)';
-  }
-}
+// selTipo eliminado — todos son Organizadores
 
-function selectPlan(el) {
-  document.querySelectorAll('.plan-opt').forEach(p => {
-    p.style.borderColor = 'rgba(255,255,255,.1)';
-    p.style.background = '#1a1a1a';
-  });
-  el.style.borderColor = 'rgba(249,115,22,0.6)';
-  el.style.background = 'rgba(249,115,22,0.12)';
-  _planSeleccionado = el.getAttribute('data-plan');
-  document.getElementById('sol-plan').value = _planSeleccionado;
-}
+function selectPlan(el) { /* sin uso */ }
 
 async function enviarSolicitud() {
   const nombre   = document.getElementById('sol-nombre').value.trim();
@@ -2980,7 +2931,7 @@ async function enviarSolicitud() {
   const categoria= document.getElementById('sol-categoria').value;
   const equipos  = document.getElementById('sol-equipos').value;
   const temporada= document.getElementById('sol-temporada').value.trim();
-  const plan     = document.getElementById('sol-plan').value;
+  const plan     = 'por_ligas';
   const errEl    = document.getElementById('sol-error');
 
   if (!nombre || !email || !ciudad || !liga) {
@@ -3970,7 +3921,7 @@ async function renderUsuariosAdm() {
   const el = document.getElementById('usuarios-list');
   if (!el) return;
   try {
-    const { data } = await _supa.from('usuarios').select('*').order('created_at');
+    const { data } = await _supa.from('usuarios_roles').select('*, ciudades(nombre)').order('created_at');
     const users = data || [];
     if (!users.length) { el.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:8px 0">Sin usuarios registrados.</div>'; return; }
     el.innerHTML = `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:0 14px">`
