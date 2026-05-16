@@ -86,8 +86,10 @@ exports.handler = async (event) => {
           equipos:   data.equipos || 0,
           temporada: data.temporada || null,
           plan:      'por_ligas',
-          estado:    'pendiente',
-          tipo:      data.tipo || 'sub_admin',
+          estado:      'pendiente',
+          tipo:        data.tipo || 'sub_admin',
+          cant_ligas:  data.cantLigas || 1,
+          ligas_detalle: JSON.stringify(data.ligasDetalle || []),
         });
         result = error ? fail(error) : { success: true, message: 'Solicitud enviada correctamente' };
         break;
@@ -104,22 +106,26 @@ exports.handler = async (event) => {
 
       case 'aprobarSolicitud': {
         requireRole(session, ['super_admin']);
+        // Generar ID único tipo BBALL-0001
+        const { count: aprobadas } = await db.from('solicitudes')
+          .select('id', { count: 'exact', head: true })
+          .eq('estado', 'aprobada');
+        const seqNum = String((aprobadas || 0) + 1).padStart(4, '0');
+        const orgId  = 'BBALL-' + seqNum;
+
         const { error } = await db.from('solicitudes').update({
-          estado:      'aprobada',
-          notas_admin: data.notas || null,
+          estado:             'aprobada',
+          notas_admin:        data.notas || null,
+          org_id:             orgId,
+          suscripcion_inicio: new Date().toISOString(),
+          suscripcion_estado: 'activa',
         }).eq('id', data.id);
-        // Aquí se podría crear el usuario sub_admin automáticamente
-        // Por ahora solo marca como aprobada y el super_admin crea el usuario manualmente
-        if (!error) {
-          // Al aprobar: registrar fecha de inicio de suscripción
-          try {
-            await db.from('solicitudes').update({
-              suscripcion_inicio: new Date().toISOString(),
-              suscripcion_estado: 'activa',
-            }).eq('id', data.id);
-          } catch(e) {}
-        }
-        result = error ? fail(error) : { success: true, message: 'Solicitud aprobada — crea el usuario sub-admin en Configuración' };
+
+        result = error ? fail(error) : {
+          success: true,
+          org_id:  orgId,
+          message: 'Solicitud aprobada — ID: ' + orgId,
+        };
         break;
       }
 
@@ -462,6 +468,8 @@ exports.handler = async (event) => {
           PuntosEmpate:   data.puntosEmpate || 0,
           PuntosDerrota:  data.puntosDerrota || 1,
           NroFechas:      data.nroFechas || 0,
+          org_id:         data.orgId || null,
+          nro_equipos:    data.nroEquipos || null,
         });
         result = error ? fail(error) : { success: true, message: `Liga creada${data.ciudadNombre ? ' en ' + data.ciudadNombre : ''}` };
         break;
