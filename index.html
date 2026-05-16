@@ -2157,7 +2157,7 @@ function showOrgId(orgId) {
   // Crear modal temporal con el ID del organizador
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px';
-  overlay.innerHTML = \`
+  overlay.innerHTML = `
     <div style="background:#141414;border:1px solid rgba(249,115,22,0.3);border-radius:20px;padding:28px 24px;max-width:320px;width:100%;text-align:center">
       <div style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">ID del Organizador</div>
       <div style="font-family:'Archivo Black',sans-serif;font-size:32px;color:#f97316;letter-spacing:4px;margin-bottom:4px">\${orgId}</div>
@@ -2174,7 +2174,7 @@ function showOrgId(orgId) {
         Cerrar
       </button>
     </div>
-  \`;
+  `;
   document.body.appendChild(overlay);
 }
 
@@ -3008,7 +3008,7 @@ function renderLigasDetalle(n) {
   for (let i = 1; i <= total; i++) {
     const div = document.createElement('div');
     div.style.cssText = 'background:#111;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 14px';
-    div.innerHTML = \`
+    div.innerHTML = `
       <div style="font-size:10px;font-weight:700;color:#f97316;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Liga \${i}</div>
       <div style="margin-bottom:8px">
         <label style="font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:4px">Nombre</label>
@@ -3024,7 +3024,7 @@ function renderLigasDetalle(n) {
           <input id="sol-lg-eq-\${i}" class="f-input" type="number" placeholder="Ej: 8" min="2" max="32" style="margin-bottom:0">
         </div>
       </div>
-    \`;
+    `;
     cont.appendChild(div);
   }
   // Agregar ref precio
