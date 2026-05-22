@@ -1,102 +1,172 @@
 /**
- * netlify/functions/admin.js — LIGAS BBALL v1.0
+ * netlify/functions/admin.js — ACTIVA PLAY v2.0
  *
- * Variables de entorno en Netlify:
+ * Variables de entorno Netlify:
  *   SUPABASE_URL         = https://bhnmdkfvfpvvddqalazl.supabase.co
  *   SUPABASE_SERVICE_KEY = eyJ...service_role...
- *   SUPER_ADMIN_PASSWORD = (elige una contraseña segura)
- *   TURNSTILE_SECRET_KEY = (desde Cloudflare Turnstile dashboard)
+ *   ADMIN_EMAIL          = n.moraganavarro@gmail.com
+ *   ADMIN_PASSWORD       = BballAdmin2026*
  *
  * Roles:
- *   super_admin → acceso total
- *   sub_admin   → solo su ciudad (id_ciudad)
- *   delegado    → solo su equipo (id_equipo)
+ *   admin       → control total (usa ADMIN_EMAIL + ADMIN_PASSWORD)
+ *   organizador → gestiona su torneo (usa email + clave generada, org_id)
  */
 
 const { createClient } = require('@supabase/supabase-js');
+const crypto = require('crypto');
 
 const db = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY  // service role: bypasea RLS
+  process.env.SUPABASE_SERVICE_KEY
 );
 
-const SUPER_PWD   = process.env.SUPER_ADMIN_PASSWORD || 'BballAdmin2026*';
-const SUPER_EMAIL = process.env.SUPER_ADMIN_EMAIL    || 'n.moraganavarro@gmail.com';
-const TS_SECRET  = process.env.TURNSTILE_SECRET_KEY || '';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL    || 'n.moraganavarro@gmail.com';
+const ADMIN_PASS  = process.env.ADMIN_PASSWORD || 'BballAdmin2026*';
 
-const HEADERS = {
+const CORS = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-// ─── HANDLER PRINCIPAL ────────────────────────────────────────────────────────
+const ok   = b => ({ statusCode: 200, headers: CORS, body: JSON.stringify(b) });
+const fail = e => ({ success: false, message: e?.message || e?.details || String(e) });
+
+function hashPass(pass) {
+  return crypto.createHash('sha256').update(pass + 'activaplay2026').digest('hex');
+}
+
+function generateOrgId(n) {
+  return 'AP-' + String(n).padStart(4, '0');
+}
+
+function generatePassword() {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let pass = '';
+  for (let i = 0; i < 8; i++) pass += chars[Math.floor(Math.random() * chars.length)];
+  return pass;
+}
+
+// ─── SESIÓN ───────────────────────────────────────────────────────────────────
+async function getSession(token) {
+  if (!token) return null;
+  // Admin principal
+  if (token === ADMIN_PASS) return { rol: 'admin', org_id: null };
+  // Organizador: token = "org_id:password_hash"
+  if (token.startsWith('AP-')) {
+    const [orgId, passHash] = token.split(':');
+    const { data } = await db.from('organizadores')
+      .select('org_id, nombre, email, activo')
+      .eq('org_id', orgId)
+      .eq('password_hash', passHash)
+      .eq('activo', true)
+      .maybeSingle();
+    if (data) return { rol: 'organizador', org_id: data.org_id, nombre: data.nombre, email: data.email };
+  }
+  return null;
+}
+
+function requireAdmin(session) {
+  if (!session || session.rol !== 'admin') throw new Error('Acceso solo para administradores');
+}
+
+function requireOrg(session) {
+  if (!session || (session.rol !== 'admin' && session.rol !== 'organizador')) {
+    throw new Error('Acceso no autorizado');
+  }
+}
+
+// ─── HANDLER ──────────────────────────────────────────────────────────────────
 exports.handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') return res(200, '');
+  if (event.httpMethod === 'OPTIONS') return ok('');
 
   try {
     const body = JSON.parse(event.body || '{}');
-    const { action, adminPassword, turnstileToken, ...data } = body;
+    const { action, token, ...data } = body;
 
-    // ── Acciones sin autenticación ───────────────────────────────────────────
-    const PUBLIC_ACTIONS = ['checkLogin', 'likeNoticia', 'getCiudades', 'crearSolicitud'];
+    // Acciones públicas (sin token)
+    const PUBLIC = ['checkLogin', 'crearSolicitud', 'getTorneos', 'getCategoriasPublic',
+                    'getEquiposPublic', 'getPartidosPublic', 'getNoticiasPublic',
+                    'getStandings', 'getSancionesPublic'];
 
-    // ── Verificar Turnstile en login ─────────────────────────────────────────
-    if (action === 'checkLogin' && TS_SECRET && turnstileToken) {
-      const valid = await verifyTurnstile(turnstileToken);
-      if (!valid) return ok({ success: false, message: 'Verificación Turnstile fallida' });
-    }
-
-    // ── Obtener sesión del usuario ───────────────────────────────────────────
     let session = null;
-    if (!PUBLIC_ACTIONS.includes(action) && adminPassword) {
-      session = await getSession(adminPassword);
-      if (!session && adminPassword === SUPER_PWD) {
-        session = { rol: 'super_admin', id_ciudad: null, id_equipo: null };
-      }
-      if (!session) return ok({ success: false, message: 'Sesión inválida o expirada' });
-    }
-
-    // ── Verificar que la acción sea permitida para el rol ────────────────────
-    if (!PUBLIC_ACTIONS.includes(action) && !session) {
-      return ok({ success: false, message: 'No autorizado' });
+    if (!PUBLIC.includes(action)) {
+      session = await getSession(token);
+      if (!session) return ok({ success: false, message: 'Sesión inválida. Inicia sesión nuevamente.' });
     }
 
     let result;
 
     switch (action) {
 
+      // ══ AUTH ════════════════════════════════════════════════════════════════
 
-      // ══════════════════════════════════════════════════════════════════════
-      //  SOLICITUDES
-      // ══════════════════════════════════════════════════════════════════════
+      case 'checkLogin': {
+        // Admin
+        if (data.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() && data.password === ADMIN_PASS) {
+          result = {
+            success: true,
+            rol: 'admin',
+            token: ADMIN_PASS,
+            nombre: 'Administrador',
+            email: ADMIN_EMAIL,
+          };
+          break;
+        }
+        // Organizador: busca por email + password
+        const passHash = hashPass(data.password);
+        const { data: org, error } = await db.from('organizadores')
+          .select('org_id, nombre, email, ciudad, activo, password_hash')
+          .eq('email', data.email?.toLowerCase())
+          .maybeSingle();
+
+        if (error || !org) {
+          result = { success: false, message: 'Email o contraseña incorrectos' };
+          break;
+        }
+        if (!org.activo) {
+          result = { success: false, message: 'Tu cuenta está suspendida. Contacta al administrador.' };
+          break;
+        }
+        if (org.password_hash !== passHash) {
+          result = { success: false, message: 'Email o contraseña incorrectos' };
+          break;
+        }
+        result = {
+          success: true,
+          rol: 'organizador',
+          token: org.org_id + ':' + passHash,
+          org_id: org.org_id,
+          nombre: org.nombre,
+          email: org.email,
+          ciudad: org.ciudad,
+        };
+        break;
+      }
+
+      // ══ SOLICITUDES ══════════════════════════════════════════════════════════
 
       case 'crearSolicitud': {
-        // Público — sin auth
-        if (!data.nombre || !data.email || !data.ciudad || !data.liga) {
-          result = { success: false, message: 'Faltan campos obligatorios' }; break;
+        if (!data.nombre || !data.email || !data.ciudad) {
+          result = { success: false, message: 'Nombre, email y ciudad son obligatorios' };
+          break;
         }
         const { error } = await db.from('solicitudes').insert({
-          nombre:    data.nombre,
-          email:     data.email.toLowerCase(),
-          telefono:  data.telefono || null,
-          ciudad:    data.ciudad,
-          liga:      data.liga,
-          categoria: data.categoria || null,
-          equipos:   data.equipos || 0,
-          temporada: data.temporada || null,
-          plan:      'por_ligas',
-          estado:      'pendiente',
-          tipo:        data.tipo || 'sub_admin',
-          cant_ligas:  data.cantLigas || 1,
-          ligas_detalle: JSON.stringify(data.ligasDetalle || []),
+          nombre:          data.nombre.trim(),
+          email:           data.email.toLowerCase().trim(),
+          telefono:        data.telefono || null,
+          ciudad:          data.ciudad.trim(),
+          deporte:         data.deporte || 'Básquetbol',
+          descripcion:     data.descripcion || null,
+          cant_categorias: data.cant_categorias || 1,
+          estado:          'pendiente',
         });
-        result = error ? fail(error) : { success: true, message: 'Solicitud enviada correctamente' };
+        result = error ? fail(error) : { success: true, message: '¡Solicitud enviada! Te contactaremos pronto.' };
         break;
       }
 
       case 'listarSolicitudes': {
-        requireRole(session, ['super_admin']);
+        requireAdmin(session);
         const { data: sols, error } = await db.from('solicitudes')
           .select('*')
           .order('created_at', { ascending: false });
@@ -105,683 +175,436 @@ exports.handler = async (event) => {
       }
 
       case 'aprobarSolicitud': {
-        requireRole(session, ['super_admin']);
-        // Generar ID único tipo BBALL-0001
-        const { count: aprobadas } = await db.from('solicitudes')
-          .select('id', { count: 'exact', head: true })
-          .eq('estado', 'aprobada');
-        const seqNum = String((aprobadas || 0) + 1).padStart(4, '0');
-        const orgId  = 'BBALL-' + seqNum;
+        requireAdmin(session);
+        // Obtener solicitud
+        const { data: sol } = await db.from('solicitudes').select('*').eq('id', data.id).maybeSingle();
+        if (!sol) { result = { success: false, message: 'Solicitud no encontrada' }; break; }
 
-        const { error } = await db.from('solicitudes').update({
-          estado:             'aprobada',
-          notas_admin:        data.notas || null,
-          org_id:             orgId,
+        // Generar org_id secuencial
+        const { count } = await db.from('organizadores').select('id', { count: 'exact', head: true });
+        const orgId = generateOrgId((count || 0) + 1);
+
+        // Generar clave de acceso
+        const claveAcceso = generatePassword();
+        const passHash = hashPass(claveAcceso);
+
+        // Crear organizador
+        const { error: errOrg } = await db.from('organizadores').insert({
+          org_id:           orgId,
+          nombre:           sol.nombre,
+          email:            sol.email,
+          password_hash:    passHash,
+          ciudad:           sol.ciudad,
+          activo:           true,
           suscripcion_inicio: new Date().toISOString(),
-          suscripcion_estado: 'activa',
+        });
+        if (errOrg) { result = fail(errOrg); break; }
+
+        // Actualizar solicitud
+        await db.from('solicitudes').update({
+          estado:       'aprobada',
+          org_id:       orgId,
+          clave_acceso: claveAcceso,
+          notas_admin:  data.notas || null,
         }).eq('id', data.id);
 
-        result = error ? fail(error) : {
-          success: true,
-          org_id:  orgId,
-          message: 'Solicitud aprobada — ID: ' + orgId,
+        result = {
+          success:      true,
+          org_id:       orgId,
+          clave_acceso: claveAcceso,
+          email:        sol.email,
+          message:      'Solicitud aprobada — ' + orgId,
         };
         break;
       }
 
       case 'rechazarSolicitud': {
-        requireRole(session, ['super_admin']);
+        requireAdmin(session);
         const { error } = await db.from('solicitudes').update({
-          estado:      'rechazada',
+          estado: 'rechazada',
           notas_admin: data.notas || null,
         }).eq('id', data.id);
         result = error ? fail(error) : { success: true, message: 'Solicitud rechazada' };
         break;
       }
 
-      // ══════════════════════════════════════════════════════════════════════
-      //  SUSCRIPCIONES (paso 10)
-      // ══════════════════════════════════════════════════════════════════════
+      // ══ ORGANIZADORES ════════════════════════════════════════════════════════
 
-      case 'renovarSuscripcion': {
-        requireRole(session, ['super_admin']);
-        const { error } = await db.from('solicitudes').update({
-          suscripcion_estado: 'activa',
-          suscripcion_inicio: new Date().toISOString(),
-        }).eq('id', data.id);
-        result = error ? fail(error) : { success: true, message: 'Suscripción renovada' };
-        break;
-      }
-
-      case 'cancelarSuscripcion': {
-        requireRole(session, ['super_admin']);
-        const { error } = await db.from('solicitudes').update({
-          suscripcion_estado: 'cancelada',
-        }).eq('id', data.id);
-        result = error ? fail(error) : { success: true, message: 'Suscripción cancelada' };
-        break;
-      }
-
-      case 'expirarSuscripcion': {
-        requireRole(session, ['super_admin']);
-        const { error } = await db.from('solicitudes').update({
-          suscripcion_estado: 'expirada',
-        }).eq('id', data.id);
-        result = error ? fail(error) : { success: true, message: 'Suscripción marcada como expirada' };
-        break;
-      }
-
-      // ══════════════════════════════════════════════════════════════════════
-      //  AUTH
-      // ══════════════════════════════════════════════════════════════════════
-
-      case 'checkLogin': {
-        // 1. Super Admin por email + password fijo
-        if (data.email?.toLowerCase() === SUPER_EMAIL && data.password === SUPER_PWD) {
-          const token = generateToken();
-          await db.from('usuarios_roles').upsert({
-            user_id:    '00000000-0000-0000-0000-000000000000',
-            rol:        'super_admin',
-            activo:     true,
-          }, { onConflict: 'user_id' });
-          result = {
-            success: true,
-            token,
-            usuario: { nombre: 'Super Admin', email: data.email || '', rol: 'super_admin' }
-          };
-          // Token generado — sesiones manejadas en el frontend
-          break;
-        }
-
-        // 2. Sub-admin / Delegado con email+password via Supabase Auth
-        const { data: authData, error: authErr } = await db.auth.signInWithPassword({
-          email: data.email,
-          password: data.password,
-        });
-        if (authErr || !authData?.user) {
-          result = { success: false, message: 'Email o contraseña incorrectos' };
-          break;
-        }
-
-        // Obtener rol del usuario
-        const { data: rolData } = await db
-          .from('usuarios_roles')
-          .select('*, ciudades(nombre), equipos(NombreEquipo)')
-          .eq('user_id', authData.user.id)
-          .eq('activo', true)
-          .maybeSingle();
-
-        if (!rolData) {
-          result = { success: false, message: 'Usuario sin rol asignado. Contacta al Super Admin.' };
-          break;
-        }
-
-        result = {
-          success: true,
-          token: authData.session.access_token,
-          usuario: {
-            nombre:      authData.user.user_metadata?.nombre || authData.user.email,
-            email:       authData.user.email,
-            rol:         rolData.rol,
-            id_ciudad:   rolData.id_ciudad,
-            ciudad_nombre: rolData.ciudades?.nombre || '',
-            id_equipo:   rolData.id_equipo,
-            equipo_nombre: rolData.equipos?.NombreEquipo || '',
-          }
-        };
-        break;
-      }
-
-
-      // ══════════════════════════════════════════════════════════════════════
-      //  SUB-ADMINS / ORGANIZADORES
-      // ══════════════════════════════════════════════════════════════════════
-
-      case 'listarSubAdmins': {
-        requireRole(session, ['super_admin']);
-        // Obtener todos los sub-admins con sus ligas
-        const { data: roles, error } = await db
-          .from('usuarios_roles')
-          .select('user_id, rol, activo, id_ciudad, ciudades(nombre)')
-          .eq('rol', 'sub_admin')
+      case 'listarOrganizadores': {
+        requireAdmin(session);
+        const { data: orgs, error } = await db.from('organizadores')
+          .select('id, org_id, nombre, email, ciudad, activo, suscripcion_inicio, suscripcion_fin')
           .order('created_at', { ascending: false });
-        if (error) { result = fail(error); break; }
-
-        // Para cada sub-admin contar sus ligas activas y finalizadas
-        const admins = await Promise.all((roles||[]).map(async r => {
-          // Obtener info del usuario desde Auth
-          let userData = { user: null };
-          try { userData = (await db.auth.admin.getUserById(r.user_id)).data; } catch(e) {}
-          const user = userData?.user;
-
-          // Contar ligas activas
-          const { count: activas } = await db.from('ligas')
+        // Para cada org, contar torneos activos
+        const result_data = await Promise.all((orgs || []).map(async o => {
+          const { count } = await db.from('torneos')
             .select('id', { count: 'exact', head: true })
-            .eq('id_ciudad', r.id_ciudad)
-            .eq('EstadoTorneo', 'Activo');
-
-          // Contar ligas finalizadas
-          const { count: finalizadas } = await db.from('ligas')
-            .select('id', { count: 'exact', head: true })
-            .eq('id_ciudad', r.id_ciudad)
-            .eq('EstadoTorneo', 'Finalizado');
-
-          // Contar equipos totales
-          const { data: ligaIds } = await db.from('ligas')
-            .select('id')
-            .eq('id_ciudad', r.id_ciudad);
-          let equiposTotal = 0;
-          if (ligaIds?.length) {
-            const { count } = await db.from('equipos')
-              .select('id', { count: 'exact', head: true })
-              .in('ID_Liga', ligaIds.map(l => l.id));
-            equiposTotal = count || 0;
-          }
-
-          // Calcular precio según ligas activas
-          const nLigas = activas || 0;
-          let precio = 0;
-          if (nLigas === 1) precio = 4990;
-          else if (nLigas <= 4) precio = 9990;
-          else if (nLigas >= 5) precio = 14990;
-
-          return {
-            user_id:           r.user_id,
-            nombre:            user?.user_metadata?.nombre || '',
-            email:             user?.email || '',
-            activo:            r.activo,
-            ciudad_nombre:     r.ciudades?.nombre || '',
-            id_ciudad:         r.id_ciudad,
-            ligas_activas:     nLigas,
-            ligas_finalizadas: finalizadas || 0,
-            equipos_total:     equiposTotal,
-            precio_mes:        precio,
-          };
+            .eq('org_id', o.org_id)
+            .neq('estado', 'eliminado');
+          return { ...o, torneos_count: count || 0 };
         }));
-
-        result = { success: true, data: admins };
+        result = error ? fail(error) : { success: true, data: result_data };
         break;
       }
 
-      case 'toggleSubAdmin': {
-        requireRole(session, ['super_admin']);
-        const { error } = await db.from('usuarios_roles')
+      case 'toggleOrganizador': {
+        requireAdmin(session);
+        const { error } = await db.from('organizadores')
           .update({ activo: data.activo })
-          .eq('user_id', data.userId)
-          .eq('rol', 'sub_admin');
+          .eq('org_id', data.org_id);
         result = error ? fail(error) : { success: true, message: data.activo ? 'Organizador activado' : 'Organizador suspendido' };
         break;
       }
 
-      // ══════════════════════════════════════════════════════════════════════
-      //  CIUDADES
-      // ══════════════════════════════════════════════════════════════════════
-
-      case 'getCiudades': {
-        const { data: ciudades, error } = await db
-          .from('ciudades')
-          .select('id, nombre, region, slug, activo')
-          .order('orden');
-        result = error ? fail(error) : { success: true, data: ciudades || [] };
+      case 'resetPassword': {
+        requireAdmin(session);
+        const nuevaClave = generatePassword();
+        const { error } = await db.from('organizadores')
+          .update({ password_hash: hashPass(nuevaClave) })
+          .eq('org_id', data.org_id);
+        if (error) { result = fail(error); break; }
+        await db.from('solicitudes').update({ clave_acceso: nuevaClave }).eq('org_id', data.org_id);
+        result = { success: true, clave_acceso: nuevaClave, message: 'Clave regenerada' };
         break;
       }
 
-      case 'createCiudad': {
-        requireRole(session, ['super_admin']);
-        const { error } = await db.from('ciudades').insert({
-          nombre:  data.nombre,
-          region:  data.region || '',
-          slug:    slugify(data.nombre),
-          activo:  true,
-          orden:   data.orden || 99,
-        });
-        result = error ? fail(error) : { success: true, message: 'Ciudad creada' };
-        break;
-      }
+      // ══ TORNEOS ══════════════════════════════════════════════════════════════
 
-      case 'updateCiudad': {
-        requireRole(session, ['super_admin']);
-        const { error } = await db.from('ciudades').update({
-          nombre: data.nombre,
-          region: data.region,
-          activo: data.activo,
-        }).eq('id', data.id);
-        result = error ? fail(error) : { success: true, message: 'Ciudad actualizada' };
-        break;
-      }
-
-      // ══════════════════════════════════════════════════════════════════════
-      //  USUARIOS / ROLES (solo super_admin)
-      // ══════════════════════════════════════════════════════════════════════
-
-      case 'createUsuario': {
-        requireRole(session, ['super_admin']);
-        // Crear usuario en Supabase Auth
-        const { data: newUser, error: errAuth } = await db.auth.admin.createUser({
-          email:         data.email,
-          password:      data.password,
-          user_metadata: { nombre: data.nombre },
-          email_confirm: true,
-        });
-        if (errAuth) { result = fail(errAuth); break; }
-
-        // Asignar rol
-        const { error: errRol } = await db.from('usuarios_roles').insert({
-          user_id:    newUser.user.id,
-          rol:        data.rol,           // 'sub_admin' o 'delegado'
-          id_ciudad:  data.id_ciudad || null,
-          id_equipo:  data.id_equipo || null,
-          activo:     true,
-        });
-        result = errRol ? fail(errRol) : { success: true, message: `Usuario ${data.rol} creado` };
-        break;
-      }
-
-      case 'listUsuarios': {
-        requireRole(session, ['super_admin']);
-        const { data: users, error } = await db
-          .from('usuarios_roles')
-          .select('*, ciudades(nombre), equipos(NombreEquipo)')
+      case 'getTorneos': {
+        // Público: solo torneos visibles
+        const { data: torneos, error } = await db.from('torneos')
+          .select('id, nombre, ciudad, deporte, temporada, descripcion, estado, visible, org_id, created_at')
+          .eq('visible', true)
+          .neq('estado', 'eliminado')
           .order('created_at', { ascending: false });
-        result = error ? fail(error) : { success: true, data: users || [] };
+        result = error ? fail(error) : { success: true, data: torneos || [] };
         break;
       }
 
-      case 'toggleUsuario': {
-        requireRole(session, ['super_admin']);
-        const { error } = await db.from('usuarios_roles')
-          .update({ activo: data.activo })
-          .eq('id', data.id);
-        result = error ? fail(error) : { success: true, message: 'Estado actualizado' };
+      case 'getTorneosAdmin': {
+        requireAdmin(session);
+        const { data: torneos, error } = await db.from('torneos')
+          .select('*, organizadores(nombre, email)')
+          .neq('estado', 'eliminado')
+          .order('created_at', { ascending: false });
+        result = error ? fail(error) : { success: true, data: torneos || [] };
         break;
       }
 
-      case 'deleteUsuario': {
-        requireRole(session, ['super_admin']);
-        await db.from('usuarios_roles').delete().eq('id', data.id);
-        result = { success: true, message: 'Usuario eliminado' };
+      case 'getMiTorneo': {
+        requireOrg(session);
+        const { data: torneo, error } = await db.from('torneos')
+          .select('*')
+          .eq('org_id', session.org_id)
+          .neq('estado', 'eliminado')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        result = error ? fail(error) : { success: true, data: torneo };
         break;
       }
 
-      // ══════════════════════════════════════════════════════════════════════
-      //  TEMPORADAS
-      // ══════════════════════════════════════════════════════════════════════
-
-      case 'createTemporada': {
-        requireRole(session, ['super_admin', 'sub_admin']);
-        const ciudadId = session.rol === 'sub_admin' ? session.id_ciudad : data.id_ciudad;
-        const { error } = await db.from('temporadas').insert({
-          id_ciudad: ciudadId,
-          nombre:    data.nombre,
-          activo:    true,
-        });
-        result = error ? fail(error) : { success: true, message: 'Temporada creada' };
+      case 'crearTorneo': {
+        requireOrg(session);
+        const { data: torneo, error } = await db.from('torneos').insert({
+          org_id:      session.org_id,
+          nombre:      data.nombre,
+          ciudad:      data.ciudad || session.ciudad,
+          deporte:     data.deporte || 'Básquetbol',
+          temporada:   data.temporada || null,
+          descripcion: data.descripcion || null,
+          estado:      'borrador',
+          visible:     false,
+        }).select().single();
+        result = error ? fail(error) : { success: true, data: torneo, message: 'Torneo creado' };
         break;
       }
 
-      case 'cerrarTemporada': {
-        requireRole(session, ['super_admin', 'sub_admin']);
-        const { error } = await db.from('temporadas')
-          .update({ activo: false })
-          .eq('id', data.temporadaId);
-        result = error ? fail(error) : { success: true, message: 'Temporada cerrada' };
+      case 'actualizarTorneo': {
+        requireOrg(session);
+        const where = session.rol === 'admin' ? { id: data.id } : { id: data.id, org_id: session.org_id };
+        const { error } = await db.from('torneos').update({
+          nombre:      data.nombre,
+          temporada:   data.temporada,
+          descripcion: data.descripcion,
+          reglamento_url: data.reglamento_url,
+        }).match(where);
+        result = error ? fail(error) : { success: true, message: 'Torneo actualizado' };
         break;
       }
 
-      // ══════════════════════════════════════════════════════════════════════
-      //  LIGAS
-      // ══════════════════════════════════════════════════════════════════════
-
-      case 'createLeague': {
-        requireRole(session, ['super_admin', 'sub_admin']);
-        let ciudadId = session.rol === 'sub_admin' ? session.id_ciudad : data.id_ciudad;
-
-        // Si viene ciudadNombre (texto libre), buscar o crear la ciudad
-        if (!ciudadId && data.ciudadNombre) {
-          const slug = slugify(data.ciudadNombre);
-          // Buscar ciudad existente
-          const { data: ciudadExist } = await db.from('ciudades')
-            .select('id').eq('slug', slug).maybeSingle();
-          if (ciudadExist) {
-            ciudadId = ciudadExist.id;
-          } else {
-            // Crear ciudad nueva automáticamente
-            const { data: nuevaCiudad, error: errCiudad } = await db.from('ciudades').insert({
-              nombre: data.ciudadNombre.trim(),
-              slug:   slug,
-              activo: true,
-              orden:  99,
-            }).select('id').single();
-            if (errCiudad) { result = fail(errCiudad); break; }
-            ciudadId = nuevaCiudad.id;
-          }
-        }
-
-        const { error } = await db.from('ligas').insert({
-          id_ciudad:      ciudadId || null,
-          id_temporada:   data.id_temporada || null,
-          NombreFantasia: data.nombreFantasia,
-          NombreDeporte:  data.nombreDeporte || 'Básquetbol',
-          Categoria:      data.categoria || '',
-          EstadoTorneo:   data.estadoTorneo || 'Activo',
-          PuntosVictoria: data.puntosVictoria || 2,
-          PuntosEmpate:   data.puntosEmpate || 0,
-          PuntosDerrota:  data.puntosDerrota || 1,
-          NroFechas:      data.nroFechas || 0,
-          org_id:         data.orgId || null,
-          nro_equipos:    data.nroEquipos || null,
-        });
-        result = error ? fail(error) : { success: true, message: `Liga creada${data.ciudadNombre ? ' en ' + data.ciudadNombre : ''}` };
+      case 'publicarTorneo': {
+        requireOrg(session);
+        const { error } = await db.from('torneos').update({
+          visible: data.visible,
+          estado:  data.visible ? 'activo' : 'borrador',
+        }).eq('id', data.id).eq('org_id', session.rol === 'admin' ? db.raw('org_id') : session.org_id);
+        result = error ? fail(error) : { success: true, message: data.visible ? 'Torneo publicado' : 'Torneo ocultado' };
         break;
       }
 
-      case 'updateLeague': {
-        requireRole(session, ['super_admin', 'sub_admin']);
-        await assertCiudadAccess(session, 'ligas', data.id);
-        const { error } = await db.from('ligas').update({
-          NombreFantasia: data.nombreFantasia,
-          Categoria:      data.categoria,
-          EstadoTorneo:   data.estadoTorneo,
-          NroFechas:      data.nroFechas,
+      case 'eliminarTorneo': {
+        requireAdmin(session);
+        const { error } = await db.from('torneos').update({ estado: 'eliminado', visible: false }).eq('id', data.id);
+        result = error ? fail(error) : { success: true, message: 'Torneo eliminado' };
+        break;
+      }
+
+      // ══ CATEGORIAS ═══════════════════════════════════════════════════════════
+
+      case 'getCategoriasPublic': {
+        const { data: cats, error } = await db.from('categorias')
+          .select('*')
+          .eq('torneo_id', data.torneo_id)
+          .eq('activo', true)
+          .order('orden');
+        result = error ? fail(error) : { success: true, data: cats || [] };
+        break;
+      }
+
+      case 'getMisCategorias': {
+        requireOrg(session);
+        const { data: cats, error } = await db.from('categorias')
+          .select('*')
+          .eq('torneo_id', data.torneo_id)
+          .order('orden');
+        result = error ? fail(error) : { success: true, data: cats || [] };
+        break;
+      }
+
+      case 'crearCategoria': {
+        requireOrg(session);
+        const { data: cat, error } = await db.from('categorias').insert({
+          torneo_id:    data.torneo_id,
+          nombre:       data.nombre,
+          pts_victoria: data.pts_victoria || 2,
+          pts_empate:   data.pts_empate   || 0,
+          pts_derrota:  data.pts_derrota  || 1,
+          orden:        data.orden        || 0,
+        }).select().single();
+        result = error ? fail(error) : { success: true, data: cat, message: 'Categoría creada' };
+        break;
+      }
+
+      case 'actualizarCategoria': {
+        requireOrg(session);
+        const { error } = await db.from('categorias').update({
+          nombre:       data.nombre,
+          pts_victoria: data.pts_victoria,
+          pts_empate:   data.pts_empate,
+          pts_derrota:  data.pts_derrota,
         }).eq('id', data.id);
-        result = error ? fail(error) : { success: true, message: 'Liga actualizada' };
+        result = error ? fail(error) : { success: true, message: 'Categoría actualizada' };
         break;
       }
 
-      case 'deleteLeague': {
-        requireRole(session, ['super_admin', 'sub_admin']);
-        await assertCiudadAccess(session, 'ligas', data.id);
-        const { error } = await db.from('ligas').delete().eq('id', data.id);
-        result = error ? fail(error) : { success: true, message: 'Liga eliminada' };
+      case 'eliminarCategoria': {
+        requireOrg(session);
+        const { error } = await db.from('categorias').update({ activo: false }).eq('id', data.id);
+        result = error ? fail(error) : { success: true, message: 'Categoría eliminada' };
         break;
       }
 
-      // ══════════════════════════════════════════════════════════════════════
-      //  EQUIPOS
-      // ══════════════════════════════════════════════════════════════════════
+      // ══ EQUIPOS ══════════════════════════════════════════════════════════════
 
-      case 'createTeam': {
-        requireRole(session, ['super_admin', 'sub_admin']);
-        const { error } = await db.from('equipos').insert({
-          ID_Liga:              data.idLiga,
-          NombreEquipo:         data.nombreEquipo,
-          ColorUniformeLocal:   data.colorLocal   || '#1e3a8a',
-          ColorUniformeVisita:  data.colorVisita  || '#ffffff',
-          logo_url:             data.logoUrl || null,
-          activo:               true,
-        });
-        result = error ? fail(error) : { success: true, message: 'Equipo creado' };
+      case 'getEquiposPublic': {
+        const { data: equipos, error } = await db.from('equipos')
+          .select('*')
+          .eq('categoria_id', data.categoria_id)
+          .eq('activo', true)
+          .order('nombre');
+        result = error ? fail(error) : { success: true, data: equipos || [] };
         break;
       }
 
-      case 'updateTeam': {
-        requireRole(session, ['super_admin', 'sub_admin', 'delegado']);
-        if (session.rol === 'delegado') {
-          // Delegado solo puede editar su propio equipo
-          if (session.id_equipo !== data.id) return ok({ success: false, message: 'Sin acceso a este equipo' });
-        }
+      case 'crearEquipo': {
+        requireOrg(session);
+        const { data: eq, error } = await db.from('equipos').insert({
+          categoria_id: data.categoria_id,
+          nombre:       data.nombre,
+          color_local:  data.color_local  || '#1d4ed8',
+          color_visita: data.color_visita || '#ffffff',
+        }).select().single();
+        result = error ? fail(error) : { success: true, data: eq, message: 'Equipo creado' };
+        break;
+      }
+
+      case 'actualizarEquipo': {
+        requireOrg(session);
         const { error } = await db.from('equipos').update({
-          NombreEquipo:         data.nombreEquipo,
-          ColorUniformeLocal:   data.colorLocal,
-          ColorUniformeVisita:  data.colorVisita,
-          logo_url:             data.logoUrl || null,
+          nombre:       data.nombre,
+          color_local:  data.color_local,
+          color_visita: data.color_visita,
         }).eq('id', data.id);
         result = error ? fail(error) : { success: true, message: 'Equipo actualizado' };
         break;
       }
 
-      case 'deleteTeam': {
-        requireRole(session, ['super_admin', 'sub_admin']);
-        const { error } = await db.from('equipos').delete().eq('id', data.id);
+      case 'eliminarEquipo': {
+        requireOrg(session);
+        const { error } = await db.from('equipos').update({ activo: false }).eq('id', data.id);
         result = error ? fail(error) : { success: true, message: 'Equipo eliminado' };
         break;
       }
 
-      // ══════════════════════════════════════════════════════════════════════
-      //  JUGADORES (personas)
-      // ══════════════════════════════════════════════════════════════════════
+      // ══ PARTIDOS ═════════════════════════════════════════════════════════════
 
-      case 'createPersona': {
-        requireRole(session, ['super_admin', 'sub_admin', 'delegado']);
-        if (session.rol === 'delegado' && session.id_equipo !== data.idEquipo) {
-          return ok({ success: false, message: 'Solo puedes agregar jugadores a tu equipo' });
-        }
-        const { error } = await db.from('personas').insert({
-          id_equipo:        data.idEquipo,
-          nombre_completo:  data.nombreCompleto,
-          rut:              data.rut || null,
-          numero_camiseta:  data.numeroCamiseta || null,
-          posicion:         data.posicion || null,
-          activo:           true,
-        });
-        result = error ? fail(error) : { success: true, message: 'Jugador registrado' };
+      case 'getPartidosPublic': {
+        const { data: pts, error } = await db.from('partidos')
+          .select('*, local:equipo_local(nombre,color_local), visita:equipo_visita(nombre,color_local)')
+          .eq('categoria_id', data.categoria_id)
+          .order('fecha').order('hora');
+        result = error ? fail(error) : { success: true, data: pts || [] };
         break;
       }
 
-      case 'updatePersona': {
-        requireRole(session, ['super_admin', 'sub_admin', 'delegado']);
-        // Delegado: verificar que el jugador sea de su equipo
-        if (session.rol === 'delegado') {
-          const { data: p } = await db.from('personas').select('id_equipo').eq('id', data.id).maybeSingle();
-          if (!p || p.id_equipo !== session.id_equipo) return ok({ success: false, message: 'Sin acceso' });
-        }
-        const { error } = await db.from('personas').update({
-          nombre_completo: data.nombreCompleto,
-          rut:             data.rut,
-          numero_camiseta: data.numeroCamiseta,
-          posicion:        data.posicion,
-          id_equipo:       data.idEquipo,
-          activo:          data.activo !== undefined ? data.activo : true,
-        }).eq('id', data.id);
-        result = error ? fail(error) : { success: true, message: 'Jugador actualizado' };
+      case 'crearPartido': {
+        requireOrg(session);
+        const { data: partido, error } = await db.from('partidos').insert({
+          categoria_id:  data.categoria_id,
+          fecha:         data.fecha || null,
+          hora:          data.hora  || null,
+          cancha:        data.cancha || null,
+          fase:          data.fase  || 'Fase Regular',
+          nro_fecha:     data.nro_fecha || 1,
+          equipo_local:  data.equipo_local,
+          equipo_visita: data.equipo_visita,
+          estado:        'programado',
+        }).select().single();
+        result = error ? fail(error) : { success: true, data: partido, message: 'Partido programado' };
         break;
       }
 
-      case 'deletePersona': {
-        requireRole(session, ['super_admin', 'sub_admin']);
-        const { error } = await db.from('personas').delete().eq('id', data.id);
-        result = error ? fail(error) : { success: true, message: 'Jugador eliminado' };
-        break;
-      }
-
-      case 'transferirJugador': {
-        requireRole(session, ['super_admin', 'sub_admin']);
-        const { error } = await db.from('personas')
-          .update({ id_equipo: data.idEquipoDestino })
-          .eq('id', data.idPersona);
-        result = error ? fail(error) : { success: true, message: 'Jugador transferido' };
-        break;
-      }
-
-      // ══════════════════════════════════════════════════════════════════════
-      //  PARTIDOS
-      // ══════════════════════════════════════════════════════════════════════
-
-      case 'createMatch': {
-        requireRole(session, ['super_admin', 'sub_admin']);
-        const { error } = await db.from('partidos').insert({
-          ID_Liga:         data.idLiga,
-          Partidos:        data.fecha || 1,
-          Fase:            data.fase || 'Fase Regular',
-          Fecha:           data.fechaPartido || null,
-          Hora:            data.hora || null,
-          Cancha:          data.cancha || null,
-          ID_EquipoLocal:  data.idEquipoLocal,
-          ID_EquipoVisita: data.idEquipoVisita,
-          Estado:          'Programado',
-        });
-        result = error ? fail(error) : { success: true, message: 'Partido programado' };
-        break;
-      }
-
-      case 'updateMatchResult': {
-        requireRole(session, ['super_admin', 'sub_admin']);
+      case 'actualizarResultado': {
+        requireOrg(session);
         const { error } = await db.from('partidos').update({
-          GolesLocal:  data.puntosLocal,
-          GolesVisita: data.puntosVisita,
-          Estado:      'Final',
+          pts_local:  data.pts_local,
+          pts_visita: data.pts_visita,
+          estado:     'finalizado',
         }).eq('id', data.id);
         result = error ? fail(error) : { success: true, message: 'Resultado cargado' };
         break;
       }
 
-      case 'updateMatchStatus': {
-        requireRole(session, ['super_admin', 'sub_admin']);
-        const { error } = await db.from('partidos')
-          .update({ Estado: data.estado })
-          .eq('id', data.id);
+      case 'actualizarEstadoPartido': {
+        requireOrg(session);
+        const { error } = await db.from('partidos').update({ estado: data.estado }).eq('id', data.id);
         result = error ? fail(error) : { success: true, message: 'Estado actualizado' };
         break;
       }
 
-      case 'updateMatch': {
-        requireRole(session, ['super_admin', 'sub_admin']);
-        const { error } = await db.from('partidos').update({
-          Fecha:           data.fechaPartido,
-          Hora:            data.hora,
-          Cancha:          data.cancha,
-          Fase:            data.fase,
-          ID_EquipoLocal:  data.idEquipoLocal,
-          ID_EquipoVisita: data.idEquipoVisita,
-        }).eq('id', data.id);
-        result = error ? fail(error) : { success: true, message: 'Partido actualizado' };
-        break;
-      }
-
-      case 'deleteMatch': {
-        requireRole(session, ['super_admin', 'sub_admin']);
+      case 'eliminarPartido': {
+        requireOrg(session);
         const { error } = await db.from('partidos').delete().eq('id', data.id);
         result = error ? fail(error) : { success: true, message: 'Partido eliminado' };
         break;
       }
 
-      // ══════════════════════════════════════════════════════════════════════
-      //  STATS
-      // ══════════════════════════════════════════════════════════════════════
+      // ══ STANDINGS ════════════════════════════════════════════════════════════
 
-      case 'updateStats': {
-        requireRole(session, ['super_admin', 'sub_admin']);
-        // Upsert stats por jugador
-        const rows = (data.stats || []).map(s => ({
-          id_partido:   data.idPartido,
-          id_persona:   s.id_persona,
-          id_equipo:    s.id_equipo,
-          puntos:       s.puntos       || 0,
-          rebotes:      s.rebotes      || 0,
-          asistencias:  s.asistencias  || 0,
-          robos:        s.robos        || 0,
-          tapones:      s.tapones      || 0,
-          faltas:       s.faltas       || 0,
-          minutos:      s.minutos      || 0,
-        }));
-        const { error } = await db.from('stats').upsert(rows, { onConflict: 'id_partido,id_persona' });
-        result = error ? fail(error) : { success: true, message: 'Stats actualizadas' };
+      case 'getStandings': {
+        const { data: rows, error } = await db.from('standings')
+          .select('*')
+          .eq('categoria_id', data.categoria_id)
+          .order('pts', { ascending: false });
+        result = error ? fail(error) : { success: true, data: rows || [] };
         break;
       }
 
-      // ══════════════════════════════════════════════════════════════════════
-      //  SANCIONES
-      // ══════════════════════════════════════════════════════════════════════
+      // ══ NOTICIAS ═════════════════════════════════════════════════════════════
 
-      case 'createSanction': {
-        requireRole(session, ['super_admin', 'sub_admin']);
-        const { error } = await db.from('sanciones').insert({
-          ID_Liga:          data.idLiga,
-          ID_Equipo:        data.idEquipo || null,
-          NombreJugador:    data.nombreJugador,
-          TipoFalta:        data.tipoFalta,
-          Sancion:          data.sancion,
-          TerminoSancion:   data.terminoSancion || null,
-        });
-        result = error ? fail(error) : { success: true, message: 'Sanción registrada' };
+      case 'getNoticiasPublic': {
+        const { data: news, error } = await db.from('noticias')
+          .select('*')
+          .eq('torneo_id', data.torneo_id)
+          .eq('publicado', true)
+          .order('created_at', { ascending: false });
+        result = error ? fail(error) : { success: true, data: news || [] };
         break;
       }
 
-      case 'updateSanction': {
-        requireRole(session, ['super_admin', 'sub_admin']);
-        const { error } = await db.from('sanciones').update({
-          NombreJugador:  data.nombreJugador,
-          TipoFalta:      data.tipoFalta,
-          Sancion:        data.sancion,
-          TerminoSancion: data.terminoSancion,
-        }).eq('id', data.id);
-        result = error ? fail(error) : { success: true, message: 'Sanción actualizada' };
-        break;
-      }
-
-      case 'deleteSanction': {
-        requireRole(session, ['super_admin', 'sub_admin']);
-        const { error } = await db.from('sanciones').delete().eq('id', data.id);
-        result = error ? fail(error) : { success: true, message: 'Sanción eliminada' };
-        break;
-      }
-
-      // ══════════════════════════════════════════════════════════════════════
-      //  NOTICIAS
-      // ══════════════════════════════════════════════════════════════════════
-
-      case 'createNews': {
-        requireRole(session, ['super_admin', 'sub_admin']);
-        const ciudadId = session.rol === 'sub_admin' ? session.id_ciudad : data.id_ciudad;
+      case 'crearNoticia': {
+        requireOrg(session);
         const { error } = await db.from('noticias').insert({
-          id_ciudad:    ciudadId,
-          Titulo:       data.titulo,
-          Descripcion:  data.descripcion || '',
-          Fecha:        data.fecha || new Date().toISOString().split('T')[0],
-          ImagenURL:    data.imagenUrl || '',
-          publicado:    true,
-          me_gusta:     0,
+          torneo_id:  data.torneo_id,
+          titulo:     data.titulo,
+          contenido:  data.contenido || null,
+          imagen_url: data.imagen_url || null,
+          publicado:  data.publicado !== false,
         });
         result = error ? fail(error) : { success: true, message: 'Noticia publicada' };
         break;
       }
 
-      case 'updateNews': {
-        requireRole(session, ['super_admin', 'sub_admin']);
+      case 'actualizarNoticia': {
+        requireOrg(session);
         const { error } = await db.from('noticias').update({
-          Titulo:      data.titulo,
-          Descripcion: data.descripcion,
-          Fecha:       data.fecha,
-          ImagenURL:   data.imagenUrl,
-          publicado:   data.publicado !== undefined ? data.publicado : true,
+          titulo:    data.titulo,
+          contenido: data.contenido,
+          publicado: data.publicado,
         }).eq('id', data.id);
         result = error ? fail(error) : { success: true, message: 'Noticia actualizada' };
         break;
       }
 
-      case 'deleteNews': {
-        requireRole(session, ['super_admin', 'sub_admin']);
+      case 'eliminarNoticia': {
+        requireOrg(session);
         const { error } = await db.from('noticias').delete().eq('id', data.id);
         result = error ? fail(error) : { success: true, message: 'Noticia eliminada' };
         break;
       }
 
-      case 'likeNoticia': {
-        // Público — sin auth
-        try {
-          await db.rpc('increment_likes', { noticia_id: data.id });
-        } catch(e) {
-          // rpc no existe aún, ignorar
-        }
-        result = { success: true };
+      // ══ SANCIONES ════════════════════════════════════════════════════════════
+
+      case 'getSancionesPublic': {
+        const { data: sancs, error } = await db.from('sanciones')
+          .select('*, equipos(nombre)')
+          .eq('categoria_id', data.categoria_id)
+          .order('created_at', { ascending: false });
+        result = error ? fail(error) : { success: true, data: sancs || [] };
         break;
       }
 
-      // ══════════════════════════════════════════════════════════════════════
-      //  DELETE GENÉRICO
-      // ══════════════════════════════════════════════════════════════════════
+      case 'crearSancion': {
+        requireOrg(session);
+        const { error } = await db.from('sanciones').insert({
+          categoria_id:   data.categoria_id,
+          equipo_id:      data.equipo_id || null,
+          jugador_nombre: data.jugador_nombre || null,
+          tipo:           data.tipo,
+          descripcion:    data.descripcion || null,
+          fecha_fin:      data.fecha_fin || null,
+        });
+        result = error ? fail(error) : { success: true, message: 'Sanción registrada' };
+        break;
+      }
 
-      case 'deleteItem': {
-        requireRole(session, ['super_admin', 'sub_admin']);
-        const tablaMap = {
-          ligas: 'ligas', equipos: 'equipos', partidos: 'partidos',
-          sanciones: 'sanciones', noticias: 'noticias',
-          personas: 'personas', temporadas: 'temporadas',
+      case 'eliminarSancion': {
+        requireOrg(session);
+        const { error } = await db.from('sanciones').delete().eq('id', data.id);
+        result = error ? fail(error) : { success: true, message: 'Sanción eliminada' };
+        break;
+      }
+
+      // ══ MÉTRICAS ═════════════════════════════════════════════════════════════
+
+      case 'getMetricas': {
+        requireAdmin(session);
+        const [rS, rO, rT, rE] = await Promise.all([
+          db.from('solicitudes').select('id', { count: 'exact', head: true }),
+          db.from('organizadores').select('id', { count: 'exact', head: true }).eq('activo', true),
+          db.from('torneos').select('id', { count: 'exact', head: true }).neq('estado', 'eliminado'),
+          db.from('equipos').select('id', { count: 'exact', head: true }).eq('activo', true),
+        ]);
+        result = {
+          success: true,
+          data: {
+            solicitudes:   rS.count || 0,
+            organizadores: rO.count || 0,
+            torneos:       rT.count || 0,
+            equipos:       rE.count || 0,
+          }
         };
-        const tabla = tablaMap[data.tabla?.toLowerCase()];
-        if (!tabla) { result = { success: false, message: 'Tabla no permitida' }; break; }
-        const { error } = await db.from(tabla).delete().eq('id', data.id);
-        result = error ? fail(error) : { success: true, message: 'Eliminado correctamente' };
         break;
       }
 
@@ -792,79 +615,7 @@ exports.handler = async (event) => {
     return ok(result);
 
   } catch (err) {
-    console.error('LIGAS BBALL admin error:', err);
-    return ok({ success: false, message: err.message || 'Error interno' });
+    console.error('ACTIVA PLAY error:', err.message);
+    return ok({ success: false, message: err.message || 'Error interno del servidor' });
   }
 };
-
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
-
-const ok   = body => ({ statusCode: 200, headers: HEADERS, body: JSON.stringify(body) });
-const res  = (s, b) => ({ statusCode: s, headers: HEADERS, body: JSON.stringify(b) });
-const fail = err  => ({ success: false, message: err?.message || err?.details || 'Error BD' });
-
-function slugify(str) {
-  return str.toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-}
-
-function generateToken() {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
-}
-
-// Verifica rol mínimo requerido — lanza error si no cumple
-function requireRole(session, allowed) {
-  if (!session || !allowed.includes(session.rol)) {
-    throw new Error(`Acción requiere rol: ${allowed.join(' o ')}`);
-  }
-}
-
-// Verifica que un sub_admin solo acceda a recursos de su ciudad
-async function assertCiudadAccess(session, tabla, id) {
-  if (session.rol === 'super_admin') return;
-  if (session.rol !== 'sub_admin' || !session.id_ciudad) throw new Error('Sin acceso');
-  const { data: row } = await db.from(tabla).select('id_ciudad').eq('id', id).maybeSingle();
-  if (!row || row.id_ciudad !== session.id_ciudad) throw new Error('Sin acceso a este recurso');
-}
-
-// Obtener sesión desde token o password
-async function getSession(token) {
-  if (!token) return null;
-  // Super admin: password directo
-  if (token === SUPER_PWD) {
-    return { rol: 'super_admin', id_ciudad: null, id_equipo: null };
-  }
-  // JWT de Supabase Auth (empieza con eyJ y tiene 2 puntos)
-  if (token.startsWith('eyJ') && token.split('.').length === 3) {
-    try {
-      const { data: { user }, error } = await db.auth.getUser(token);
-      if (error || !user) return null;
-      const { data: rolData } = await db.from('usuarios_roles')
-        .select('rol, id_ciudad, id_equipo')
-        .eq('user_id', user.id)
-        .eq('activo', true)
-        .maybeSingle();
-      return rolData || null;
-    } catch {
-      return null;
-    }
-  }
-  return null;
-}
-
-// Verificar Cloudflare Turnstile
-async function verifyTurnstile(token) {
-  if (!TS_SECRET || !token) return true; // skip si no configurado
-  try {
-    const resp = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `secret=${TS_SECRET}&response=${token}`,
-    });
-    const json = await resp.json();
-    return json.success === true;
-  } catch {
-    return false;
-  }
-}
