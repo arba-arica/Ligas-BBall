@@ -7,5 +7,16 @@
   to = "/.netlify/functions/admin"
   status = 200
 
+[[redirects]]
+  from = "/admin"
+  to = "/app.html"
+  status = 200
+
 [functions]
   node_bundler = "esbuild"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Content-Type = "text/html; charset=utf-8"
+    X-Content-Type-Options = "nosniff"
