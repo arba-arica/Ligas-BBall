@@ -559,7 +559,7 @@ footer{
     <span class="hero-title-line" style="color:var(--orange)">en un solo lugar.</span>
   </h1>
   <p class="hero-sub">
-    Encuentra tu liga, sigue los resultados en tiempo real y gestiona tu torneo desde el celular. Tablas automáticas, fixture inteligente y acceso para todos.
+    Publica y gestiona tu liga, sigue los resultados en tiempo real desde el celular. Tablas automáticas, fixture ajustable y acceso para todos.
   </p>
   <div class="hero-actions">
     <button class="btn-primary" onclick="openModal()">🏀 Inscribe tu liga</button>
@@ -574,8 +574,8 @@ footer{
       <div class="hero-stat-lbl">Desde el celular</div>
     </div>
     <div class="hero-stat">
-      <div class="hero-stat-num"><span>$</span>4.990</div>
-      <div class="hero-stat-lbl">Desde /mes</div>
+      <div class="hero-stat-num"><span>$</span>9.990</div>
+      <div class="hero-stat-lbl">Por temporada</div>
     </div>
     <div class="hero-stat">
       <div class="hero-stat-num">0<span>s</span></div>
@@ -584,6 +584,42 @@ footer{
     <div class="hero-stat">
       <div class="hero-stat-num">∞</div>
       <div class="hero-stat-lbl">Jugadores registrados</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── EN CURSO AHORA ────────────────────────────────────────────────── -->
+<section id="ligas-activas" style="padding:60px 5vw;background:var(--bg);border-bottom:1px solid var(--border)">
+  <div class="reveal">
+    <div class="section-label">En curso ahora</div>
+    <h2 class="section-title" style="font-size:clamp(24px,4vw,38px);margin-bottom:6px">Torneos activos</h2>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:24px">Ingresa para ver la tabla, fixture y resultados</p>
+  </div>
+  <div id="ligas-grid" class="reveal" style="transition-delay:.1s;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;max-width:900px">
+    <div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--text2);font-size:13px" id="ligas-loading">
+      <div style="font-size:24px;margin-bottom:8px;opacity:.3">🏀</div>Cargando torneos...
+    </div>
+  </div>
+</section>
+
+<!-- ── ACCESO ─────────────────────────────────────────────────────────── -->
+<section style="padding:60px 5vw;background:var(--bg2);border-bottom:1px solid var(--border)">
+  <div class="reveal" style="text-align:center;margin-bottom:28px">
+    <div class="section-label" style="justify-content:center">¿Ya tienes acceso?</div>
+    <h2 class="section-title" style="font-size:clamp(22px,3.5vw,34px)">Ingresa a tu panel</h2>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:600px;margin:0 auto" class="reveal" style="transition-delay:.1s">
+    <div style="background:var(--bg);border:1px solid var(--border);border-top:3px solid var(--orange);border-radius:20px;padding:28px;text-align:center">
+      <div style="font-size:36px;margin-bottom:14px">🏆</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px">Organizador</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.5">Gestiona tu torneo, categorías, equipos y resultados.</div>
+      <a href="./app.html" style="display:block;padding:12px;border-radius:12px;background:var(--orange);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:.5px;text-decoration:none">INGRESAR →</a>
+    </div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:20px;padding:28px;text-align:center">
+      <div style="font-size:36px;margin-bottom:14px">⚙️</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px">Administrador</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.5">Panel de control: solicitudes, torneos y organizadores.</div>
+      <a href="./app.html" style="display:block;padding:12px;border-radius:12px;background:var(--blue);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:.5px;text-decoration:none">INGRESAR →</a>
     </div>
   </div>
 </section>
@@ -606,15 +642,15 @@ footer{
     <div class="step">
       <div class="step-num">02</div>
       <div class="step-icon">⚙️</div>
-      <div class="step-title">Configura tu temporada</div>
-      <div class="step-desc">Crea las ligas, carga los equipos y genera el fixture Round Robin automáticamente. El sistema calcula todos los enfrentamientos.</div>
+      <div class="step-title">Crea tu torneo</div>
+      <div class="step-desc">Registra las categorías y equipos de tu torneo. Organiza cada división con sus propios equipos y jugadores.</div>
       <div class="step-tag">Automático</div>
     </div>
     <div class="step">
       <div class="step-num">03</div>
       <div class="step-icon">🎯</div>
-      <div class="step-title">Delega a los clubes</div>
-      <div class="step-desc">Genera un código de acceso para cada delegado. Ellos cargan su nómina (máx. 15 jugadores) y gestionan la identidad de su club.</div>
+      <div class="step-title">Organiza y publica</div>
+      <div class="step-desc">Crea los partidos manualmente, publica el fixture y registra los resultados. La tabla de posiciones se actualiza sola.</div>
       <div class="step-tag">Control total</div>
     </div>
     <div class="step">
@@ -632,42 +668,32 @@ footer{
       <div class="section-label">Roles</div>
       <h2 class="section-title">Cada uno en<br>su cancha</h2>
     </div>
-    <div class="roles-grid reveal" style="transition-delay:.1s">
+    <div class="roles-grid reveal" style="transition-delay:.1s;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
       <div class="role-card">
         <div class="role-card-accent"></div>
-        <span class="role-emoji">🛡️</span>
+        <span class="role-emoji">🏆</span>
         <div class="role-name">Organizador</div>
-        <div class="role-desc">Control total de su ciudad. Crea temporadas, ligas y gestiona el fixture.</div>
+        <div class="role-desc">Crea su campeonato desde cero. Control total de su torneo y toda su información.</div>
         <div class="role-perms">
+          <div class="role-perm"><div class="role-perm-dot"></div>Crea temporadas, ligas y gestiona el fixture</div>
           <div class="role-perm"><div class="role-perm-dot"></div>Crear y editar ligas y equipos</div>
-          <div class="role-perm"><div class="role-perm-dot"></div>Generar fixture Round Robin</div>
+          <div class="role-perm"><div class="role-perm-dot"></div>Generar fixture manualmente</div>
           <div class="role-perm"><div class="role-perm-dot"></div>Cargar resultados de partidos</div>
-          <div class="role-perm"><div class="role-perm-dot"></div>Aprobar jugadores de delegados</div>
-          <div class="role-perm"><div class="role-perm-dot"></div>Publicar noticias</div>
-        </div>
-      </div>
-      <div class="role-card">
-        <div class="role-card-accent"></div>
-        <span class="role-emoji">🏅</span>
-        <div class="role-name">Delegado</div>
-        <div class="role-desc">Autogestión del club. Se registra con el código que le da el Organizador.</div>
-        <div class="role-perms">
-          <div class="role-perm"><div class="role-perm-dot"></div>Inscribir jugadores (máx. 15 activos)</div>
-          <div class="role-perm"><div class="role-perm-dot"></div>Subir documentos del jugador</div>
-          <div class="role-perm"><div class="role-perm-dot"></div>Editar logo y colores del equipo</div>
-          <div class="role-perm"><div class="role-perm-dot"></div>Ver fixture y resultados de su liga</div>
+          <div class="role-perm"><div class="role-perm-dot"></div>Publicar noticias y comunicados</div>
+          <div class="role-perm"><div class="role-perm-dot"></div>Registrar sanciones</div>
         </div>
       </div>
       <div class="role-card">
         <div class="role-card-accent"></div>
         <span class="role-emoji">👁️</span>
         <div class="role-name">Público</div>
-        <div class="role-desc">Sin login. Accede a toda la información pública de su ciudad.</div>
+        <div class="role-desc">Accede a toda la información pública del torneo en su ciudad, sin necesidad de login.</div>
         <div class="role-perms">
           <div class="role-perm"><div class="role-perm-dot"></div>Tabla de posiciones en tiempo real</div>
           <div class="role-perm"><div class="role-perm-dot"></div>Fixture y resultados</div>
-          <div class="role-perm"><div class="role-perm-dot"></div>Nóminas de equipos</div>
-          <div class="role-perm"><div class="role-perm-dot"></div>Noticias de la liga</div>
+          <div class="role-perm"><div class="role-perm-dot"></div>Sanciones de la liga</div>
+          <div class="role-perm"><div class="role-perm-dot"></div>Noticias del torneo</div>
+          <div class="role-perm"><div class="role-perm-dot"></div>Reportes y reglamentos</div>
         </div>
       </div>
     </div>
@@ -681,73 +707,34 @@ footer{
     <h2 class="section-title">Simple y justo</h2>
     <p class="section-sub" style="margin:0 auto">Pagas según las ligas que tienes activas. Sin contratos, sin sorpresas.</p>
   </div>
-  <div class="pricing-grid reveal" style="transition-delay:.1s">
-    <div class="price-card">
-      <div class="price-plan">Básico</div>
-      <div class="price-amount"><sup>$</sup>4.990</div>
-      <div class="price-period">/mes</div>
-      <div class="price-desc">Para organizadores que parten con una sola categoría.</div>
-      <div class="price-features">
-        <div class="price-feat"><span class="price-feat-check">✓</span>1 liga activa</div>
-        <div class="price-feat"><span class="price-feat-check">✓</span>Equipos ilimitados</div>
-        <div class="price-feat"><span class="price-feat-check">✓</span>Jugadores ilimitados</div>
-        <div class="price-feat"><span class="price-feat-check">✓</span>Fixture automático</div>
-        <div class="price-feat"><span class="price-feat-check">✓</span>Acceso para delegados</div>
+  <div style="max-width:480px;margin:0 auto" class="reveal" style="transition-delay:.1s">
+    <div class="price-card featured" style="text-align:center;padding:40px 32px">
+      <div class="price-plan" style="font-size:14px;letter-spacing:2px">Temporada completa</div>
+      <div class="price-amount" style="font-size:64px;margin:12px 0 4px"><sup style="font-size:28px">$</sup>9.990</div>
+      <div class="price-period" style="font-size:16px;margin-bottom:24px">/temporada</div>
+      <div class="price-desc" style="font-size:14px;margin-bottom:28px;line-height:1.7">
+        Una temporada incluye todos los torneos y categorías que necesites.<br>
+        Al finalizar la temporada, renuevas para la siguiente.
       </div>
-      <button class="price-cta price-cta-dark" onclick="openModal()">Empezar →</button>
-    </div>
-    <div class="price-card featured">
-      <div class="price-badge">Más popular</div>
-      <div class="price-plan">Pro</div>
-      <div class="price-amount"><sup>$</sup>9.990</div>
-      <div class="price-period">/mes</div>
-      <div class="price-desc">Para torneos con múltiples categorías simultáneas.</div>
-      <div class="price-features">
-        <div class="price-feat"><span class="price-feat-check">✓</span>2 a 4 ligas activas</div>
-        <div class="price-feat"><span class="price-feat-check">✓</span>Equipos ilimitados</div>
-        <div class="price-feat"><span class="price-feat-check">✓</span>Jugadores ilimitados</div>
-        <div class="price-feat"><span class="price-feat-check">✓</span>Reportes PDF</div>
-        <div class="price-feat"><span class="price-feat-check">✓</span>Estadísticas avanzadas</div>
+      <div class="price-features" style="text-align:left;margin-bottom:32px">
+        <div class="price-feat"><span class="price-feat-check">✓</span>Torneos y categorías ilimitadas</div>
+        <div class="price-feat"><span class="price-feat-check">✓</span>Equipos y jugadores ilimitados</div>
+        <div class="price-feat"><span class="price-feat-check">✓</span>Fixture manual ajustable</div>
+        <div class="price-feat"><span class="price-feat-check">✓</span>Tabla de posiciones automática</div>
+        <div class="price-feat"><span class="price-feat-check">✓</span>Noticias y comunicados</div>
+        <div class="price-feat"><span class="price-feat-check">✓</span>Sanciones y reportes</div>
+        <div class="price-feat"><span class="price-feat-check">✓</span>Vista pública para hinchas</div>
+        <div class="price-feat"><span class="price-feat-check">✓</span>Acceso desde el celular</div>
       </div>
-      <button class="price-cta price-cta-light" onclick="openModal()">Empezar →</button>
-    </div>
-    <div class="price-card">
-      <div class="price-plan">Elite</div>
-      <div class="price-amount"><sup>$</sup>14.990</div>
-      <div class="price-period">/mes</div>
-      <div class="price-desc">Para federaciones y organizaciones con gran volumen.</div>
-      <div class="price-features">
-        <div class="price-feat"><span class="price-feat-check">✓</span>5 o más ligas activas</div>
-        <div class="price-feat"><span class="price-feat-check">✓</span>Todo lo anterior</div>
-        <div class="price-feat"><span class="price-feat-check">✓</span>Soporte prioritario</div>
-        <div class="price-feat"><span class="price-feat-check">✓</span>Personalización de marca</div>
-        <div class="price-feat"><span class="price-feat-check">✓</span>Log de auditoría</div>
-      </div>
-      <button class="price-cta price-cta-dark" onclick="openModal()">Empezar →</button>
+      <button class="price-cta price-cta-light" onclick="openModal()" style="font-size:16px;padding:15px">INSCRIBE TU LIGA →</button>
     </div>
   </div>
-  <div class="price-note reveal" style="transition-delay:.2s">
-    El precio se ajusta automáticamente según tus ligas activas. <strong>Cierra una liga = baja el precio.</strong><br>
-    El administrador te contactará para coordinar el pago y activar tu acceso.
+  <div class="price-note reveal" style="transition-delay:.2s;margin-top:24px">
+    Pago por temporada. <strong>Sin contratos ni cobros automáticos.</strong><br>
+    El administrador coordina el pago y activa tu acceso.
   </div>
 </section>
 
-
-<!-- ── LIGAS ACTIVAS ──────────────────────────────────────────────────── -->
-<section id="ligas-activas" style="padding:100px 5vw">
-  <div class="reveal" style="text-align:center;margin-bottom:48px">
-    <div class="section-label">En curso ahora</div>
-    <h2 class="section-title">Ligas activas</h2>
-    <p class="section-sub" style="margin:0 auto">Elige tu ciudad y sigue tu liga en tiempo real.</p>
-  </div>
-  <div id="ligas-grid" class="reveal" style="transition-delay:.1s;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;max-width:1000px;margin:0 auto">
-    <!-- Cargando... -->
-    <div style="grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--text2);font-size:14px" id="ligas-loading">
-      <div style="font-size:32px;margin-bottom:12px;opacity:.4">🏀</div>
-      Cargando ligas activas...
-    </div>
-  </div>
-</section>
 
 <!-- ── FOOTER ─────────────────────────────────────────────────────────── -->
 <footer>
@@ -825,7 +812,7 @@ footer{
         </div>
         <input type="hidden" id="sol-cant" value="1">
         <div id="ligas-detalle"></div>
-        <div class="precio-ref" id="precio-ref">Precio estimado: $4.990/mes</div>
+        <div class="precio-ref" id="precio-ref">Precio: $9.990 por temporada</div>
 
         <button type="submit" class="f-submit" id="sol-btn">ENVIAR SOLICITUD</button>
         <div class="f-note">Tu solicitud quedará pendiente hasta que el administrador la apruebe y coordine el pago.</div>
@@ -855,59 +842,29 @@ const SUPA_URL  = 'https://bhnmdkfvfpvvddqalazl.supabase.co';
 const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJobm1ka2Z2ZnB2dmRkcWFsYXpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NDQ0NDUsImV4cCI6MjA5NDQyMDQ0NX0.6KSs8JsZG2Dt70XePy2bOrTnWazju3Y--d7OXIZg9xw';
 
 async function loadLigasActivas() {
+  const grid = document.getElementById('ligas-grid');
+  if (!grid) return;
   try {
     const res = await fetch(
-      `${SUPA_URL}/rest/v1/ligas?select=id,NombreFantasia,Categoria,id_ciudad,ciudades(nombre,slug)&EstadoTorneo=eq.Activo&order=created_at.desc`,
-      { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } }
+      'https://bhnmdkfvfpvvddqalazl.supabase.co/rest/v1/torneos?select=id,nombre,ciudad,deporte,temporada&visible=eq.true&order=created_at.desc&limit=6',
+      { headers: { apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJobm1ka2Z2ZnB2dmRkcWFsYXpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NDQ0NDUsImV4cCI6MjA5NDQyMDQ0NX0.6KSs8JsZG2Dt70XePy2bOrTnWazju3Y--d7OXIZg9xw', Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJobm1ka2Z2ZnB2dmRkcWFsYXpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NDQ0NDUsImV4cCI6MjA5NDQyMDQ0NX0.6KSs8JsZG2Dt70XePy2bOrTnWazju3Y--d7OXIZg9xw' } }
     );
-    const ligas = await res.json();
-    const grid = document.getElementById('ligas-grid');
-    if (!ligas || !ligas.length) {
-      grid.innerHTML = `
-        <div style="grid-column:1/-1;text-align:center;padding:48px 20px">
-          <div style="font-size:32px;margin-bottom:12px;opacity:.3">🏀</div>
-          <div style="font-size:15px;color:var(--text2);margin-bottom:16px">Aún no hay ligas activas.</div>
-          <button class="btn-primary" onclick="openModal()" style="font-size:14px;padding:12px 24px">Sé el primero →</button>
-        </div>`;
+    const torneos = await res.json();
+    if (!torneos || torneos.error || !torneos.length) {
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--text2)"><div style="font-size:24px;opacity:.3;margin-bottom:8px">🏀</div><div style="font-size:13px">Sin torneos activos. ¡Sé el primero en publicar tu liga!</div></div>';
       return;
     }
-    // Agrupar por ciudad
-    const byCiudad = {};
-    ligas.forEach(l => {
-      const cname = l.ciudades?.nombre || 'Sin ciudad';
-      const cslug = l.ciudades?.slug || '';
-      if (!byCiudad[cname]) byCiudad[cname] = { slug: cslug, ligas: [] };
-      byCiudad[cname].ligas.push(l);
-    });
-    grid.innerHTML = Object.entries(byCiudad).map(([ciudad, data]) => `
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:24px;transition:all .2s;cursor:pointer"
-           onmouseover="this.style.borderColor='var(--orange-glow)';this.style.transform='translateY(-4px)'"
-           onmouseout="this.style.borderColor='var(--border)';this.style.transform=''"
-           onclick="window.location.href='./app.html'">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-          <div style="font-family:var(--font-head);font-size:18px;color:var(--text)">${ciudad}</div>
-          <div style="background:var(--orange-dim);border:1px solid var(--orange-glow);border-radius:100px;padding:3px 12px;font-size:11px;font-weight:700;color:var(--orange)">${data.ligas.length} liga${data.ligas.length > 1 ? 's' : ''}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          ${data.ligas.map(l => `
-            <div style="display:flex;align-items:center;gap:8px;font-size:13px">
-              <div style="width:6px;height:6px;border-radius:50%;background:var(--orange);flex-shrink:0"></div>
-              <span style="color:var(--text)">${l.NombreFantasia}</span>
-              ${l.Categoria ? `<span style="color:var(--text3);font-size:11px">· ${l.Categoria}</span>` : ''}
-            </div>`).join('')}
-        </div>
-        <div style="margin-top:16px;font-size:12px;color:var(--orange);font-weight:700;display:flex;align-items:center;gap:4px">
-          Ver resultados
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
-      </div>`).join('');
+    grid.innerHTML = torneos.map(t =>
+      '<a href="./app.html" style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;text-decoration:none;display:block;transition:all .2s" onmouseover="this.style.borderColor='rgba(29,78,216,.4)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform=''">'
+      + '<div style="font-family:Barlow Condensed,sans-serif;font-size:18px;font-weight:900;color:var(--text);margin-bottom:4px">' + t.nombre + '</div>'
+      + '<div style="font-size:12px;color:var(--text2);margin-bottom:8px">📍 ' + t.ciudad + (t.temporada ? ' · ' + t.temporada : '') + '</div>'
+      + '<div style="font-size:10px;font-weight:700;color:#22c55e;text-transform:uppercase;letter-spacing:.5px">● En curso · Ver tabla y fixture →</div>'
+      + '</a>'
+    ).join('');
   } catch(e) {
-    document.getElementById('ligas-grid').innerHTML =
-      '<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text2);font-size:13px">No se pudieron cargar las ligas.</div>';
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:16px;color:var(--text2);font-size:13px">No se pudieron cargar los torneos.</div>';
   }
 }
-
-// Cargar al inicio
 loadLigasActivas();
 
 // ── THEME ─────────────────────────────────────────────────────────────
@@ -964,8 +921,7 @@ function setCantLigas(n) {
     const btn = document.getElementById('lc-' + i);
     if (btn) btn.classList.toggle('active', i === n);
   });
-  const precios = {1:'$4.990/mes',2:'$9.990/mes',3:'$9.990/mes',4:'$9.990/mes'};
-  const p = n >= 5 ? '$14.990/mes' : (precios[n] || '$9.990/mes');
+  const p = '$9.990/temporada';
   document.getElementById('precio-ref').textContent = 'Precio estimado: ' + p;
   renderLigasDetalle(n);
 }
