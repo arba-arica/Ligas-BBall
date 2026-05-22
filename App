@@ -5069,17 +5069,42 @@ const ADM_SECTIONS = {
 
 function admToggleSection(sec, btn) {
   const subEl = document.getElementById('sub-' + sec);
-  const isOpen = subEl.classList.contains('open');
+
   // Cerrar todos
   document.querySelectorAll('.adm-submenu-inner').forEach(el => el.classList.remove('open'));
   document.querySelectorAll('.adm-icon-btn').forEach(b => b.classList.remove('active'));
-  // Abrir el seleccionado si estaba cerrado
-  if (!isOpen) {
+
+  if (btn) btn.classList.add('active');
+
+  if (subEl) {
+    // Tiene submenú — toggle
     subEl.classList.add('open');
-    btn.classList.add('active');
-    // Activar primer subitem
     const firstItem = subEl.querySelector('.adm-sub-item');
     if (firstItem) firstItem.click();
+  } else {
+    // Sin submenú — mostrar panel directo
+    const tabMap = {
+      'solicitudes':   'tab-solicitudes',
+      'temporadas':    'tab-temporadas',
+      'torneos-adm':   'tab-torneos-adm',
+      'organizadores': 'tab-organizadores',
+      'metricas':      'tab-metricas',
+      'dashboard-org': 'tab-dashboard-org',
+      'noticias-org':  'tab-noticias-adm',
+      'sanciones-org': 'tab-sanciones-adm',
+      'reportes-org':  'tab-temporada-adm',
+    };
+    const tabId = tabMap[sec];
+    if (tabId) {
+      document.querySelectorAll('.adm-panel-new').forEach(p => p.style.display = 'none');
+      const panel = document.getElementById(tabId);
+      if (panel) panel.style.display = 'block';
+    }
+    // Cargar datos
+    if (sec === 'solicitudes')   loadSolicitudes();
+    if (sec === 'temporadas')    loadTemporadas();
+    if (sec === 'metricas')      loadMetricas();
+    if (sec === 'organizadores') loadSubAdmins();
   }
 }
 
