@@ -978,8 +978,8 @@ async function renderPanel(id) {
             eqHtml += '<div style="width:12px;height:12px;border-radius:50%;background:' + (e.color_local||'#1d4ed8') + ';flex-shrink:0"></div>';
             eqHtml += '<div style="font-weight:600;font-size:14px;flex:1">' + e.nombre + '</div>';
             eqHtml += '<div style="display:flex;gap:6px">';
-            eqHtml += '<button class="btn-sm" onclick="editarEquipoModal('' + e.id + '','' + e.nombre.replace(/'/g, '&#39;') + '','' + (e.color_local||'#1d4ed8') + '')">Editar</button>';
-            eqHtml += '<button class="btn-sm btn-sm-danger" onclick="eliminarEquipo('' + e.id + '')">Eliminar</button>';
+            eqHtml += '<button class="btn-sm" onclick="editarEquipoModal(\'' + e.id + '\',\'' + e.nombre.replace(/'/g, '&#39;') + '\',\'' + (e.color_local||'#1d4ed8') + '\')">Editar</button>';
+            eqHtml += '<button class="btn-sm btn-sm-danger" onclick="eliminarEquipo(\'' + e.id + '\')">Eliminar</button>';
             eqHtml += '</div></div>';
           });
         }
@@ -1053,7 +1053,7 @@ async function renderPanel(id) {
             resHtml += '</div></div>';
           });
           resHtml += '</div></div>';
-          resHtml += '<button class="btn-sm btn-sm-primary" style="width:100%" onclick="cargarResultado('' + p.id + '')">✓ Guardar resultado final</button>';
+          resHtml += '<button class="btn-sm btn-sm-primary" style="width:100%" onclick="cargarResultado(\'' + p.id + '\')">✓ Guardar resultado final</button>';
           resHtml += '</div>';
         });
         resHtml += '</div>';
@@ -1113,8 +1113,8 @@ async function renderPanel(id) {
           if (s.fecha_apelacion) sanHtml += '<div style="font-size:11px;color:var(--blue);margin-top:2px">Apelación: ' + formatFecha(s.fecha_apelacion,'corto') + '</div>';
           sanHtml += '</div>';
           sanHtml += '<div style="display:flex;gap:6px;flex-shrink:0">';
-          sanHtml += '<button class="btn-sm" onclick="editarSancionModal('' + s.id + '','' + (s.jugador_nombre||'').replace(/'/g,'&#39;') + '','' + (s.tipo||'') + '','' + (s.descripcion||'') + '','' + (s.fecha_fin||'') + '','' + (s.fecha_apelacion||'') + '')">Editar</button>';
-          sanHtml += '<button class="btn-sm btn-sm-danger" onclick="eliminarSancion('' + s.id + '')">Eliminar</button>';
+          sanHtml += '<button class="btn-sm" onclick="editarSancionModal(\'' + s.id + '\',\'' + (s.jugador_nombre||'').replace(/'/g,'&#39;') + '\',\'' + (s.tipo||'') + '\',\'' + (s.descripcion||'') + '\',\'' + (s.fecha_fin||'') + '\',\'' + (s.fecha_apelacion||'') + '\')">Editar</button>';
+          sanHtml += '<button class="btn-sm btn-sm-danger" onclick="eliminarSancion(\'' + s.id + '\')">Eliminar</button>';
           sanHtml += '</div></div></div>';
         });
         sanHtml += '</div>';
@@ -1297,8 +1297,8 @@ async function loadPartidosFixture(catId) {
         + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
         + '<div style="font-size:11px;color:var(--text3)">Partido ' + (p.nro_fecha||'') + ' · ' + (p.fase||'') + '</div>'
         + '<div style="display:flex;gap:6px">'
-        + '<button class="btn-sm" onclick="editarPartidoModal('' + p.id + '')">Editar</button>'
-        + '<button class="btn-sm btn-sm-danger" onclick="eliminarPartido('' + p.id + '')">Eliminar</button>'
+        + '<button class="btn-sm" onclick="editarPartidoModal(\'' + p.id + '\')">Editar</button>'
+        + '<button class="btn-sm btn-sm-danger" onclick="eliminarPartido(\'' + p.id + '\')">Eliminar</button>'
         + '</div></div>'
         + '<div style="display:flex;align-items:center;justify-content:space-between;font-weight:600;font-size:14px">'
         + '<span>' + local.nombre + '</span><span style="color:var(--text3);font-size:12px">vs</span><span>' + visita.nombre + '</span>'
