@@ -495,7 +495,7 @@ function showView(id) {
 async function loadTorneos() {
   const list = document.getElementById('torneos-list');
   try {
-    const torneos = await supa('torneos', '?select=id,nombre,ciudad,deporte,temporada,descripcion,visible&eq.visible=true&order=created_at.desc');
+    const torneos = await supa('torneos', '?select=id,nombre,ciudad,deporte,temporada,descripcion,visible&visible=eq.true&estado=neq.eliminado&order=created_at.desc');
     if (!torneos || torneos.error || !torneos.length) {
       list.innerHTML = `<div style="text-align:center;padding:48px 20px">
         <div style="font-size:48px;margin-bottom:16px;opacity:.2">🏀</div>
