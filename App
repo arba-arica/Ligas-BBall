@@ -826,6 +826,7 @@ async function renderPanel(id) {
               </div>
               <div class="p-card-actions">
                 <span class="badge ${t.visible?'badge-active':'badge-draft'}">${t.visible?'Visible':'Oculto'}</span>
+                <button class="btn-sm ${t.visible?'btn-sm-danger':''}" onclick="adminTogglePublicar('${t.id}',${!t.visible})">${t.visible?'Ocultar':'Publicar'}</button>
                 <button class="btn-sm btn-sm-danger" onclick="eliminarTorneo('${t.id}')">Eliminar</button>
               </div>
             </div>
@@ -952,109 +953,115 @@ async function renderPanel(id) {
     }
 
     case 'p-equipos': {
-      const json = await api('getMiTorneo');
-      const torneo = json.data;
-      if (!torneo) { main.innerHTML = '<div class="panel-content"><div class="panel-title">Equipos</div><div style="padding:20px;color:var(--text2)">Primero crea un torneo.</div></div>'; break; }
-      const cats = await api('getMisCategorias', { torneo_id: torneo.id });
-      const catsData = cats.data || [];
+      const jtorneo = await api('getMiTorneo');
+      const torneo2 = jtorneo.data;
+      if (!torneo2) { main.innerHTML = '<div class="panel-content"><div class="panel-title">Equipos</div><div style="padding:20px;color:var(--text2)">Primero crea un torneo.</div></div>'; break; }
+      const jcats2 = await api('getMisCategorias', { torneo_id: torneo2.id });
+      const catsEq = jcats2.data || [];
       let eqHtml = '';
-      for (const cat of catsData) {
-        const eqs = await supa('equipos', `?categoria_id=eq.${cat.id}&activo=eq.true&order=nombre`);
-        eqHtml += `<div style="margin-bottom:16px">
-          <div class="section-label">${cat.nombre}</div>
-          <div class="p-card" style="margin-bottom:8px">
-            <div class="f-row">
-              <div class="f-group" style="grid-column:span 1"><label class="f-label">Nombre equipo</label><input class="f-input" id="eq-nom-${cat.id}" type="text" placeholder="Nombre del equipo"></div>
-              <div class="f-group"><label class="f-label">Color</label><input class="f-input" id="eq-col-${cat.id}" type="color" value="#1d4ed8" style="height:40px;padding:4px"></div>
-            </div>
-            <button class="btn-sm btn-sm-primary" onclick="crearEquipo('${cat.id}')">+ Agregar equipo</button>
-          </div>
-          ${!(eqs||[]).length ? '<div style="font-size:13px;color:var(--text2)">Sin equipos.</div>' :
-            (eqs||[]).map(e => `
-            <div class="p-card" style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:6px">
-              <div style="width:12px;height:12px;border-radius:50%;background:${e.color_local};flex-shrink:0"></div>
-              <div style="font-weight:600;font-size:14px;flex:1">${e.nombre}</div>
-              <button class="btn-sm btn-sm-danger" onclick="eliminarEquipo('${e.id}','${cat.id}')">✕</button>
-            </div>`).join('')}
-        </div>`;
+      for (const cat of catsEq) {
+        const jEqs = await api('getEquiposCategoria', { categoria_id: cat.id });
+        const eqs = jEqs.data || [];
+        eqHtml += '<div style="margin-bottom:20px">';
+        eqHtml += '<div class="section-label">' + cat.nombre + '</div>';
+        eqHtml += '<div class="p-card" style="margin-bottom:10px">';
+        eqHtml += '<div class="f-row">';
+        eqHtml += '<div class="f-group"><label class="f-label">Nombre equipo</label><input class="f-input" id="eq-nom-' + cat.id + '" type="text" placeholder="Nombre del equipo"></div>';
+        eqHtml += '<div class="f-group"><label class="f-label">Color</label><input class="f-input" id="eq-col-' + cat.id + '" type="color" value="#1d4ed8" style="height:40px;padding:4px"></div>';
+        eqHtml += '</div>';
+        eqHtml += '<button class="btn-sm btn-sm-primary" onclick="crearEquipo('' + cat.id + '')">+ Agregar equipo</button>';
+        eqHtml += '</div>';
+        if (!eqs.length) {
+          eqHtml += '<div style="font-size:13px;color:var(--text2);padding:8px 0">Sin equipos aun.</div>';
+        } else {
+          eqs.forEach(e => {
+            eqHtml += '<div class="p-card" style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:6px">';
+            eqHtml += '<div style="width:12px;height:12px;border-radius:50%;background:' + (e.color_local||'#1d4ed8') + ';flex-shrink:0"></div>';
+            eqHtml += '<div style="font-weight:600;font-size:14px;flex:1">' + e.nombre + '</div>';
+            eqHtml += '<div style="display:flex;gap:6px">';
+            eqHtml += '<button class="btn-sm" onclick="editarEquipoModal('' + e.id + '','' + e.nombre.replace(/'/g, '&#39;') + '','' + (e.color_local||'#1d4ed8') + '')">Editar</button>';
+            eqHtml += '<button class="btn-sm btn-sm-danger" onclick="eliminarEquipo('' + e.id + '')">Eliminar</button>';
+            eqHtml += '</div></div>';
+          });
+        }
+        eqHtml += '</div>';
       }
-      main.innerHTML = `<div class="panel-content">
-        <div class="panel-title">Equipos</div>
-        <div class="panel-sub">Torneo: ${torneo.nombre}</div>
-        ${!catsData.length ? '<div style="padding:20px;color:var(--text2)">Primero crea las categorías.</div>' : eqHtml}
-      </div>`;
+      main.innerHTML = '<div class="panel-content"><div class="panel-title">Equipos</div><div class="panel-sub">Torneo: ' + torneo2.nombre + '</div>' + (!catsEq.length ? '<div style="padding:20px;color:var(--text2)">Primero crea las categorias.</div>' : eqHtml) + '</div>';
       break;
     }
 
     case 'p-fixture': {
-      const json = await api('getMiTorneo');
-      const torneo = json.data;
-      if (!torneo) { main.innerHTML = '<div class="panel-content"><div class="panel-title">Fixture</div><div style="padding:20px;color:var(--text2)">Primero crea un torneo.</div></div>'; break; }
-      const cats = await api('getMisCategorias', { torneo_id: torneo.id });
-      const catsData = cats.data || [];
-      const catOpts = catsData.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
-      main.innerHTML = `<div class="panel-content">
-        <div class="panel-title">Fixture</div>
-        <div class="panel-sub">Crea los partidos manualmente</div>
-        <div class="p-card" style="margin-bottom:16px">
-          <div class="f-group"><label class="f-label">Categoría</label>
-            <select class="f-select" id="fix-cat" onchange="loadEquiposFixture(this.value)">${catOpts}</select>
-          </div>
-          <div class="f-row">
-            <div class="f-group"><label class="f-label">Equipo local</label><select class="f-select" id="fix-local"></select></div>
-            <div class="f-group"><label class="f-label">Equipo visita</label><select class="f-select" id="fix-visita"></select></div>
-          </div>
-          <div class="f-row">
-            <div class="f-group"><label class="f-label">Fecha</label><input class="f-input" id="fix-fecha" type="date"></div>
-            <div class="f-group"><label class="f-label">Hora</label><input class="f-input" id="fix-hora" type="time"></div>
-          </div>
-          <div class="f-row">
-            <div class="f-group"><label class="f-label">Cancha</label><input class="f-input" id="fix-cancha" type="text" placeholder="Nombre de la cancha"></div>
-            <div class="f-group"><label class="f-label">Fase</label><input class="f-input" id="fix-fase" type="text" value="Fase Regular"></div>
-          </div>
-          <button class="btn-sm btn-sm-primary" onclick="crearPartido()">+ Programar partido</button>
-        </div>
-        <div id="fix-lista"></div>
-      </div>`;
-      if (catsData.length) {
-        loadEquiposFixture(catsData[0].id);
-        loadPartidosFixture(catsData[0].id, catsData);
+      const jtf = await api('getMiTorneo');
+      const torneoFix = jtf.data;
+      if (!torneoFix) { main.innerHTML = '<div class="panel-content"><div class="panel-title">Fixture</div><div style="padding:20px;color:var(--text2)">Primero crea un torneo.</div></div>'; break; }
+      const jcf = await api('getMisCategorias', { torneo_id: torneoFix.id });
+      const catsFix = jcf.data || [];
+      const catOpts = catsFix.map(c => '<option value="' + c.id + '">' + c.nombre + '</option>').join('');
+      main.innerHTML = '<div class="panel-content">'
+        + '<div class="panel-title">Fixture</div>'
+        + '<div class="panel-sub">Programa los partidos manualmente</div>'
+        + '<div class="p-card" style="margin-bottom:16px">'
+        + '<div class="f-row"><div class="f-group"><label class="f-label">N° Partido</label><input class="f-input" id="fix-nro" type="number" value="1" min="1" placeholder="1"></div>'
+        + '<div class="f-group"><label class="f-label">Categoría</label><select class="f-select" id="fix-cat" onchange="loadEquiposFixture(this.value)">' + catOpts + '</select></div></div>'
+        + '<div class="f-row"><div class="f-group"><label class="f-label">Equipo local</label><select class="f-select" id="fix-local"></select></div>'
+        + '<div class="f-group"><label class="f-label">Equipo visita</label><select class="f-select" id="fix-visita"></select></div></div>'
+        + '<div class="f-row"><div class="f-group"><label class="f-label">Fecha</label><input class="f-input" id="fix-fecha" type="date"></div>'
+        + '<div class="f-group"><label class="f-label">Hora</label><input class="f-input" id="fix-hora" type="time"></div></div>'
+        + '<div class="f-row"><div class="f-group"><label class="f-label">Cancha</label><input class="f-input" id="fix-cancha" type="text" placeholder="Nombre de la cancha"></div>'
+        + '<div class="f-group"><label class="f-label">Fase</label><input class="f-input" id="fix-fase" type="text" value="Fase Regular"></div></div>'
+        + '<div class="f-group"><label class="f-label">URL Transmisión en vivo (opcional)</label><input class="f-input" id="fix-url" type="url" placeholder="https://youtube.com/..."></div>'
+        + '<button class="btn-sm btn-sm-primary" onclick="crearPartido()">+ Programar partido</button>'
+        + '</div>'
+        + '<div id="fix-lista"></div>'
+        + '</div>';
+      if (catsFix.length) {
+        loadEquiposFixture(catsFix[0].id);
+        loadPartidosFixture(catsFix[0].id);
       }
       break;
     }
 
     case 'p-resultados': {
-      const json = await api('getMiTorneo');
-      const torneo = json.data;
-      if (!torneo) { main.innerHTML = '<div class="panel-content"><div class="panel-title">Resultados</div><div style="padding:20px;color:var(--text2)">Sin torneo.</div></div>'; break; }
-      const cats = await api('getMisCategorias', { torneo_id: torneo.id });
-      const catsData = cats.data || [];
+      const jtr = await api('getMiTorneo');
+      const torneoRes = jtr.data;
+      if (!torneoRes) { main.innerHTML = '<div class="panel-content"><div class="panel-title">Resultados</div><div style="padding:20px;color:var(--text2)">Sin torneo.</div></div>'; break; }
+      const jcr = await api('getMisCategorias', { torneo_id: torneoRes.id });
+      const catsRes = jcr.data || [];
       let resHtml = '';
-      for (const cat of catsData) {
-        const partidos = await supa('partidos',
-          `?categoria_id=eq.${cat.id}&estado=eq.programado&select=*,local:equipo_local(nombre),visita:equipo_visita(nombre)&order=fecha,hora`);
-        if (!partidos || !partidos.length) continue;
-        resHtml += `<div style="margin-bottom:16px"><div class="section-label">${cat.nombre}</div>`;
+      for (const cat of catsRes) {
+        const jpr = await api('getPartidosCategoria', { categoria_id: cat.id, estado: 'programado' });
+        const partidos = jpr.data || [];
+        if (!partidos.length) continue;
+        resHtml += '<div style="margin-bottom:20px"><div class="section-label">' + cat.nombre + '</div>';
         partidos.forEach(p => {
-          resHtml += `<div class="p-card" style="margin-bottom:8px">
-            <div style="font-size:12px;color:var(--text2);margin-bottom:8px">${formatFecha(p.fecha,'corto')} ${p.hora||''} ${p.cancha?'· '+p.cancha:''}</div>
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-              <div style="flex:1;font-weight:600">${p.local?.nombre||'?'}</div>
-              <input type="number" id="r-loc-${p.id}" min="0" style="width:52px;text-align:center;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:6px;color:var(--text);font-size:16px;font-weight:700" placeholder="0">
-              <span style="color:var(--text3);font-weight:700">-</span>
-              <input type="number" id="r-vis-${p.id}" min="0" style="width:52px;text-align:center;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:6px;color:var(--text);font-size:16px;font-weight:700" placeholder="0">
-              <div style="flex:1;font-weight:600;text-align:right">${p.visita?.nombre||'?'}</div>
-            </div>
-            <button class="btn-sm btn-sm-primary" onclick="cargarResultado('${p.id}')">Guardar resultado</button>
-          </div>`;
+          const inp = (id, ph) => '<input type="number" id="' + id + '" min="0" style="width:44px;text-align:center;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:5px 4px;color:var(--text);font-size:15px;font-weight:700" placeholder="' + ph + '">';
+          resHtml += '<div class="p-card" style="margin-bottom:10px">';
+          resHtml += '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">Partido ' + (p.nro_fecha||'') + ' · ' + formatFecha(p.fecha,'corto') + ' ' + (p.hora||'') + (p.cancha?' · '+p.cancha:'') + '</div>';
+          resHtml += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">';
+          resHtml += '<div style="flex:1;font-weight:700;font-size:14px">' + (p.local?.nombre||'?') + '</div>';
+          resHtml += inp('r-loc-' + p.id, '0') + '<span style="color:var(--text3);font-weight:700;font-size:18px"> - </span>' + inp('r-vis-' + p.id, '0');
+          resHtml += '<div style="flex:1;font-weight:700;font-size:14px;text-align:right">' + (p.visita?.nombre||'?') + '</div>';
+          resHtml += '</div>';
+          // Cuartos
+          resHtml += '<div style="background:var(--bg3);border-radius:10px;padding:10px;margin-bottom:10px">';
+          resHtml += '<div style="font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Parciales por cuarto (opcional)</div>';
+          resHtml += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">';
+          ['1','2','3','4'].forEach(q => {
+            resHtml += '<div style="text-align:center">';
+            resHtml += '<div style="font-size:10px;color:var(--text3);margin-bottom:4px">Q' + q + '</div>';
+            resHtml += '<div style="display:flex;gap:3px;justify-content:center">';
+            resHtml += inp('q' + q + '-loc-' + p.id, '-') + inp('q' + q + '-vis-' + p.id, '-');
+            resHtml += '</div></div>';
+          });
+          resHtml += '</div></div>';
+          resHtml += '<button class="btn-sm btn-sm-primary" style="width:100%" onclick="cargarResultado('' + p.id + '')">✓ Guardar resultado final</button>';
+          resHtml += '</div>';
         });
         resHtml += '</div>';
       }
-      main.innerHTML = `<div class="panel-content">
-        <div class="panel-title">Resultados</div>
-        <div class="panel-sub">Carga los resultados de los partidos finalizados</div>
-        ${resHtml || '<div style="padding:20px;color:var(--text2)">Sin partidos programados pendientes.</div>'}
-      </div>`;
+      main.innerHTML = '<div class="panel-content"><div class="panel-title">Resultados</div><div class="panel-sub">Registra el resultado final y parciales por cuarto</div>'
+        + (resHtml || '<div style="padding:20px;color:var(--text2)">Sin partidos programados pendientes.</div>')
+        + '</div>';
       break;
     }
 
@@ -1084,27 +1091,48 @@ async function renderPanel(id) {
     }
 
     case 'p-sanciones': {
-      const json = await api('getMiTorneo');
-      const torneo = json.data;
-      if (!torneo) { main.innerHTML = '<div class="panel-content"><div class="panel-title">Sanciones</div><div style="padding:20px;color:var(--text2)">Sin torneo.</div></div>'; break; }
-      const cats = await api('getMisCategorias', { torneo_id: torneo.id });
-      const catsData = cats.data || [];
-      const catOpts = catsData.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
-      main.innerHTML = `<div class="panel-content">
-        <div class="panel-title">Sanciones</div>
-        <div class="p-card" style="margin-bottom:16px">
-          <div class="f-group"><label class="f-label">Categoría</label><select class="f-select" id="san-cat">${catOpts}</select></div>
-          <div class="f-row">
-            <div class="f-group"><label class="f-label">Jugador</label><input class="f-input" id="san-jug" type="text" placeholder="Nombre del jugador"></div>
-            <div class="f-group"><label class="f-label">Tipo</label><input class="f-input" id="san-tipo" type="text" placeholder="Ej: Técnica, Expulsión"></div>
-          </div>
-          <div class="f-row">
-            <div class="f-group"><label class="f-label">Descripción</label><input class="f-input" id="san-desc" type="text" placeholder="Detalle de la sanción"></div>
-            <div class="f-group"><label class="f-label">Fecha fin</label><input class="f-input" id="san-fin" type="date"></div>
-          </div>
-          <button class="btn-sm btn-sm-primary" onclick="crearSancion()">+ Registrar sanción</button>
-        </div>
-      </div>`;
+      const jts = await api('getMiTorneo');
+      const torneoSan = jts.data;
+      if (!torneoSan) { main.innerHTML = '<div class="panel-content"><div class="panel-title">Sanciones</div><div style="padding:20px;color:var(--text2)">Sin torneo.</div></div>'; break; }
+      const jcs = await api('getMisCategorias', { torneo_id: torneoSan.id });
+      const catsSan = jcs.data || [];
+      const catOptsSan = catsSan.map(c => '<option value="' + c.id + '">' + c.nombre + '</option>').join('');
+      // Cargar sanciones existentes
+      let sanHtml = '';
+      for (const cat of catsSan) {
+        const jsan = await api('getSancionesCategoria', { categoria_id: cat.id });
+        const sanciones = jsan.data || [];
+        if (!sanciones.length) continue;
+        sanHtml += '<div style="margin-bottom:16px"><div class="section-label">' + cat.nombre + '</div>';
+        sanciones.forEach(s => {
+          sanHtml += '<div class="p-card" style="margin-bottom:8px">';
+          sanHtml += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">';
+          sanHtml += '<div style="flex:1">';
+          sanHtml += '<div style="font-weight:700;color:var(--text)">' + (s.jugador_nombre||'Sin nombre') + '</div>';
+          sanHtml += '<div style="font-size:12px;color:var(--text2)">' + (s.tipo||'') + (s.descripcion?' · '+s.descripcion:'') + '</div>';
+          if (s.fecha_fin) sanHtml += '<div style="font-size:11px;color:var(--orange);margin-top:2px">Hasta: ' + formatFecha(s.fecha_fin,'corto') + '</div>';
+          if (s.fecha_apelacion) sanHtml += '<div style="font-size:11px;color:var(--blue);margin-top:2px">Apelación: ' + formatFecha(s.fecha_apelacion,'corto') + '</div>';
+          sanHtml += '</div>';
+          sanHtml += '<div style="display:flex;gap:6px;flex-shrink:0">';
+          sanHtml += '<button class="btn-sm" onclick="editarSancionModal('' + s.id + '','' + (s.jugador_nombre||'').replace(/'/g,'&#39;') + '','' + (s.tipo||'') + '','' + (s.descripcion||'') + '','' + (s.fecha_fin||'') + '','' + (s.fecha_apelacion||'') + '')">Editar</button>';
+          sanHtml += '<button class="btn-sm btn-sm-danger" onclick="eliminarSancion('' + s.id + '')">Eliminar</button>';
+          sanHtml += '</div></div></div>';
+        });
+        sanHtml += '</div>';
+      }
+      main.innerHTML = '<div class="panel-content">'
+        + '<div class="panel-title">Sanciones</div>'
+        + '<div class="p-card" style="margin-bottom:16px">'
+        + '<div class="f-group"><label class="f-label">Categoría</label><select class="f-select" id="san-cat">' + catOptsSan + '</select></div>'
+        + '<div class="f-row"><div class="f-group"><label class="f-label">Jugador</label><input class="f-input" id="san-jug" type="text" placeholder="Nombre del jugador"></div>'
+        + '<div class="f-group"><label class="f-label">Tipo</label><input class="f-input" id="san-tipo" type="text" placeholder="Ej: Técnica, Expulsión"></div></div>'
+        + '<div class="f-group"><label class="f-label">Descripción</label><input class="f-input" id="san-desc" type="text" placeholder="Detalle de la sanción"></div>'
+        + '<div class="f-row"><div class="f-group"><label class="f-label">Fecha fin sanción</label><input class="f-input" id="san-fin" type="date"></div>'
+        + '<div class="f-group"><label class="f-label">Fecha apelación</label><input class="f-input" id="san-apel" type="date"></div></div>'
+        + '<button class="btn-sm btn-sm-primary" onclick="crearSancion()">+ Registrar sanción</button>'
+        + '</div>'
+        + (sanHtml || '')
+        + '</div>';
       break;
     }
 
@@ -1204,6 +1232,13 @@ async function togglePublicar(id, visible) {
   if (json.success) renderPanel('p-dashboard');
 }
 
+async function adminTogglePublicar(id, visible) {
+  if (!confirm(visible ? 'Publicar torneo para el publico?' : 'Ocultar este torneo?')) return;
+  const json = await api('publicarTorneo', { id, visible });
+  toast(json.success ? (visible ? 'Torneo publicado' : 'Torneo ocultado') : json.message, json.success ? 'ok' : 'err');
+  if (json.success) renderPanel('p-torneos');
+}
+
 async function crearCategoria(torneo_id) {
   const nombre = document.getElementById('cat-nombre')?.value.trim();
   if (!nombre) { toast('Ingresa el nombre de la categoría', 'err'); return; }
@@ -1238,28 +1273,42 @@ async function eliminarEquipo(id) {
 }
 
 async function loadEquiposFixture(catId) {
-  const eqs = await supa('equipos', `?categoria_id=eq.${catId}&activo=eq.true&order=nombre`);
-  const opts = (eqs||[]).map(e => `<option value="${e.id}">${e.nombre}</option>`).join('');
+  const jEq = await api('getEquiposCategoria', { categoria_id: catId });
+  const eqs = jEq.data || [];
+  const opts = eqs.map(e => '<option value="' + e.id + '">' + e.nombre + '</option>').join('');
   ['fix-local','fix-visita'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.innerHTML = opts;
+    if (el) el.innerHTML = opts || '<option value="">Sin equipos</option>';
   });
-  loadPartidosFixture(catId, []);
+  loadPartidosFixture(catId);
 }
 
-async function loadPartidosFixture(catId, cats) {
+async function loadPartidosFixture(catId) {
   const lista = document.getElementById('fix-lista');
   if (!lista) return;
-  const partidos = await supa('partidos',
-    `?categoria_id=eq.${catId}&select=*,local:equipo_local(nombre),visita:equipo_visita(nombre)&order=fecha,hora`);
-  if (!partidos || !partidos.length) { lista.innerHTML = '<div style="font-size:13px;color:var(--text2)">Sin partidos programados.</div>'; return; }
-  lista.innerHTML = partidos.map(p => `
-    <div class="p-card" style="margin-bottom:8px">
-      ${renderMatchCard(p)}
-      <div style="display:flex;gap:6px;margin-top:8px">
-        <button class="btn-sm btn-sm-danger" onclick="eliminarPartido('${p.id}')">Eliminar</button>
-      </div>
-    </div>`).join('');
+  lista.innerHTML = '<div style="font-size:12px;color:var(--text2)">Cargando...</div>';
+  const jPar = await api('getPartidosCategoria', { categoria_id: catId });
+  const partidos = jPar.data || [];
+  if (!partidos.length) { lista.innerHTML = '<div style="font-size:13px;color:var(--text2);padding:8px 0">Sin partidos programados.</div>'; return; }
+  lista.innerHTML = '<div class="section-label" style="margin-top:12px">Partidos programados</div>'
+    + partidos.map(p => {
+      const local  = p.local  || { nombre:'?' };
+      const visita = p.visita || { nombre:'?' };
+      return '<div class="p-card" style="margin-bottom:8px">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
+        + '<div style="font-size:11px;color:var(--text3)">Partido ' + (p.nro_fecha||'') + ' · ' + (p.fase||'') + '</div>'
+        + '<div style="display:flex;gap:6px">'
+        + '<button class="btn-sm" onclick="editarPartidoModal('' + p.id + '')">Editar</button>'
+        + '<button class="btn-sm btn-sm-danger" onclick="eliminarPartido('' + p.id + '')">Eliminar</button>'
+        + '</div></div>'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;font-weight:600;font-size:14px">'
+        + '<span>' + local.nombre + '</span><span style="color:var(--text3);font-size:12px">vs</span><span>' + visita.nombre + '</span>'
+        + '</div>'
+        + '<div style="font-size:11px;color:var(--text2);margin-top:6px">'
+        + formatFecha(p.fecha,'corto') + (p.hora?' · '+p.hora:'') + (p.cancha?' · '+p.cancha:'')
+        + (p.url_transmision ? ' · <a href="' + p.url_transmision + '" target="_blank" style="color:var(--blue)">Ver en vivo</a>' : '')
+        + '</div></div>';
+    }).join('');
 }
 
 async function crearPartido() {
@@ -1269,16 +1318,18 @@ async function crearPartido() {
   if (!catId || !local || !visita) { toast('Selecciona categoría y equipos', 'err'); return; }
   if (local === visita) { toast('Los equipos no pueden ser iguales', 'err'); return; }
   const json = await api('crearPartido', {
-    categoria_id:  catId,
-    equipo_local:  local,
-    equipo_visita: visita,
-    fecha:         document.getElementById('fix-fecha')?.value || null,
-    hora:          document.getElementById('fix-hora')?.value  || null,
-    cancha:        document.getElementById('fix-cancha')?.value.trim() || null,
-    fase:          document.getElementById('fix-fase')?.value.trim() || 'Fase Regular',
+    categoria_id:    catId,
+    equipo_local:    local,
+    equipo_visita:   visita,
+    fecha:           document.getElementById('fix-fecha')?.value || null,
+    hora:            document.getElementById('fix-hora')?.value  || null,
+    cancha:          document.getElementById('fix-cancha')?.value.trim() || null,
+    fase:            document.getElementById('fix-fase')?.value.trim() || 'Fase Regular',
+    nro_fecha:       parseInt(document.getElementById('fix-nro')?.value) || 1,
+    url_transmision: document.getElementById('fix-url')?.value.trim() || null,
   });
   toast(json.success ? '✓ Partido programado' : json.message, json.success ? 'ok' : 'err');
-  if (json.success) loadPartidosFixture(catId, []);
+  if (json.success) loadPartidosFixture(catId);
 }
 
 async function eliminarPartido(id) {
@@ -1292,11 +1343,18 @@ async function eliminarPartido(id) {
 }
 
 async function cargarResultado(id) {
-  const ptsLocal  = parseInt(document.getElementById(`r-loc-${id}`)?.value);
-  const ptsVisita = parseInt(document.getElementById(`r-vis-${id}`)?.value);
-  if (isNaN(ptsLocal) || isNaN(ptsVisita)) { toast('Ingresa los puntos', 'err'); return; }
-  const json = await api('actualizarResultado', { id, pts_local: ptsLocal, pts_visita: ptsVisita });
-  toast(json.success ? '✓ Resultado cargado' : json.message, json.success ? 'ok' : 'err');
+  const ptsLocal  = parseInt(document.getElementById('r-loc-'+id)?.value);
+  const ptsVisita = parseInt(document.getElementById('r-vis-'+id)?.value);
+  if (isNaN(ptsLocal) || isNaN(ptsVisita)) { toast('Ingresa los puntos del partido', 'err'); return; }
+  const data = { id, pts_local: ptsLocal, pts_visita: ptsVisita };
+  // Cuartos opcionales
+  ['1','2','3','4'].forEach(q => {
+    const ql = parseInt(document.getElementById('q'+q+'-loc-'+id)?.value);
+    const qv = parseInt(document.getElementById('q'+q+'-vis-'+id)?.value);
+    if (!isNaN(ql)) { data['q'+q+'_local'] = ql; data['q'+q+'_visita'] = isNaN(qv) ? 0 : qv; }
+  });
+  const json = await api('actualizarResultado', data);
+  toast(json.success ? '✓ Resultado guardado — tabla actualizada' : json.message, json.success ? 'ok' : 'err');
   if (json.success) renderPanel('p-resultados');
 }
 
@@ -1318,18 +1376,58 @@ async function eliminarNoticia(id, torneo_id) {
 
 async function crearSancion() {
   const catId = document.getElementById('san-cat')?.value;
-  const jug   = document.getElementById('san-jug')?.value.trim();
   const tipo  = document.getElementById('san-tipo')?.value.trim();
-  if (!catId || !tipo) { toast('Completa los campos requeridos', 'err'); return; }
+  if (!catId || !tipo) { toast('Completa categoría y tipo', 'err'); return; }
   const json = await api('crearSancion', {
-    categoria_id:   catId,
-    jugador_nombre: jug,
+    categoria_id:    catId,
+    jugador_nombre:  document.getElementById('san-jug')?.value.trim() || null,
     tipo,
-    descripcion:    document.getElementById('san-desc')?.value.trim(),
-    fecha_fin:      document.getElementById('san-fin')?.value || null,
+    descripcion:     document.getElementById('san-desc')?.value.trim() || null,
+    fecha_fin:       document.getElementById('san-fin')?.value  || null,
+    fecha_apelacion: document.getElementById('san-apel')?.value || null,
   });
   toast(json.success ? '✓ Sanción registrada' : json.message, json.success ? 'ok' : 'err');
   if (json.success) renderPanel('p-sanciones');
+}
+
+// Editar equipo modal
+function editarEquipoModal(id, nombre, color, catId) {
+  const nuevoNombre = prompt('Nombre del equipo:', nombre);
+  if (!nuevoNombre) return;
+  api('actualizarEquipo', { id, nombre: nuevoNombre, color_local: color }).then(json => {
+    toast(json.success ? '✓ Equipo actualizado' : json.message, json.success ? 'ok' : 'err');
+    if (json.success) renderPanel('p-equipos');
+  });
+}
+
+// Editar sancion modal
+function editarSancionModal(id, jugador, tipo, desc, fechaFin, fechaApel) {
+  const nuevoJug  = prompt('Jugador:', jugador) ?? jugador;
+  const nuevoTipo = prompt('Tipo de sanción:', tipo) ?? tipo;
+  if (!nuevoTipo) return;
+  api('actualizarSancion', {
+    id,
+    jugador_nombre:  nuevoJug,
+    tipo:            nuevoTipo,
+    descripcion:     desc,
+    fecha_fin:       fechaFin  || null,
+    fecha_apelacion: fechaApel || null,
+  }).then(json => {
+    toast(json.success ? '✓ Sanción actualizada' : json.message, json.success ? 'ok' : 'err');
+    if (json.success) renderPanel('p-sanciones');
+  });
+}
+
+// Editar partido modal
+async function editarPartidoModal(id) {
+  const fecha  = prompt('Nueva fecha (YYYY-MM-DD):') || null;
+  const hora   = prompt('Nueva hora (HH:MM):') || null;
+  const cancha = prompt('Cancha:') || null;
+  const url    = prompt('URL transmisión (dejar vacío para ninguna):') || null;
+  const json = await api('actualizarPartido', { id, fecha, hora, cancha, url_transmision: url, fase: 'Fase Regular', nro_fecha: 1 });
+  toast(json.success ? '✓ Partido actualizado' : json.message, json.success ? 'ok' : 'err');
+  const catId = document.getElementById('fix-cat')?.value;
+  if (json.success && catId) loadPartidosFixture(catId);
 }
 
 // ── SOLICITUD PÚBLICA ─────────────────────────────────────────────────────────
