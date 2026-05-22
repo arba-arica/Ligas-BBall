@@ -954,38 +954,47 @@ async function renderPanel(id) {
     case 'p-equipos': {
       const jtorneo = await api('getMiTorneo');
       const torneo2 = jtorneo.data;
-      if (!torneo2) { main.innerHTML = '<div class="panel-content"><div class="panel-title">Equipos</div><div style="padding:20px;color:var(--text2)">Primero crea un torneo.</div></div>'; break; }
+      if (!torneo2) {
+        main.innerHTML = '<div class="panel-content"><div class="panel-title">Equipos</div><div style="padding:20px;color:var(--text2)">Primero crea un torneo.</div></div>';
+        break;
+      }
       const jcats2 = await api('getMisCategorias', { torneo_id: torneo2.id });
       const catsEq = jcats2.data || [];
       let eqHtml = '';
       for (const cat of catsEq) {
         const jEqs = await api('getEquiposCategoria', { categoria_id: cat.id });
         const eqs = jEqs.data || [];
+        const catId = cat.id;
         eqHtml += '<div style="margin-bottom:20px">';
         eqHtml += '<div class="section-label">' + cat.nombre + '</div>';
         eqHtml += '<div class="p-card" style="margin-bottom:10px">';
         eqHtml += '<div class="f-row">';
-        eqHtml += '<div class="f-group"><label class="f-label">Nombre equipo</label><input class="f-input" id="eq-nom-' + cat.id + '" type="text" placeholder="Nombre del equipo"></div>';
-        eqHtml += '<div class="f-group"><label class="f-label">Color</label><input class="f-input" id="eq-col-' + cat.id + '" type="color" value="#1d4ed8" style="height:40px;padding:4px"></div>';
+        eqHtml += '<div class="f-group"><label class="f-label">Nombre equipo</label>';
+        eqHtml += '<input class="f-input" id="eq-nom-' + catId + '" type="text" placeholder="Nombre del equipo"></div>';
+        eqHtml += '<div class="f-group"><label class="f-label">Color</label>';
+        eqHtml += '<input class="f-input" id="eq-col-' + catId + '" type="color" value="#1d4ed8" style="height:40px;padding:4px"></div>';
         eqHtml += '</div>';
-        eqHtml += '<button class="btn-sm btn-sm-primary" onclick="crearEquipo(' + "'" + cat.id + "'" + ')" >+ Agregar equipo</button>';
+        eqHtml += '<button class="btn-sm btn-sm-primary" onclick="crearEquipo(this)" data-cat="' + catId + '">+ Agregar equipo</button>';
         eqHtml += '</div>';
         if (!eqs.length) {
-          eqHtml += '<div style="font-size:13px;color:var(--text2);padding:8px 0">Sin equipos aun.</div>';
+          eqHtml += '<div style="font-size:13px;color:var(--text2);padding:8px 0">Sin equipos aún.</div>';
         } else {
-          eqs.forEach(e => {
+          eqs.forEach(function(e) {
             eqHtml += '<div class="p-card" style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:6px">';
-            eqHtml += '<div style="width:12px;height:12px;border-radius:50%;background:' + (e.color_local||'#1d4ed8') + ';flex-shrink:0"></div>';
+            eqHtml += '<div style="width:12px;height:12px;border-radius:50%;background:' + (e.color_local || '#1d4ed8') + ';flex-shrink:0"></div>';
             eqHtml += '<div style="font-weight:600;font-size:14px;flex:1">' + e.nombre + '</div>';
             eqHtml += '<div style="display:flex;gap:6px">';
-            eqHtml += '<button class="btn-sm" onclick="editarEquipoModal('' + e.id + '','' + e.nombre.replace(/'/g, '&#39;') + '','' + (e.color_local||'#1d4ed8') + '')">Editar</button>';
-            eqHtml += '<button class="btn-sm btn-sm-danger" onclick="eliminarEquipo('' + e.id + '')">Eliminar</button>';
+            eqHtml += '<button class="btn-sm" onclick="editarEquipoModal(this)" data-id="' + e.id + '" data-nombre="' + e.nombre.replace(/"/g,'&quot;') + '" data-color="' + (e.color_local||'#1d4ed8') + '">Editar</button>';
+            eqHtml += '<button class="btn-sm btn-sm-danger" onclick="eliminarEquipo(this)" data-id="' + e.id + '">Eliminar</button>';
             eqHtml += '</div></div>';
           });
         }
         eqHtml += '</div>';
       }
-      main.innerHTML = '<div class="panel-content"><div class="panel-title">Equipos</div><div class="panel-sub">Torneo: ' + torneo2.nombre + '</div>' + (!catsEq.length ? '<div style="padding:20px;color:var(--text2)">Primero crea las categorias.</div>' : eqHtml) + '</div>';
+      main.innerHTML = '<div class="panel-content"><div class="panel-title">Equipos</div>'
+        + '<div class="panel-sub">Torneo: ' + torneo2.nombre + '</div>'
+        + (!catsEq.length ? '<div style="padding:20px;color:var(--text2)">Primero crea las categorías.</div>' : eqHtml)
+        + '</div>';
       break;
     }
 
@@ -1255,16 +1264,20 @@ async function eliminarCategoria(id) {
   if (json.success) renderPanel('p-categorias');
 }
 
-async function crearEquipo(categoria_id) {
-  const nombre = document.getElementById(`eq-nom-${categoria_id}`)?.value.trim();
-  const color  = document.getElementById(`eq-col-${categoria_id}`)?.value || '#1d4ed8';
+async function crearEquipo(btn) {
+  const categoria_id = btn ? btn.dataset.cat : null;
+  if (!categoria_id) { toast('Error al obtener categoría', 'err'); return; }
+  const nombre = document.getElementById('eq-nom-' + categoria_id)?.value.trim();
+  const color  = document.getElementById('eq-col-' + categoria_id)?.value || '#1d4ed8';
   if (!nombre) { toast('Ingresa el nombre del equipo', 'err'); return; }
   const json = await api('crearEquipo', { categoria_id, nombre, color_local: color });
   toast(json.success ? '✓ Equipo creado' : json.message, json.success ? 'ok' : 'err');
   if (json.success) renderPanel('p-equipos');
 }
 
-async function eliminarEquipo(id) {
+async function eliminarEquipo(btn) {
+  const id = btn ? btn.dataset.id : null;
+  if (!id) return;
   if (!confirm('¿Eliminar este equipo?')) return;
   const json = await api('eliminarEquipo', { id });
   toast(json.success ? '✓ Eliminado' : json.message, json.success ? 'ok' : 'err');
@@ -1390,7 +1403,11 @@ async function crearSancion() {
 }
 
 // Editar equipo modal
-function editarEquipoModal(id, nombre, color, catId) {
+function editarEquipoModal(btn) {
+  const id     = btn ? btn.dataset.id     : null;
+  const nombre = btn ? btn.dataset.nombre : '';
+  const color  = btn ? btn.dataset.color  : '#1d4ed8';
+  if (!id) return;
   const nuevoNombre = prompt('Nombre del equipo:', nombre);
   if (!nuevoNombre) return;
   api('actualizarEquipo', { id, nombre: nuevoNombre, color_local: color }).then(json => {
