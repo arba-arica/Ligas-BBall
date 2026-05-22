@@ -1390,11 +1390,12 @@ function calcStandings(ligaId) {
   if (!liga) return [];
   const equipos = D.equipos.filter(e => e.ID_Liga === ligaId);
   const partidos = D.partidos.filter(p => p.ID_Liga === ligaId && p.Estado === 'Finalizado');
+  // Fallback local mientras carga desde Supabase
   const standings = {};
   equipos.forEach(t => {
     standings[t.ID] = { ID:t.ID, NombreEquipo:t.NombreEquipo, PJ:0, PG:0, PE:0, PP:0, GF:0, GC:0, DG:0, Puntos:0 };
   });
-  partidos.forEach(m => {
+  partidos.filter(m => m.Estado === 'Final').forEach(m => {
     const loc = standings[m.ID_EquipoLocal];
     const vis = standings[m.ID_EquipoVisita];
     if (!loc || !vis) return;
@@ -1413,6 +1414,34 @@ function calcStandings(ligaId) {
   return Object.values(standings).sort((a,b) =>
     b.Puntos - a.Puntos || b.DG - a.DG || b.GF - a.GF
   );
+}
+
+// ─── STANDINGS ENGINE — Supabase View ─────────────────────────────────────────
+var _standingsCache = {};
+
+async function fetchStandingsFromDB(ligaId) {
+  // Usar caché por 30 segundos
+  const cached = _standingsCache[ligaId];
+  if (cached && Date.now() - cached.ts < 30000) return cached.data;
+  try {
+    const { data, error } = await _supa
+      .from('standings')
+      .select('equipo_id,equipo_nombre,color,pj,pg,pe,pp,gf,gc,dg,pts')
+      .eq('liga_id', ligaId)
+      .order('pts', { ascending: false })
+      .order('dg', { ascending: false })
+      .order('gf', { ascending: false });
+    if (error || !data) return null;
+    _standingsCache[ligaId] = { data, ts: Date.now() };
+    return data;
+  } catch(e) {
+    return null;
+  }
+}
+
+function invalidateStandingsCache(ligaId) {
+  if (ligaId) delete _standingsCache[ligaId];
+  else _standingsCache = {};
 }
 
 // ─── POSICIONES ──────────────────────────────────────────────────────────────
@@ -1450,24 +1479,60 @@ window.toggleAccordion = function(ligaId) {
   if (!isOpen) renderStandings(ligaId);
 };
 
-function renderStandings(ligaId) {
+async function renderStandings(ligaId) {
   const el = document.getElementById('standings-' + ligaId);
-  const data = calcStandings(ligaId);
-  if (!data.length) { el.innerHTML = '<p style="font-size:12px;color:var(--muted);padding:8px 0">Sin partidos finalizados aún.</p>'; return; }
+  if (!el) return;
+  el.innerHTML = '<div style="padding:12px 0;color:var(--muted);font-size:12px;text-align:center">Calculando tabla...</div>';
+
+  // Intentar Supabase standings view primero
+  const dbData = await fetchStandingsFromDB(ligaId);
+
+  let rows = [];
+  if (dbData && dbData.length) {
+    // Usar datos de la vista SQL
+    rows = dbData.map((s, i) => {
+      const dg = Number(s.dg) || 0;
+      const difCls = dg > 0 ? 'dif-pos' : dg < 0 ? 'dif-neg' : '';
+      const rkCls = i===0?'rk g':i===1?'rk s':i===2?'rk b':'rk';
+      return `<tr>
+        <td><span class="${rkCls}">${i+1}</span></td>
+        <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${s.color||'#475569'};margin-right:6px;vertical-align:middle"></span>${s.equipo_nombre}</td>
+        <td>${s.pj}</td><td>${s.pg}</td><td>${s.pe}</td><td>${s.pp}</td>
+        <td>${s.gf}</td><td>${s.gc}</td>
+        <td class="${difCls}">${dg>0?'+':''}${dg}</td>
+        <td><span class="pts-cell">${s.pts}</span></td>
+      </tr>`;
+    });
+  } else {
+    // Fallback: calcular localmente desde D
+    const localData = calcStandings(ligaId);
+    if (!localData.length) {
+      el.innerHTML = '<p style="font-size:12px;color:var(--muted);padding:8px 0">Sin partidos finalizados aún.</p>';
+      return;
+    }
+    rows = localData.map((s, i) => {
+      const difCls = s.DG > 0 ? 'dif-pos' : s.DG < 0 ? 'dif-neg' : '';
+      const rkCls = i===0?'rk g':i===1?'rk s':i===2?'rk b':'rk';
+      return `<tr>
+        <td><span class="${rkCls}">${i+1}</span></td>
+        <td>${s.NombreEquipo}</td>
+        <td>${s.PJ}</td><td>${s.PG}</td><td>${s.PE}</td><td>${s.PP}</td>
+        <td>${s.GF}</td><td>${s.GC}</td>
+        <td class="${difCls}">${s.DG>0?'+':''}${s.DG}</td>
+        <td><span class="pts-cell">${s.Puntos}</span></td>
+      </tr>`;
+    });
+  }
+
   el.innerHTML = '<div class="standings-sub-title">Tabla de posiciones</div>'
+    + `<div style="font-size:10px;color:var(--muted2);margin-bottom:8px;display:flex;align-items:center;gap:4px">
+        <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block"></span>
+        Actualizada automáticamente
+       </div>`
     + '<div style="overflow-x:auto"><table class="st-table"><thead><tr>'
     + '<th>#</th><th>Equipo</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DIF</th><th>PTS</th>'
     + '</tr></thead><tbody>'
-    + data.map((s,i) => {
-        const rkCls = i===0?'rk g':i===1?'rk s':i===2?'rk b':'rk';
-        const difCls = s.DG>0?'dif-pos':s.DG<0?'dif-neg':'';
-        return `<tr>
-          <td><span class="${rkCls}">${i+1}</span></td>
-          <td>${s.NombreEquipo}</td>
-          <td>${s.PJ}</td><td>${s.PG}</td><td>${s.PE}</td><td>${s.PP}</td>
-          <td>${s.GF}</td><td>${s.GC}</td>
-          <td class="${difCls}">${s.DG>0?'+':''}${s.DG}</td>
-          <td><span class="pts-cell">${s.Puntos}</span></td>
+    + rows.join('')
         </tr>`;
       }).join('')
     + '</tbody></table></div>';
@@ -2444,7 +2509,13 @@ window.openEditJugador = function(id) {
       const json = JSON.parse(await res.text());
       closeConfirmV3();
       document.getElementById('modal-overlay').classList.remove('open');
-      if (json?.success) { toast('✓ Actualizado','ok'); await refreshData(); renderAll(); renderAdmin(); }
+      if (json?.success) {
+      toast('✓ Resultado cargado — tabla actualizada','ok');
+      invalidateStandingsCache();
+      await refreshData();
+      renderAll();
+      renderAdmin();
+    }
       else toast(json?.message||'Error','err');
     },'ok');
   };
