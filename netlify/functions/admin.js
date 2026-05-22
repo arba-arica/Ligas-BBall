@@ -335,10 +335,13 @@ exports.handler = async (event) => {
 
       case 'publicarTorneo': {
         requireOrg(session);
-        const { error } = await db.from('torneos').update({
+        // Admin puede publicar/ocultar cualquier torneo, organizador solo el suyo
+        let qPub = db.from('torneos').update({
           visible: data.visible,
           estado:  data.visible ? 'activo' : 'borrador',
-        }).eq('id', data.id).eq('org_id', session.rol === 'admin' ? db.raw('org_id') : session.org_id);
+        }).eq('id', data.id);
+        if (session.rol !== 'admin') qPub = qPub.eq('org_id', session.org_id);
+        const { error } = await qPub;
         result = error ? fail(error) : { success: true, message: data.visible ? 'Torneo publicado' : 'Torneo ocultado' };
         break;
       }
@@ -407,7 +410,8 @@ exports.handler = async (event) => {
 
       // ══ EQUIPOS ══════════════════════════════════════════════════════════════
 
-      case 'getEquiposPublic': {
+      case 'getEquiposPublic':
+      case 'getEquiposCategoria': {
         const { data: equipos, error } = await db.from('equipos')
           .select('*')
           .eq('categoria_id', data.categoria_id)
@@ -431,11 +435,10 @@ exports.handler = async (event) => {
 
       case 'actualizarEquipo': {
         requireOrg(session);
-        const { error } = await db.from('equipos').update({
-          nombre:       data.nombre,
-          color_local:  data.color_local,
-          color_visita: data.color_visita,
-        }).eq('id', data.id);
+        const updEq = { nombre: data.nombre };
+        if (data.color_local)  updEq.color_local  = data.color_local;
+        if (data.color_visita) updEq.color_visita = data.color_visita;
+        const { error } = await db.from('equipos').update(updEq).eq('id', data.id);
         result = error ? fail(error) : { success: true, message: 'Equipo actualizado' };
         break;
       }
@@ -449,11 +452,14 @@ exports.handler = async (event) => {
 
       // ══ PARTIDOS ═════════════════════════════════════════════════════════════
 
-      case 'getPartidosPublic': {
-        const { data: pts, error } = await db.from('partidos')
+      case 'getPartidosPublic':
+      case 'getPartidosCategoria': {
+        let qPar = db.from('partidos')
           .select('*, local:equipo_local(nombre,color_local), visita:equipo_visita(nombre,color_local)')
-          .eq('categoria_id', data.categoria_id)
-          .order('fecha').order('hora');
+          .eq('categoria_id', data.categoria_id);
+        if (data.estado) qPar = qPar.eq('estado', data.estado);
+        qPar = qPar.order('nro_fecha').order('fecha').order('hora');
+        const { data: pts, error } = await qPar;
         result = error ? fail(error) : { success: true, data: pts || [] };
         break;
       }
@@ -461,27 +467,50 @@ exports.handler = async (event) => {
       case 'crearPartido': {
         requireOrg(session);
         const { data: partido, error } = await db.from('partidos').insert({
-          categoria_id:  data.categoria_id,
-          fecha:         data.fecha || null,
-          hora:          data.hora  || null,
-          cancha:        data.cancha || null,
-          fase:          data.fase  || 'Fase Regular',
-          nro_fecha:     data.nro_fecha || 1,
-          equipo_local:  data.equipo_local,
-          equipo_visita: data.equipo_visita,
-          estado:        'programado',
+          categoria_id:   data.categoria_id,
+          fecha:          data.fecha || null,
+          hora:           data.hora  || null,
+          cancha:         data.cancha || null,
+          fase:           data.fase  || 'Fase Regular',
+          nro_fecha:      data.nro_fecha || 1,
+          equipo_local:   data.equipo_local,
+          equipo_visita:  data.equipo_visita,
+          url_transmision: data.url_transmision || null,
+          estado:         'programado',
         }).select().single();
         result = error ? fail(error) : { success: true, data: partido, message: 'Partido programado' };
         break;
       }
 
-      case 'actualizarResultado': {
+      case 'actualizarPartido': {
         requireOrg(session);
         const { error } = await db.from('partidos').update({
-          pts_local:  data.pts_local,
-          pts_visita: data.pts_visita,
-          estado:     'finalizado',
+          fecha:           data.fecha || null,
+          hora:            data.hora  || null,
+          cancha:          data.cancha || null,
+          fase:            data.fase,
+          nro_fecha:       data.nro_fecha,
+          equipo_local:    data.equipo_local,
+          equipo_visita:   data.equipo_visita,
+          url_transmision: data.url_transmision || null,
         }).eq('id', data.id);
+        result = error ? fail(error) : { success: true, message: 'Partido actualizado' };
+        break;
+      }
+
+      case 'actualizarResultado': {
+        requireOrg(session);
+        const update = {
+          pts_local:   data.pts_local,
+          pts_visita:  data.pts_visita,
+          estado:      'finalizado',
+        };
+        // Cuartos opcionales
+        if (data.q1_local  !== undefined) { update.q1_local  = data.q1_local;  update.q1_visita = data.q1_visita; }
+        if (data.q2_local  !== undefined) { update.q2_local  = data.q2_local;  update.q2_visita = data.q2_visita; }
+        if (data.q3_local  !== undefined) { update.q3_local  = data.q3_local;  update.q3_visita = data.q3_visita; }
+        if (data.q4_local  !== undefined) { update.q4_local  = data.q4_local;  update.q4_visita = data.q4_visita; }
+        const { error } = await db.from('partidos').update(update).eq('id', data.id);
         result = error ? fail(error) : { success: true, message: 'Resultado cargado' };
         break;
       }
@@ -556,7 +585,8 @@ exports.handler = async (event) => {
 
       // ══ SANCIONES ════════════════════════════════════════════════════════════
 
-      case 'getSancionesPublic': {
+      case 'getSancionesPublic':
+      case 'getSancionesCategoria': {
         const { data: sancs, error } = await db.from('sanciones')
           .select('*, equipos(nombre)')
           .eq('categoria_id', data.categoria_id)
@@ -568,14 +598,28 @@ exports.handler = async (event) => {
       case 'crearSancion': {
         requireOrg(session);
         const { error } = await db.from('sanciones').insert({
-          categoria_id:   data.categoria_id,
-          equipo_id:      data.equipo_id || null,
-          jugador_nombre: data.jugador_nombre || null,
-          tipo:           data.tipo,
-          descripcion:    data.descripcion || null,
-          fecha_fin:      data.fecha_fin || null,
+          categoria_id:    data.categoria_id,
+          equipo_id:       data.equipo_id || null,
+          jugador_nombre:  data.jugador_nombre || null,
+          tipo:            data.tipo,
+          descripcion:     data.descripcion || null,
+          fecha_fin:       data.fecha_fin || null,
+          fecha_apelacion: data.fecha_apelacion || null,
         });
         result = error ? fail(error) : { success: true, message: 'Sanción registrada' };
+        break;
+      }
+
+      case 'actualizarSancion': {
+        requireOrg(session);
+        const { error } = await db.from('sanciones').update({
+          jugador_nombre:  data.jugador_nombre,
+          tipo:            data.tipo,
+          descripcion:     data.descripcion || null,
+          fecha_fin:       data.fecha_fin || null,
+          fecha_apelacion: data.fecha_apelacion || null,
+        }).eq('id', data.id);
+        result = error ? fail(error) : { success: true, message: 'Sanción actualizada' };
         break;
       }
 
