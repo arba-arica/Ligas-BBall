@@ -833,80 +833,106 @@ textarea.f-input{resize:none}
     <div style="display:flex;flex:1;overflow:hidden">
 
       <!-- SIDEBAR -->
-      <div id="adm-sidebar" style="width:200px;background:#0f172a;display:flex;flex-direction:column;padding:8px;flex-shrink:0;overflow-y:auto">
-        <div style="margin-bottom:4px">
-          <!-- TORNEO -->
-          <button class="adm-icon-btn active" data-sec="torneo" onclick="admToggleSection('torneo',this)">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="2"/><path d="M12 10v4M8 14h8M6 20h12"/></svg>
-            Torneo
+      <div id="adm-sidebar" style="width:210px;background:#0a0f1e;display:flex;flex-direction:column;padding:10px 8px;flex-shrink:0;overflow-y:auto;border-right:1px solid rgba(255,255,255,.06)">
+
+        <!-- ROL BADGE -->
+        <div id="adm-rol-badge" style="margin-bottom:12px;padding:8px 10px;background:rgba(29,78,216,.15);border:1px solid rgba(29,78,216,.25);border-radius:10px;display:flex;align-items:center;gap:8px">
+          <div style="width:8px;height:8px;border-radius:50%;background:#1d4ed8;flex-shrink:0"></div>
+          <div>
+            <div id="adm-rol-nombre" style="font-size:12px;font-weight:700;color:#fff;line-height:1">Admin</div>
+            <div id="adm-rol-label" style="font-size:10px;color:rgba(255,255,255,.4);margin-top:1px">Panel de control</div>
+          </div>
+        </div>
+
+        <!-- MENÚ ADMIN (visible solo para admin) -->
+        <div id="menu-admin">
+          <div style="font-size:9px;font-weight:700;color:rgba(255,255,255,.25);letter-spacing:2px;text-transform:uppercase;padding:4px 8px;margin-bottom:4px">Gestión</div>
+
+          <button class="adm-icon-btn active" data-sec="solicitudes" onclick="admToggleSection('solicitudes',this);loadSolicitudes()">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Solicitudes
+            <span id="solicitudes-badge" style="display:none;background:#f97316;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:100px;margin-left:auto">0</span>
+          </button>
+
+          <button class="adm-icon-btn" data-sec="temporadas" onclick="admToggleSection('temporadas',this)">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Temporadas
+          </button>
+
+          <button class="adm-icon-btn" data-sec="torneos-adm" onclick="admToggleSection('torneos-adm',this)">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+            Torneos
+          </button>
+
+          <button class="adm-icon-btn" data-sec="organizadores" onclick="admToggleSection('organizadores',this);loadSubAdmins()">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Organizadores
+          </button>
+
+          <div style="font-size:9px;font-weight:700;color:rgba(255,255,255,.25);letter-spacing:2px;text-transform:uppercase;padding:4px 8px;margin:8px 0 4px">Métricas</div>
+
+          <button class="adm-icon-btn" data-sec="metricas" onclick="admToggleSection('metricas',this)">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Métricas globales
+          </button>
+        </div>
+
+        <!-- MENÚ ORGANIZADOR (visible solo para organizador) -->
+        <div id="menu-organizador" style="display:none">
+          <div style="font-size:9px;font-weight:700;color:rgba(255,255,255,.25);letter-spacing:2px;text-transform:uppercase;padding:4px 8px;margin-bottom:4px">Mi torneo</div>
+
+          <button class="adm-icon-btn active" data-sec="dashboard-org" onclick="admToggleSection('dashboard-org',this)">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Dashboard
+          </button>
+
+          <button class="adm-icon-btn" data-sec="mi-torneo" onclick="admToggleSection('mi-torneo',this)">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+            Mi torneo
             <svg class="chv" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
-          <div class="adm-submenu-inner open" id="sub-torneo">
-            <button class="adm-sub-item active" onclick="admSetTab('tab-ligas',this)">Ligas</button>
+          <div class="adm-submenu-inner" id="sub-mi-torneo">
+            <button class="adm-sub-item" onclick="admSetTab('tab-ligas',this)">Categorías</button>
             <button class="adm-sub-item" onclick="admSetTab('tab-equipos',this)">Equipos</button>
-            <button class="adm-sub-item" onclick="admSetTab('tab-partidos',this)">Partidos</button>
+          </div>
+
+          <button class="adm-icon-btn" data-sec="fixture-org" onclick="admToggleSection('fixture-org',this)">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+            Fixture
+            <svg class="chv" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="adm-submenu-inner" id="sub-fixture-org">
+            <button class="adm-sub-item" onclick="admSetTab('tab-partidos',this)">Programar</button>
             <button class="adm-sub-item" onclick="admSetTab('tab-res-adm',this)">Resultados</button>
           </div>
-          <!-- JUGADORES -->
-          <button class="adm-icon-btn" data-sec="jugadores" onclick="admToggleSection('jugadores',this)">
+
+          <button class="adm-icon-btn" data-sec="jugadores-org" onclick="admToggleSection('jugadores-org',this)">
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             Jugadores
             <svg class="chv" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
-          <div class="adm-submenu-inner" id="sub-jugadores">
+          <div class="adm-submenu-inner" id="sub-jugadores-org">
             <button class="adm-sub-item" onclick="admSetTab('tab-jugadores-adm',this)">Nóminas</button>
-            <button class="adm-sub-item" onclick="admSetTab('tab-stats-adm',this)">Estadísticas</button>
           </div>
-          <!-- NOTICIAS -->
-          <button class="adm-icon-btn" data-sec="noticias" onclick="admToggleSection('noticias',this)">
+
+          <div style="font-size:9px;font-weight:700;color:rgba(255,255,255,.25);letter-spacing:2px;text-transform:uppercase;padding:4px 8px;margin:8px 0 4px">Comunicaciones</div>
+
+          <button class="adm-icon-btn" data-sec="noticias-org" onclick="admToggleSection('noticias-org',this)">
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/></svg>
             Noticias
-            <svg class="chv" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
-          <div class="adm-submenu-inner" id="sub-noticias">
-            <button class="adm-sub-item" onclick="admSetTab('tab-noticias-adm',this)">Publicar</button>
-          </div>
-          <!-- SANCIONES -->
-          <button class="adm-icon-btn" data-sec="sanciones" onclick="admToggleSection('sanciones',this)">
+
+          <button class="adm-icon-btn" data-sec="sanciones-org" onclick="admToggleSection('sanciones-org',this)">
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             Sanciones
-            <svg class="chv" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
-          <div class="adm-submenu-inner" id="sub-sanciones">
-            <button class="adm-sub-item" onclick="admSetTab('tab-sanciones-adm',this)">Registrar</button>
-          </div>
-          <!-- REPORTES -->
-          <button class="adm-icon-btn" data-sec="reportes" onclick="admToggleSection('reportes',this)">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+
+          <button class="adm-icon-btn" data-sec="reportes-org" onclick="admToggleSection('reportes-org',this)">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             Reportes
-            <svg class="chv" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
-          <div class="adm-submenu-inner" id="sub-reportes">
-            <button class="adm-sub-item" onclick="admSetTab('tab-temporada-adm',this)">Temporada</button>
-          </div>
         </div>
-        <div style="flex:1"></div>
-        <!-- SOLICITUDES — solo super_admin -->
-        <button class="adm-icon-btn" data-sec="solicitudes" id="btn-solicitudes" onclick="admToggleSection('solicitudes',this);loadSolicitudes()">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-          Solicitudes
-          <span id="solicitudes-badge" style="display:none;background:#f97316;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:100px;margin-left:auto">0</span>
-          <svg class="chv" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="adm-submenu-inner" id="sub-solicitudes">
-          <button class="adm-sub-item" onclick="admSetTab('tab-solicitudes',this)">Pendientes</button>
-          <button class="adm-sub-item" onclick="admSetTab('tab-solicitudes-hist',this)">Historial</button>
-        </div>
-        <!-- USUARIOS -->
-        <button class="adm-icon-btn" data-sec="usuarios" onclick="admToggleSection('usuarios',this)">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          Configuración
-          <svg class="chv" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="adm-submenu-inner" id="sub-usuarios">
-          <button class="adm-sub-item" id="btn-subadmins-tab" onclick="admSetTab('tab-subadmins',this);loadSubAdmins()">Organizadores</button>
-          <button class="adm-sub-item" onclick="admSetTab('tab-usuarios-adm',this)">Usuarios</button>
-        </div>
+
       </div>
 
       <!-- MAIN CONTENT -->
@@ -1097,7 +1123,99 @@ textarea.f-input{resize:none}
           </div>
 
           <!-- SOLICITUDES PENDIENTES -->
-          <div id="tab-solicitudes" class="adm-panel-new" style="display:none">
+
+          <!-- PANEL SOLICITUDES (rediseñado con modal aprobación) -->
+          <div id="tab-solicitudes" class="adm-panel-new" style="display:block">
+            <div id="solicitudes-list">
+              <div style="text-align:center;padding:48px 20px;color:var(--muted)">
+                <div style="font-size:32px;margin-bottom:12px;opacity:.4">📋</div>
+                <div style="font-size:13px">Cargando solicitudes...</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANEL TEMPORADAS -->
+          <div id="tab-temporadas" class="adm-panel-new" style="display:none">
+            <div style="font-family:'Archivo Black',sans-serif;font-size:15px;margin-bottom:16px">Temporadas</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+              <div class="f-group">
+                <label class="f-label">Nombre</label>
+                <input class="f-input" id="temp-nombre" type="text" placeholder="Ej: Apertura 2026">
+              </div>
+              <div class="f-group">
+                <label class="f-label">Ciudad</label>
+                <input class="f-input" id="temp-ciudad" type="text" placeholder="Ej: Santiago">
+              </div>
+            </div>
+            <button class="btn-primary" onclick="crearTemporada()">+ Crear temporada</button>
+            <div class="adm-sec-label" style="margin-top:16px">Temporadas activas</div>
+            <div id="temporadas-list"><div style="font-size:13px;color:var(--muted);padding:12px 0">Sin temporadas creadas.</div></div>
+          </div>
+
+          <!-- PANEL TORNEOS (admin revisa y publica) -->
+          <div id="tab-torneos-adm" class="adm-panel-new" style="display:none">
+            <div style="font-family:'Archivo Black',sans-serif;font-size:15px;margin-bottom:16px">Torneos</div>
+            <div id="torneos-adm-list"><div style="font-size:13px;color:var(--muted);padding:12px 0">Sin torneos registrados.</div></div>
+          </div>
+
+          <!-- PANEL ORGANIZADORES -->
+          <div id="tab-organizadores" class="adm-panel-new" style="display:none">
+            <div id="subadmins-list">
+              <div style="text-align:center;padding:48px 20px;color:var(--muted);font-size:13px">Cargando organizadores...</div>
+            </div>
+          </div>
+
+          <!-- PANEL MÉTRICAS -->
+          <div id="tab-metricas" class="adm-panel-new" style="display:none">
+            <div style="font-family:'Archivo Black',sans-serif;font-size:15px;margin-bottom:16px">Métricas globales</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px" id="metricas-grid">
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+                <div style="font-family:'Archivo Black',sans-serif;font-size:28px;color:var(--primary)" id="met-solicitudes">-</div>
+                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Solicitudes</div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+                <div style="font-family:'Archivo Black',sans-serif;font-size:28px;color:var(--primary)" id="met-torneos">-</div>
+                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Torneos</div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+                <div style="font-family:'Archivo Black',sans-serif;font-size:28px;color:var(--primary)" id="met-organizadores">-</div>
+                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Organizadores</div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+                <div style="font-family:'Archivo Black',sans-serif;font-size:28px;color:var(--primary)" id="met-equipos">-</div>
+                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Equipos</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANEL DASHBOARD ORGANIZADOR -->
+          <div id="tab-dashboard-org" class="adm-panel-new" style="display:none">
+            <div style="font-family:'Archivo Black',sans-serif;font-size:20px;margin-bottom:4px">Bienvenido</div>
+            <div style="font-size:13px;color:var(--muted);margin-bottom:20px">Panel del Organizador</div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:12px">
+              <div style="font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Tu torneo</div>
+              <div id="org-torneo-info" style="font-size:14px;color:var(--muted)">Cargando información de tu torneo...</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;cursor:pointer" onclick="admSetSection('mi-torneo',document.querySelector('[data-sec=mi-torneo]'))">
+                <div style="font-size:24px;margin-bottom:6px">🏆</div>
+                <div style="font-size:12px;font-weight:700;color:var(--text)">Categorías</div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;cursor:pointer" onclick="admSetSection('fixture-org',document.querySelector('[data-sec=fixture-org]'))">
+                <div style="font-size:24px;margin-bottom:6px">📅</div>
+                <div style="font-size:12px;font-weight:700;color:var(--text)">Fixture</div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;cursor:pointer" onclick="admSetSection('jugadores-org',document.querySelector('[data-sec=jugadores-org]'))">
+                <div style="font-size:24px;margin-bottom:6px">👥</div>
+                <div style="font-size:12px;font-weight:700;color:var(--text)">Jugadores</div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;cursor:pointer" onclick="admSetSection('noticias-org',document.querySelector('[data-sec=noticias-org]'))">
+                <div style="font-size:24px;margin-bottom:6px">📰</div>
+                <div style="font-size:12px;font-weight:700;color:var(--text)">Noticias</div>
+              </div>
+            </div>
+          </div>
+          <div id="tab-solicitudes-legacy" class="adm-panel-new" style="display:none">
             <div id="solicitudes-list">
               <div style="text-align:center;padding:40px 20px;color:var(--muted)">
                 <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 12px;display:block;opacity:.4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
@@ -1849,7 +1967,8 @@ async function doLogin() {
     if (json && json.success) {
       adminPass = pass;
       _currentUser = json.usuario;
-      window._userRol = json.usuario?.rol || 'super_admin';
+      window._userRol = json.usuario?.rol || 'admin';
+      applyRoleMenu(window._userRol);
       document.getElementById('admin-login-screen').style.display = 'none';
       const panelFull = document.getElementById('admin-panel-full');
       panelFull.style.display = 'flex';
@@ -2287,6 +2406,129 @@ async function accionSubAdmin(userId, accion, btn) {
   } catch(e) {
     toast('Error de conexión', 'err');
     btn.disabled = false;
+  }
+}
+
+
+// ─── ROLES — mostrar menú según rol ──────────────────────────────────────────
+function applyRoleMenu(rol) {
+  const menuAdmin = document.getElementById('menu-admin');
+  const menuOrg   = document.getElementById('menu-organizador');
+  const rolNombre = document.getElementById('adm-rol-nombre');
+  const rolLabel  = document.getElementById('adm-rol-label');
+
+  if (rol === 'admin' || rol === 'super_admin') {
+    if (menuAdmin) menuAdmin.style.display = 'block';
+    if (menuOrg)   menuOrg.style.display   = 'none';
+    if (rolNombre) rolNombre.textContent = 'Admin';
+    if (rolLabel)  rolLabel.textContent  = 'Control total';
+    // Abrir solicitudes por defecto
+    loadSolicitudes();
+    admSetSection('solicitudes', document.querySelector('[data-sec="solicitudes"]'));
+    admSetTab('tab-solicitudes', document.querySelector('[onclick*="tab-solicitudes"]'));
+    loadMetricas();
+  } else if (rol === 'organizador' || rol === 'sub_admin') {
+    if (menuAdmin) menuAdmin.style.display = 'none';
+    if (menuOrg)   menuOrg.style.display   = 'block';
+    if (rolNombre) rolNombre.textContent = 'Organizador';
+    if (rolLabel)  rolLabel.textContent  = 'Mi torneo';
+    // Abrir dashboard por defecto
+    admSetSection('dashboard-org', document.querySelector('[data-sec="dashboard-org"]'));
+    admSetTab('tab-dashboard-org', null);
+  }
+}
+
+// ─── MÉTRICAS GLOBALES ────────────────────────────────────────────────────────
+async function loadMetricas() {
+  try {
+    const [rS, rL, rE, rOrg] = await Promise.all([
+      _supa.from('solicitudes').select('id', {count:'exact',head:true}),
+      _supa.from('ligas').select('id', {count:'exact',head:true}),
+      _supa.from('equipos').select('id', {count:'exact',head:true}),
+      _supa.from('usuarios_roles').select('id', {count:'exact',head:true}).eq('rol','sub_admin'),
+    ]);
+    const s = (el, v) => { const e = document.getElementById(el); if(e) e.textContent = v ?? '-'; };
+    s('met-solicitudes',   rS.count  ?? 0);
+    s('met-torneos',       rL.count  ?? 0);
+    s('met-equipos',       rE.count  ?? 0);
+    s('met-organizadores', rOrg.count ?? 0);
+  } catch(e) {}
+}
+
+// ─── TEMPORADAS ───────────────────────────────────────────────────────────────
+async function crearTemporada() {
+  const nombre = document.getElementById('temp-nombre')?.value.trim();
+  const ciudad = document.getElementById('temp-ciudad')?.value.trim();
+  if (!nombre) { toast('Ingresa el nombre de la temporada', 'err'); return; }
+  try {
+    const res = await fetch(NETLIFY_FN, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'createTemporada', nombre, ciudadNombre: ciudad, adminPassword: adminPass }),
+    });
+    const json = await res.json();
+    if (json.success) {
+      toast('✓ Temporada creada', 'ok');
+      document.getElementById('temp-nombre').value = '';
+      document.getElementById('temp-ciudad').value = '';
+      loadTemporadas();
+    } else {
+      toast(json.message || 'Error', 'err');
+    }
+  } catch(e) { toast('Error de conexión', 'err'); }
+}
+
+async function loadTemporadas() {
+  const el = document.getElementById('temporadas-list');
+  if (!el) return;
+  const { data } = await _supa.from('temporadas').select('*, ciudades(nombre)').order('created_at', {ascending:false});
+  if (!data || !data.length) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:12px 0">Sin temporadas creadas.</div>';
+    return;
+  }
+  el.innerHTML = data.map(t => `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-weight:700;font-size:14px;color:var(--text)">${t.nombre}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${t.ciudades?.nombre || 'Sin ciudad'}</div>
+      </div>
+      <span style="background:${t.activo ? 'rgba(34,197,94,.12)' : 'rgba(255,255,255,.05)'};color:${t.activo ? '#22c55e' : 'var(--muted)'};border:1px solid ${t.activo ? 'rgba(34,197,94,.2)' : 'var(--border)'};font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;text-transform:uppercase">
+        ${t.activo ? 'Activa' : 'Cerrada'}
+      </span>
+    </div>
+  `).join('');
+}
+
+// Actualizar admSetSection para manejar nuevas secciones
+const _origAdmSetSection = typeof admSetSection === 'function' ? admSetSection : null;
+function admSetSection(sec, btn) {
+  // Activar btn
+  document.querySelectorAll('.adm-icon-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  // Mostrar panel correcto
+  const tabMap = {
+    'solicitudes':    'tab-solicitudes',
+    'temporadas':     'tab-temporadas',
+    'torneos-adm':    'tab-torneos-adm',
+    'organizadores':  'tab-organizadores',
+    'metricas':       'tab-metricas',
+    'dashboard-org':  'tab-dashboard-org',
+    'mi-torneo':      'tab-ligas',
+    'fixture-org':    'tab-partidos',
+    'jugadores-org':  'tab-jugadores-adm',
+    'noticias-org':   'tab-noticias-adm',
+    'sanciones-org':  'tab-sanciones-adm',
+    'reportes-org':   'tab-temporada-adm',
+  };
+  const tabId = tabMap[sec];
+  if (tabId) {
+    document.querySelectorAll('.adm-panel-new').forEach(p => p.style.display = 'none');
+    const panel = document.getElementById(tabId);
+    if (panel) panel.style.display = 'block';
+    // Cargar datos si aplica
+    if (sec === 'temporadas') loadTemporadas();
+    if (sec === 'metricas')   loadMetricas();
+    if (sec === 'organizadores') loadSubAdmins();
   }
 }
 
