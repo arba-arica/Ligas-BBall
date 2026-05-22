@@ -32,7 +32,7 @@ a{text-decoration:none;color:inherit}
 .logo-acc{color:var(--orange)}
 
 /* ── VISTA PÚBLICA ──────────────────────────────────────────────────── */
-#pub-view{min-height:100svh;display:flex;flex-direction:column}
+#pub-view{min-height:100svh;display:none;flex-direction:column}
 .pub-nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(8px)}
 .pub-nav-btns{display:flex;gap:8px;align-items:center}
 .btn-ghost{padding:7px 14px;border-radius:100px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.3px;transition:all .2s}
@@ -486,10 +486,9 @@ function toggleTheme() {
 
 // ── VISTAS ────────────────────────────────────────────────────────────────────
 function showView(id) {
-  ['pub-view','torneo-view','panel-view'].forEach(v => {
-    const el = document.getElementById(v);
-    el.style.display = v === id ? 'flex' : 'none';
-  });
+  document.getElementById('pub-view').style.display   = id === 'pub-view'    ? 'flex'  : 'none';
+  document.getElementById('torneo-view').style.display = id === 'torneo-view' ? 'flex'  : 'none';
+  document.getElementById('panel-view').style.display  = id === 'panel-view'  ? 'flex'  : 'none';
 }
 
 // ── VISTA PÚBLICA — TORNEOS ───────────────────────────────────────────────────
@@ -1469,7 +1468,10 @@ function formatFecha(str, tipo = 'normal') {
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-showView('pub-view');
+// Iniciar mostrando vista pública
+document.getElementById('pub-view').style.display = 'flex';
+document.getElementById('torneo-view').style.display = 'none';
+document.getElementById('panel-view').style.display = 'none';
 loadTorneos();
 </script>
 </body>
