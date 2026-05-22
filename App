@@ -1062,7 +1062,7 @@ async function renderPanel(id) {
             resHtml += '</div></div>';
           });
           resHtml += '</div></div>';
-          resHtml += '<button class="btn-sm btn-sm-primary" style="width:100%" onclick="cargarResultado('' + p.id + '')">✓ Guardar resultado final</button>';
+          resHtml += '<button class="btn-sm btn-sm-primary" style="width:100%" onclick="cargarResultado(this)" data-id="' + p.id + '">✓ Guardar resultado final</button>';
           resHtml += '</div>';
         });
         resHtml += '</div>';
@@ -1122,8 +1122,8 @@ async function renderPanel(id) {
           if (s.fecha_apelacion) sanHtml += '<div style="font-size:11px;color:var(--blue);margin-top:2px">Apelación: ' + formatFecha(s.fecha_apelacion,'corto') + '</div>';
           sanHtml += '</div>';
           sanHtml += '<div style="display:flex;gap:6px;flex-shrink:0">';
-          sanHtml += '<button class="btn-sm" onclick="editarSancionModal('' + s.id + '','' + (s.jugador_nombre||'').replace(/'/g,'&#39;') + '','' + (s.tipo||'') + '','' + (s.descripcion||'') + '','' + (s.fecha_fin||'') + '','' + (s.fecha_apelacion||'') + '')">Editar</button>';
-          sanHtml += '<button class="btn-sm btn-sm-danger" onclick="eliminarSancion('' + s.id + '')">Eliminar</button>';
+            sanHtml += '<button class="btn-sm" onclick="editarSancionModal(this)" data-id="' + s.id + '" data-jug="' + (s.jugador_nombre||"").replace(/"/g,"&quot;") + '" data-tipo="' + (s.tipo||"") + '" data-desc="' + (s.descripcion||"") + '" data-fin="' + (s.fecha_fin||"") + '" data-apel="' + (s.fecha_apelacion||"") + '">Editar</button>';
+            sanHtml += '<button class="btn-sm btn-sm-danger" onclick="eliminarSancion(this)" data-id="' + s.id + '">Eliminar</button>';
           sanHtml += '</div></div></div>';
         });
         sanHtml += '</div>';
@@ -1310,8 +1310,8 @@ async function loadPartidosFixture(catId) {
         + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
         + '<div style="font-size:11px;color:var(--text3)">Partido ' + (p.nro_fecha||'') + ' · ' + (p.fase||'') + '</div>'
         + '<div style="display:flex;gap:6px">'
-        + '<button class="btn-sm" onclick="editarPartidoModal('' + p.id + '')">Editar</button>'
-        + '<button class="btn-sm btn-sm-danger" onclick="eliminarPartido('' + p.id + '')">Eliminar</button>'
+        + '<button class="btn-sm" onclick="editarPartidoModal(this)" data-id="' + p.id + '">Editar</button>'
+        + '<button class="btn-sm btn-sm-danger" onclick="eliminarPartido(this)" data-id="' + p.id + '">Eliminar</button>'
         + '</div></div>'
         + '<div style="display:flex;align-items:center;justify-content:space-between;font-weight:600;font-size:14px">'
         + '<span>' + local.nombre + '</span><span style="color:var(--text3);font-size:12px">vs</span><span>' + visita.nombre + '</span>'
@@ -1344,29 +1344,32 @@ async function crearPartido() {
   if (json.success) loadPartidosFixture(catId);
 }
 
-async function eliminarPartido(id) {
+async function eliminarPartido(btn) {
+  const id = btn ? btn.dataset.id : null;
+  if (!id) return;
   if (!confirm('¿Eliminar este partido?')) return;
   const json = await api('eliminarPartido', { id });
   toast(json.success ? '✓ Eliminado' : json.message, json.success ? 'ok' : 'err');
   if (json.success) {
     const catId = document.getElementById('fix-cat')?.value;
-    if (catId) loadPartidosFixture(catId, []);
+    if (catId) loadPartidosFixture(catId);
   }
 }
 
-async function cargarResultado(id) {
+async function cargarResultado(btn) {
+  const id = btn ? btn.dataset.id : null;
+  if (!id) return;
   const ptsLocal  = parseInt(document.getElementById('r-loc-'+id)?.value);
   const ptsVisita = parseInt(document.getElementById('r-vis-'+id)?.value);
   if (isNaN(ptsLocal) || isNaN(ptsVisita)) { toast('Ingresa los puntos del partido', 'err'); return; }
   const data = { id, pts_local: ptsLocal, pts_visita: ptsVisita };
-  // Cuartos opcionales
-  ['1','2','3','4'].forEach(q => {
+  ['1','2','3','4'].forEach(function(q) {
     const ql = parseInt(document.getElementById('q'+q+'-loc-'+id)?.value);
     const qv = parseInt(document.getElementById('q'+q+'-vis-'+id)?.value);
     if (!isNaN(ql)) { data['q'+q+'_local'] = ql; data['q'+q+'_visita'] = isNaN(qv) ? 0 : qv; }
   });
   const json = await api('actualizarResultado', data);
-  toast(json.success ? '✓ Resultado guardado — tabla actualizada' : json.message, json.success ? 'ok' : 'err');
+  toast(json.success ? '✓ Resultado guardado' : json.message, json.success ? 'ok' : 'err');
   if (json.success) renderPanel('p-resultados');
 }
 
@@ -1417,29 +1420,34 @@ function editarEquipoModal(btn) {
 }
 
 // Editar sancion modal
-function editarSancionModal(id, jugador, tipo, desc, fechaFin, fechaApel) {
-  const nuevoJug  = prompt('Jugador:', jugador) ?? jugador;
-  const nuevoTipo = prompt('Tipo de sanción:', tipo) ?? tipo;
+function editarSancionModal(btn) {
+  const id       = btn ? btn.dataset.id   : null;
+  const jugador  = btn ? btn.dataset.jug  : '';
+  const tipo     = btn ? btn.dataset.tipo : '';
+  const desc     = btn ? btn.dataset.desc : '';
+  const fechaFin = btn ? btn.dataset.fin  : '';
+  const fechaApel= btn ? btn.dataset.apel : '';
+  if (!id) return;
+  const nuevoJug  = prompt('Jugador:', jugador) || jugador;
+  const nuevoTipo = prompt('Tipo de sanción:', tipo) || tipo;
   if (!nuevoTipo) return;
   api('actualizarSancion', {
-    id,
-    jugador_nombre:  nuevoJug,
-    tipo:            nuevoTipo,
-    descripcion:     desc,
-    fecha_fin:       fechaFin  || null,
-    fecha_apelacion: fechaApel || null,
-  }).then(json => {
+    id, jugador_nombre: nuevoJug, tipo: nuevoTipo,
+    descripcion: desc, fecha_fin: fechaFin || null, fecha_apelacion: fechaApel || null,
+  }).then(function(json) {
     toast(json.success ? '✓ Sanción actualizada' : json.message, json.success ? 'ok' : 'err');
     if (json.success) renderPanel('p-sanciones');
   });
 }
 
 // Editar partido modal
-async function editarPartidoModal(id) {
+async function editarPartidoModal(btn) {
+  const id = btn ? btn.dataset.id : null;
+  if (!id) return;
   const fecha  = prompt('Nueva fecha (YYYY-MM-DD):') || null;
   const hora   = prompt('Nueva hora (HH:MM):') || null;
   const cancha = prompt('Cancha:') || null;
-  const url    = prompt('URL transmisión (dejar vacío para ninguna):') || null;
+  const url    = prompt('URL transmisión (vacío = ninguna):') || null;
   const json = await api('actualizarPartido', { id, fecha, hora, cancha, url_transmision: url, fase: 'Fase Regular', nro_fecha: 1 });
   toast(json.success ? '✓ Partido actualizado' : json.message, json.success ? 'ok' : 'err');
   const catId = document.getElementById('fix-cat')?.value;
