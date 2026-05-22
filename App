@@ -2423,18 +2423,28 @@ function applyRoleMenu(rol) {
     if (rolNombre) rolNombre.textContent = 'Admin';
     if (rolLabel)  rolLabel.textContent  = 'Control total';
     // Abrir solicitudes por defecto
-    loadSolicitudes();
-    admSetSection('solicitudes', document.querySelector('[data-sec="solicitudes"]'));
-    admSetTab('tab-solicitudes', document.querySelector('[onclick*="tab-solicitudes"]'));
-    loadMetricas();
+    setTimeout(() => {
+      loadSolicitudes();
+      loadMetricas();
+      document.querySelectorAll('.adm-panel-new').forEach(p => p.style.display = 'none');
+      const tabSol = document.getElementById('tab-solicitudes');
+      if (tabSol) tabSol.style.display = 'block';
+      const btnSol = document.querySelector('[data-sec="solicitudes"]');
+      if (btnSol) { document.querySelectorAll('.adm-icon-btn').forEach(b => b.classList.remove('active')); btnSol.classList.add('active'); }
+    }, 100);
   } else if (rol === 'organizador' || rol === 'sub_admin') {
     if (menuAdmin) menuAdmin.style.display = 'none';
     if (menuOrg)   menuOrg.style.display   = 'block';
     if (rolNombre) rolNombre.textContent = 'Organizador';
     if (rolLabel)  rolLabel.textContent  = 'Mi torneo';
     // Abrir dashboard por defecto
-    admSetSection('dashboard-org', document.querySelector('[data-sec="dashboard-org"]'));
-    admSetTab('tab-dashboard-org', null);
+    setTimeout(() => {
+      document.querySelectorAll('.adm-panel-new').forEach(p => p.style.display = 'none');
+      const tabDash = document.getElementById('tab-dashboard-org');
+      if (tabDash) tabDash.style.display = 'block';
+      const btnDash = document.querySelector('[data-sec="dashboard-org"]');
+      if (btnDash) { document.querySelectorAll('.adm-icon-btn').forEach(b => b.classList.remove('active')); btnDash.classList.add('active'); }
+    }, 100);
   }
 }
 
@@ -2525,11 +2535,12 @@ function admSetSection(sec, btn) {
     document.querySelectorAll('.adm-panel-new').forEach(p => p.style.display = 'none');
     const panel = document.getElementById(tabId);
     if (panel) panel.style.display = 'block';
-    // Cargar datos si aplica
-    if (sec === 'temporadas') loadTemporadas();
-    if (sec === 'metricas')   loadMetricas();
-    if (sec === 'organizadores') loadSubAdmins();
   }
+  // Cargar datos si aplica
+  if (sec === 'temporadas')    loadTemporadas();
+  if (sec === 'metricas')      loadMetricas();
+  if (sec === 'organizadores') loadSubAdmins();
+  if (sec === 'solicitudes')   loadSolicitudes();
 }
 
 // ─── SOLICITUDES ──────────────────────────────────────────────────────────────
