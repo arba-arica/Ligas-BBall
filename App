@@ -624,9 +624,9 @@ textarea.f-input{resize:none}
   <button id="hamburger-btn" onclick="openDrawer()">
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
-  <div class="logo-wordmark" style="position:absolute;left:50%;transform:translateX(-50%)">
-    <div style="font-family:'Archivo Black',sans-serif;font-size:16px;letter-spacing:2px;color:#fff">LIGAS <span style="color:#f97316;font-size:13px;font-weight:400;letter-spacing:1px">BBALL</span></div>
-  </div>
+  <a href="./index.html" style="position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;letter-spacing:1px;color:#fff">
+    ACTIVA<span style="display:inline-block;width:4px;height:4px;border-radius:50%;background:#f97316;margin:0 4px;margin-bottom:2px"></span><span style="color:#f97316">PLAY</span>
+  </a>
   <div style="display:flex;align-items:center;gap:8px">
     <div id="header-city-chip" onclick="volverSplash()" style="display:none;background:rgba(249,115,22,0.15);color:#f97316;border:1px solid rgba(249,115,22,0.3);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:700;letter-spacing:.5px;cursor:pointer;align-items:center;gap:5px;font-family:Archivo,sans-serif"><span id="header-city-label"></span> ✕</div>
     <button id="theme-btn" onclick="toggleTheme()" style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,.8)" aria-label="Cambiar tema" title="Cambiar tema"><svg id="theme-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button>
@@ -851,7 +851,7 @@ textarea.f-input{resize:none}
       </div>
       <form id="login-form" onsubmit="doLogin();return false;" autocomplete="on">
       <label class="f-label">Email</label>
-      <input class="f-input" type="email" id="admin-email" placeholder="arba.arica@gmail.com" autocomplete="email">
+      <input class="f-input" type="email" id="admin-email" placeholder="n.moraganavarro@gmail.com" autocomplete="email">
       <label class="f-label">Contraseña</label>
       <input class="f-input" type="password" id="admin-pass" placeholder="••••••••" autocomplete="current-password">
       </form>
