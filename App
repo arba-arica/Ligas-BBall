@@ -62,12 +62,32 @@ a{text-decoration:none;color:inherit}
 
 /* Vista torneo */
 #torneo-view{display:none;min-height:100svh;flex-direction:column}
-.torneo-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50}
-.back-btn{width:34px;height:34px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);flex-shrink:0;font-size:18px}
-.torneo-tabs{display:flex;gap:2px;padding:0 16px;background:var(--bg2);border-bottom:1px solid var(--border);overflow-x:auto}
-.torneo-tab{padding:10px 14px;font-size:12px;font-weight:700;color:var(--text3);border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
-.torneo-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
-.torneo-content{flex:1;padding:16px;max-width:640px;margin:0 auto;width:100%}
+/* Header torneo */
+.tv-header{background:var(--bg);border-bottom:1px solid var(--border);padding:0 16px;position:sticky;top:0;z-index:50}
+.tv-header-top{height:52px;display:flex;align-items:center;gap:10px}
+.back-btn{width:32px;height:32px;border-radius:9px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);flex-shrink:0;font-size:16px;transition:all .2s}
+.back-btn:hover{border-color:var(--blue);color:var(--blue)}
+.tv-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv-sub{font-size:11px;color:var(--text2)}
+/* Selector de categoría */
+.tv-cat-bar{padding:10px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.tv-cat-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;white-space:nowrap}
+.tv-cat-select{flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:600;color:var(--text);outline:none;cursor:pointer;font-family:'Archivo',sans-serif;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+.tv-cat-select:focus{border-color:var(--blue)}
+/* Tabs */
+.tv-tabs{display:flex;padding:0 16px;border-top:1px solid var(--border);overflow-x:auto;gap:0}
+.tv-tab{padding:10px 14px;font-size:12px;font-weight:700;color:var(--text3);border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;letter-spacing:.3px}
+.tv-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tv-tab:hover{color:var(--text)}
+/* Contenido */
+.tv-content{flex:1;padding:16px;max-width:680px;margin:0 auto;width:100%}
+/* Share btn */
+.tv-share{width:32px;height:32px;border-radius:9px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:15px;transition:all .2s;flex-shrink:0}
+.tv-share:hover{border-color:var(--orange);color:var(--orange)}
+/* Torneo info banner */
+.tv-banner{background:linear-gradient(135deg,var(--blue-dim),transparent);border:1px solid var(--blue-glow);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.tv-banner-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--text)}
+.tv-banner-meta{font-size:12px;color:var(--text2);margin-top:2px}
 
 /* Categoría accordion */
 .cat-acc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden}
@@ -245,23 +265,40 @@ a{text-decoration:none;color:inherit}
      VISTA TORNEO (público)
 ════════════════════════════════════════════════════════════════════ -->
 <div id="torneo-view">
-  <div class="torneo-header">
-    <button class="back-btn" onclick="volverPublico()">←</button>
-    <div style="flex:1;min-width:0">
-      <div id="tv-nombre" style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
-      <div id="tv-ciudad" style="font-size:11px;color:var(--text2)"></div>
+  <!-- Header sticky -->
+  <div class="tv-header">
+    <div class="tv-header-top">
+      <button class="back-btn" onclick="volverPublico()">←</button>
+      <div style="flex:1;min-width:0">
+        <div id="tv-nombre" class="tv-title"></div>
+        <div id="tv-ciudad" class="tv-sub"></div>
+      </div>
+      <button class="tv-share" onclick="compartirTorneo()" title="Compartir">⬆</button>
+      <button class="btn-ghost" onclick="openModal('modal-login-org')" style="white-space:nowrap;font-size:11px;padding:5px 12px">Organizador</button>
     </div>
-    <button class="btn-ghost" onclick="openModal('modal-login-org')" style="white-space:nowrap;font-size:11px">Acceso org.</button>
+    <!-- Selector de categoría -->
+    <div class="tv-cat-bar">
+      <span class="tv-cat-label">Categoría</span>
+      <select class="tv-cat-select" id="tv-cat-select" onchange="cambiarCategoria(this.value)">
+        <option value="">Cargando...</option>
+      </select>
+    </div>
+    <!-- Tabs -->
+    <div class="tv-tabs">
+      <button class="tv-tab active" onclick="showTab('tab-posiciones',this)">📊 Puntaje</button>
+      <button class="tv-tab" onclick="showTab('tab-fixture',this)">📅 Fixture</button>
+      <button class="tv-tab" onclick="showTab('tab-resultados',this)">🏆 Resultados</button>
+      <button class="tv-tab" onclick="showTab('tab-nomina',this)">📋 Nómina</button>
+      <button class="tv-tab" onclick="showTab('tab-noticias',this)">📰 Noticias</button>
+      <button class="tv-tab" onclick="showTab('tab-sanciones',this)">⚠️ Sanciones</button>
+    </div>
   </div>
-  <div class="torneo-tabs">
-    <button class="torneo-tab active" onclick="showTab('tab-posiciones',this)">Posiciones</button>
-    <button class="torneo-tab" onclick="showTab('tab-fixture',this)">Fixture</button>
-    <button class="torneo-tab" onclick="showTab('tab-noticias',this)">Noticias</button>
-    <button class="torneo-tab" onclick="showTab('tab-sanciones',this)">Sanciones</button>
-  </div>
-  <div class="torneo-content">
+  <!-- Contenido -->
+  <div class="tv-content">
     <div id="tab-posiciones"></div>
     <div id="tab-fixture" style="display:none"></div>
+    <div id="tab-resultados" style="display:none"></div>
+    <div id="tab-nomina" style="display:none"></div>
     <div id="tab-noticias" style="display:none"></div>
     <div id="tab-sanciones" style="display:none"></div>
   </div>
@@ -506,7 +543,7 @@ async function loadTorneos() {
       return;
     }
     list.innerHTML = torneos.map(t => `
-      <div class="torneo-card" onclick="abrirTorneo('${t.id}','${esc(t.nombre)}','${esc(t.ciudad)}')">
+      <div class="torneo-card" onclick="abrirTorneo('${t.id}','${esc(t.nombre)}','${esc(t.ciudad)}','${esc(t.temporada||'')}')">
         <div class="torneo-card-header">
           <div>
             <div class="torneo-nombre">${t.nombre}</div>
@@ -526,12 +563,18 @@ async function loadTorneos() {
 function esc(str) { return (str||'').replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
 
 // ── VISTA TORNEO ──────────────────────────────────────────────────────────────
-async function abrirTorneo(id, nombre, ciudad) {
-  TORNEO_ACTUAL = { id, nombre, ciudad };
+async function abrirTorneo(id, nombre, ciudad, temporada) {
+  TORNEO_ACTUAL = { id, nombre, ciudad, temporada };
   document.getElementById('tv-nombre').textContent = nombre;
-  document.getElementById('tv-ciudad').textContent = '📍 ' + ciudad;
+  document.getElementById('tv-ciudad').textContent = '📍 ' + ciudad + (temporada ? ' · ' + temporada : '');
   showView('torneo-view');
-  showTab('tab-posiciones', document.querySelector('.torneo-tab'));
+  // Reset tabs
+  document.querySelectorAll('.tv-tab').forEach(b => b.classList.remove('active'));
+  document.querySelector('.tv-tab').classList.add('active');
+  ['tab-posiciones','tab-fixture','tab-resultados','tab-nomina','tab-noticias','tab-sanciones'].forEach(t => {
+    document.getElementById(t).style.display = t === 'tab-posiciones' ? 'block' : 'none';
+    document.getElementById(t).innerHTML = '';
+  });
   await loadCategorias(id);
 }
 
@@ -541,83 +584,157 @@ function volverPublico() {
 }
 
 function showTab(tabId, btn) {
-  document.querySelectorAll('.torneo-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tv-tab').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  ['tab-posiciones','tab-fixture','tab-noticias','tab-sanciones'].forEach(t => {
+  ['tab-posiciones','tab-fixture','tab-resultados','tab-nomina','tab-noticias','tab-sanciones'].forEach(t => {
     document.getElementById(t).style.display = t === tabId ? 'block' : 'none';
   });
-  if (tabId === 'tab-posiciones' && TORNEO_ACTUAL) renderPosiciones();
-  if (tabId === 'tab-fixture'    && TORNEO_ACTUAL) renderFixture();
-  if (tabId === 'tab-noticias'   && TORNEO_ACTUAL) renderNoticias();
-  if (tabId === 'tab-sanciones'  && TORNEO_ACTUAL) renderSanciones();
+  if (!TORNEO_ACTUAL) return;
+  if (tabId === 'tab-posiciones') renderPosiciones();
+  if (tabId === 'tab-fixture')    renderFixture();
+  if (tabId === 'tab-resultados') renderResultados();
+  if (tabId === 'tab-nomina')     renderNomina();
+  if (tabId === 'tab-noticias')   renderNoticias();
+  if (tabId === 'tab-sanciones')  renderSanciones();
 }
 
 async function loadCategorias(torneo_id) {
-  const cats = await supa('categorias', `?torneo_id=eq.${torneo_id}&activo=eq.true&order=orden`);
+  const cats = await supa('categorias', '?torneo_id=eq.' + torneo_id + '&activo=eq.true&order=orden');
   CATEGORIAS = cats || [];
   EQUIPOS = {};
-  for (const cat of CATEGORIAS) {
-    const eqs = await supa('equipos', `?categoria_id=eq.${cat.id}&activo=eq.true&order=nombre`);
-    EQUIPOS[cat.id] = eqs || [];
+  // Llenar selector de categorías
+  const sel = document.getElementById('tv-cat-select');
+  if (sel) {
+    if (!CATEGORIAS.length) {
+      sel.innerHTML = '<option value="">Sin categorías</option>';
+    } else {
+      sel.innerHTML = CATEGORIAS.map(c => '<option value="' + c.id + '">' + c.nombre + '</option>').join('');
+    }
   }
-  renderPosiciones();
+  // Precargar equipos de la primera categoría
+  if (CATEGORIAS.length) {
+    const eqs = await supa('equipos', '?categoria_id=eq.' + CATEGORIAS[0].id + '&activo=eq.true&order=nombre');
+    EQUIPOS[CATEGORIAS[0].id] = eqs || [];
+  }
+  renderTabActual();
+}
+
+function getCatActual() {
+  const sel = document.getElementById('tv-cat-select');
+  if (!sel || !sel.value) return CATEGORIAS[0] || null;
+  return CATEGORIAS.find(c => c.id === sel.value) || CATEGORIAS[0] || null;
+}
+
+async function cambiarCategoria(catId) {
+  // Precargar equipos si no están en caché
+  if (!EQUIPOS[catId]) {
+    const eqs = await supa('equipos', '?categoria_id=eq.' + catId + '&activo=eq.true&order=nombre');
+    EQUIPOS[catId] = eqs || [];
+  }
+  renderTabActual();
+}
+
+function renderTabActual() {
+  const activeTab = document.querySelector('.tv-tab.active');
+  if (!activeTab) return;
+  const onclick = activeTab.getAttribute('onclick');
+  if (onclick.includes('posiciones')) renderPosiciones();
+  else if (onclick.includes('fixture'))    renderFixture();
+  else if (onclick.includes('resultados')) renderResultados();
+  else if (onclick.includes('nomina'))     renderNomina();
+  else if (onclick.includes('noticias'))   renderNoticias();
+  else if (onclick.includes('sanciones'))  renderSanciones();
 }
 
 async function renderPosiciones() {
   const el = document.getElementById('tab-posiciones');
-  if (!CATEGORIAS.length) { el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px">Sin categorías registradas aún.</div>'; return; }
-  let html = '';
-  for (const cat of CATEGORIAS) {
-    const rows = await supa('standings', `?categoria_id=eq.${cat.id}&order=pts.desc,dg.desc,gf.desc`);
-    html += `<div class="cat-acc">
-      <div class="cat-acc-header" onclick="this.nextElementSibling.classList.toggle('open')">
-        <div class="cat-acc-name">${cat.nombre}</div>
-        <span style="color:var(--text3);font-size:18px">›</span>
-      </div>
-      <div class="cat-acc-body open">`;
-    if (!rows || !rows.length) {
-      html += '<div style="font-size:13px;color:var(--text2);padding:8px 0">Sin partidos finalizados aún.</div>';
-    } else {
-      html += '<div style="overflow-x:auto"><table class="st-table"><thead><tr>'
-        + '<th>#</th><th>Equipo</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DIF</th><th>PTS</th>'
-        + '</tr></thead><tbody>'
-        + rows.map((r, i) => {
-            const dg = Number(r.dg)||0;
-            const rkCls = i===0?'rk-1':i===1?'rk-2':i===2?'rk-3':'';
-            return `<tr>
-              <td><span class="rk ${rkCls}">${i+1}</span></td>
-              <td><span class="color-dot" style="background:${r.color||'#475569'}"></span>${r.equipo_nombre}</td>
-              <td>${r.pj}</td><td>${r.pg}</td><td>${r.pe}</td><td>${r.pp}</td>
-              <td>${r.gf}</td><td>${r.gc}</td>
-              <td class="${dg>0?'dif-pos':dg<0?'dif-neg':''}">${dg>0?'+':''}${dg}</td>
-              <td><span class="pts-cell">${r.pts}</span></td>
-            </tr>`;
-          }).join('')
-        + '</tbody></table></div>';
-    }
-    html += '</div></div>';
+  const cat = getCatActual();
+  if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px">Sin categorías.</div>'; return; }
+  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando tabla...</div>';
+  const rows = await supa('standings', '?categoria_id=eq.' + cat.id + '&order=pts.desc,dg.desc,gf.desc');
+  if (!rows || !rows.length) {
+    el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin partidos finalizados aún en ' + cat.nombre + '.</div>';
+    return;
   }
-  el.innerHTML = html;
+  let h = '<div style="overflow-x:auto"><table class="st-table"><thead><tr>'
+    + '<th>#</th><th>Equipo</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DIF</th><th>PTS</th>'
+    + '</tr></thead><tbody>';
+  rows.forEach((r, i) => {
+    const dg = Number(r.dg) || 0;
+    const rkCls = i===0?'rk-1':i===1?'rk-2':i===2?'rk-3':'';
+    h += '<tr>'
+      + '<td><span class="rk ' + rkCls + '">' + (i+1) + '</span></td>'
+      + '<td><span class="color-dot" style="background:' + (r.color||'#475569') + '"></span>' + r.equipo_nombre + '</td>'
+      + '<td>' + r.pj + '</td><td>' + r.pg + '</td><td>' + r.pe + '</td><td>' + r.pp + '</td>'
+      + '<td>' + r.gf + '</td><td>' + r.gc + '</td>'
+      + '<td class="' + (dg>0?'dif-pos':dg<0?'dif-neg':'') + '">' + (dg>0?'+':'') + dg + '</td>'
+      + '<td><span class="pts-cell">' + r.pts + '</span></td>'
+      + '</tr>';
+  });
+  h += '</tbody></table></div>';
+  el.innerHTML = h;
 }
 
 async function renderFixture() {
   const el = document.getElementById('tab-fixture');
-  if (!CATEGORIAS.length) { el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px">Sin categorías.</div>'; return; }
-  let html = '';
-  for (const cat of CATEGORIAS) {
-    const partidos = await supa('partidos',
-      `?categoria_id=eq.${cat.id}&select=*,local:equipo_local(nombre,color_local),visita:equipo_visita(nombre,color_local)&order=fecha,hora`);
-    if (!partidos || !partidos.length) continue;
-    html += `<div style="margin-bottom:16px"><div class="section-label">${cat.nombre}</div>`;
-    const grupos = {};
-    partidos.forEach(p => { const k = p.fecha||'Sin fecha'; if(!grupos[k]) grupos[k]=[]; grupos[k].push(p); });
-    Object.entries(grupos).forEach(([fecha, ps]) => {
-      html += `<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin:10px 0 6px">${formatFecha(fecha)}</div>`;
-      ps.forEach(p => { html += renderMatchCard(p); });
-    });
-    html += '</div>';
+  const cat = getCatActual();
+  if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2)">Sin categorías.</div>'; return; }
+  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando fixture...</div>';
+  const partidos = await supa('partidos', '?categoria_id=eq.' + cat.id
+    + '&select=*,local:equipo_local(nombre,color_local),visita:equipo_visita(nombre,color_local)'
+    + '&estado=neq.finalizado&order=nro_fecha,fecha,hora');
+  if (!partidos || !partidos.length) {
+    el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin partidos programados en ' + cat.nombre + '.</div>';
+    return;
   }
-  el.innerHTML = html || '<div style="padding:20px;color:var(--text2);font-size:13px">Sin partidos programados aún.</div>';
+  const grupos = {};
+  partidos.forEach(p => { const k = 'Fecha ' + (p.nro_fecha||'') + (p.fecha?' · '+formatFecha(p.fecha):''); if(!grupos[k]) grupos[k]=[]; grupos[k].push(p); });
+  let h = '';
+  Object.entries(grupos).forEach(function([fecha, ps]) {
+    h += '<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin:12px 0 8px">' + fecha + '</div>';
+    ps.forEach(function(p) { h += renderMatchCard(p); });
+  });
+  el.innerHTML = h;
+}
+
+async function renderResultados() {
+  const el = document.getElementById('tab-resultados');
+  const cat = getCatActual();
+  if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2)">Sin categorías.</div>'; return; }
+  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando resultados...</div>';
+  const partidos = await supa('partidos', '?categoria_id=eq.' + cat.id
+    + '&select=*,local:equipo_local(nombre,color_local),visita:equipo_visita(nombre,color_local)'
+    + '&estado=eq.finalizado&order=nro_fecha.desc,fecha.desc,hora.desc');
+  if (!partidos || !partidos.length) {
+    el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin resultados en ' + cat.nombre + '.</div>';
+    return;
+  }
+  let h = '';
+  partidos.forEach(function(p) { h += renderMatchCard(p); });
+  el.innerHTML = h;
+}
+
+async function renderNomina() {
+  const el = document.getElementById('tab-nomina');
+  const cat = getCatActual();
+  if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2)">Sin categorías.</div>'; return; }
+  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando nóminas...</div>';
+  const equipos = EQUIPOS[cat.id] || await supa('equipos', '?categoria_id=eq.' + cat.id + '&activo=eq.true&order=nombre');
+  if (!equipos || !equipos.length) {
+    el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin equipos en ' + cat.nombre + '.</div>';
+    return;
+  }
+  let h = '';
+  equipos.forEach(function(e) {
+    h += '<div class="p-card" style="margin-bottom:10px">';
+    h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">';
+    h += '<div style="width:14px;height:14px;border-radius:50%;background:' + (e.color_local||'#1d4ed8') + ';flex-shrink:0"></div>';
+    h += '<div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:var(--text)">' + e.nombre + '</div>';
+    h += '</div>';
+    h += '<div style="font-size:12px;color:var(--text3);font-style:italic">Nómina no disponible públicamente</div>';
+    h += '</div>';
+  });
+  el.innerHTML = h;
 }
 
 function renderMatchCard(p) {
@@ -651,14 +768,18 @@ function renderMatchCard(p) {
 
 async function renderNoticias() {
   const el = document.getElementById('tab-noticias');
-  const news = await supa('noticias', `?torneo_id=eq.${TORNEO_ACTUAL.id}&publicado=eq.true&order=created_at.desc`);
-  if (!news || !news.length) { el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px">Sin noticias publicadas.</div>'; return; }
-  el.innerHTML = news.map(n => `
-    <div class="p-card" style="margin-bottom:10px">
-      <div style="font-size:10px;color:var(--text3);margin-bottom:6px">${formatFecha(n.created_at,'fecha')}</div>
-      <div style="font-weight:700;font-size:15px;color:var(--text);margin-bottom:6px">${n.titulo}</div>
-      ${n.contenido ? `<div style="font-size:13px;color:var(--text2);line-height:1.6">${n.contenido}</div>` : ''}
-    </div>`).join('');
+  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando noticias...</div>';
+  const news = await supa('noticias', '?torneo_id=eq.' + TORNEO_ACTUAL.id + '&publicado=eq.true&order=created_at.desc');
+  if (!news || !news.length) { el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin noticias publicadas aún.</div>'; return; }
+  let h = '';
+  news.forEach(function(n) {
+    h += '<div class="p-card" style="margin-bottom:10px">';
+    h += '<div style="font-size:10px;color:var(--text3);margin-bottom:6px">' + formatFecha(n.created_at,'fecha') + '</div>';
+    h += '<div style="font-weight:700;font-size:16px;color:var(--text);margin-bottom:6px">' + n.titulo + '</div>';
+    if (n.contenido) h += '<div style="font-size:13px;color:var(--text2);line-height:1.6">' + n.contenido + '</div>';
+    h += '</div>';
+  });
+  el.innerHTML = h;
 }
 
 async function renderSanciones() {
@@ -1492,6 +1613,15 @@ function formatFecha(str, tipo = 'normal') {
   } catch(e) { return str; }
 }
 
+
+function compartirTorneo() {
+  const url = window.location.href;
+  if (navigator.share) {
+    navigator.share({ title: TORNEO_ACTUAL ? TORNEO_ACTUAL.nombre : 'ACTIVA PLAY', url: url });
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function() { toast('Link copiado', 'ok'); });
+  }
+}
 // ── INIT ──────────────────────────────────────────────────────────────────────
 // Iniciar mostrando vista pública
 document.getElementById('pub-view').style.display = 'flex';
