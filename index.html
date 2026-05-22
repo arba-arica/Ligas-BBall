@@ -124,7 +124,6 @@ nav{
   font-size:12px;font-weight:700;color:var(--orange);
   letter-spacing:1px;text-transform:uppercase;
   margin-bottom:28px;
-  animation:fadeUp .6s ease both;
 }
 .hero-badge-dot{
   width:7px;height:7px;border-radius:50%;
@@ -138,7 +137,6 @@ nav{
   line-height:.95;letter-spacing:-2px;
   color:var(--text);
   margin-bottom:12px;
-  animation:fadeUp .7s .1s ease both;
 }
 .hero-title-accent{color:var(--orange)}
 .hero-title-line{display:block}
@@ -148,12 +146,10 @@ nav{
   max-width:560px;
   line-height:1.6;
   margin:0 auto 40px;
-  animation:fadeUp .7s .2s ease both;
 }
 .hero-actions{
   display:flex;flex-wrap:wrap;gap:12px;
   justify-content:center;
-  animation:fadeUp .7s .3s ease both;
 }
 .btn-primary{
   padding:16px 32px;border-radius:14px;
@@ -177,7 +173,6 @@ nav{
   display:flex;flex-wrap:wrap;gap:32px;
   justify-content:center;
   margin-top:72px;
-  animation:fadeUp .7s .4s ease both;
 }
 .hero-stat{text-align:center}
 .hero-stat-num{
@@ -301,6 +296,7 @@ section{padding:100px 5vw}
   border-color:var(--blue);
 }
 .price-card.featured *{color:#fff!important}
+.price-card.featured button{color:#000!important;-webkit-text-fill-color:#000!important}.price-card.featured button{color:#000!important;-webkit-text-fill-color:#000!important}
 .price-badge{
   position:absolute;top:-12px;left:50%;transform:translateX(-50%);
   background:var(--orange);color:#fff;
@@ -511,11 +507,7 @@ footer{
   from{opacity:0;transform:translateY(24px)}
   to{opacity:1;transform:translateY(0)}
 }
-.reveal{
-  opacity:0;transform:translateY(32px);
-  transition:opacity .7s ease,transform .7s ease;
-}
-.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal{opacity:1;transform:none}
 
 /* ── RESPONSIVE ─────────────────────────────────────────────────────── */
 @media(max-width:640px){
@@ -608,7 +600,7 @@ footer{
     <div class="section-label" style="justify-content:center">¿Ya tienes acceso?</div>
     <h2 class="section-title" style="font-size:clamp(22px,3.5vw,34px)">Ingresa a tu panel</h2>
   </div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:600px;margin:0 auto" class="reveal" style="transition-delay:.1s">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:600px;margin:0 auto" class="reveal" style="transition-delay:.15s">
     <div style="background:var(--bg);border:1px solid var(--border);border-top:3px solid var(--orange);border-radius:20px;padding:28px;text-align:center">
       <div style="font-size:36px;margin-bottom:14px">🏆</div>
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px">Organizador</div>
@@ -707,7 +699,7 @@ footer{
     <h2 class="section-title">Simple y justo</h2>
     <p class="section-sub" style="margin:0 auto">Pagas según las ligas que tienes activas. Sin contratos, sin sorpresas.</p>
   </div>
-  <div style="max-width:480px;margin:0 auto" class="reveal" style="transition-delay:.1s">
+  <div style="max-width:480px;margin:0 auto" class="reveal" style="transition-delay:.15s">
     <div class="price-card featured" style="text-align:center;padding:40px 32px">
       <div class="price-plan" style="font-size:14px;letter-spacing:2px">Temporada completa</div>
       <div class="price-amount" style="font-size:64px;margin:12px 0 4px"><sup style="font-size:28px">$</sup>9.990</div>
@@ -726,7 +718,7 @@ footer{
         <div class="price-feat"><span class="price-feat-check">✓</span>Vista pública para hinchas</div>
         <div class="price-feat"><span class="price-feat-check">✓</span>Acceso desde el celular</div>
       </div>
-      <button class="price-cta price-cta-light" onclick="openModal()" style="font-size:16px;padding:15px">INSCRIBE TU LIGA →</button>
+      <button onclick="openModal()" style="width:100%;padding:15px;border-radius:12px;background:#fff;color:#000 !important;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;letter-spacing:.5px;border:none;cursor:pointer;transition:opacity .2s;-webkit-text-fill-color:#000" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">INSCRIBE TU LIGA →</button>
     </div>
   </div>
   <div class="price-note reveal" style="transition-delay:.2s;margin-top:24px">
@@ -887,8 +879,12 @@ function toggleTheme() {
 // ── SCROLL REVEAL ─────────────────────────────────────────────────────
 const observer = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1 });
+}, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+// Fallback: mostrar todo después de 800ms por si el observer no dispara
+setTimeout(() => {
+  document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+}, 800);
 
 // ── MODAL ─────────────────────────────────────────────────────────────
 function openModal() {
