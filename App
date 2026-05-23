@@ -239,6 +239,35 @@ a{text-decoration:none;color:inherit}
 [data-theme="light"] .sb-btn{color:rgba(255,255,255,.7)}
 [data-theme="light"] .sb-btn.active{background:rgba(255,255,255,.2);color:#fff}
 [data-theme="light"] .sb-section{color:rgba(255,255,255,.4)}
+
+/* ── MODALES ────────────────────────────────────────────────────────── */
+.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:420px;max-height:90svh;overflow-y:auto;padding:24px;transform:translateY(16px);transition:transform .25s;position:relative}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--text);letter-spacing:-.3px;margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
+.modal-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:8px;background:var(--surface);border:1px solid var(--border);cursor:pointer;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{border-color:var(--red);color:var(--red)}
+
+/* ── FORMULARIOS ────────────────────────────────────────────────────── */
+.f-group{margin-bottom:12px}
+.f-label{display:block;font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px}
+.f-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text);outline:none;transition:border-color .2s;font-family:'Archivo',sans-serif}
+.f-input:focus{border-color:var(--blue)}
+.f-input::placeholder{color:var(--text3)}
+textarea.f-input{resize:none}
+.f-select{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text);outline:none;cursor:pointer;appearance:none;font-family:'Archivo',sans-serif}
+.f-select:focus{border-color:var(--blue)}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.f-section{font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin:16px 0 10px;display:flex;align-items:center;gap:8px}
+.f-section::after{content:'';flex:1;height:1px;background:var(--border)}
+.f-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--red);margin-bottom:10px;display:none}
+.f-submit{width:100%;padding:13px;border-radius:12px;background:var(--blue);border:none;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.5px;cursor:pointer;margin-top:8px;transition:opacity .2s}
+.f-submit:hover{opacity:.88}
+.f-submit:disabled{opacity:.5;cursor:not-allowed}
+.f-submit.btn-orange-submit{background:var(--orange)}
+.f-note{font-size:11px;color:var(--text3);text-align:center;margin-top:8px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -677,6 +706,19 @@ function renderTabActual() {
 }
 
 // ── Partido Card ──────────────────────────────────────────────────────
+
+// ── FORMATO FECHA ─────────────────────────────────────────────────────────────
+function formatFecha(str, tipo) {
+  if (!str) return '';
+  try {
+    const d = new Date(str);
+    if (isNaN(d)) return str;
+    if (tipo === 'corto') return d.toLocaleDateString('es-CL', { day:'2-digit', month:'short' });
+    if (tipo === 'fecha') return d.toLocaleDateString('es-CL', { day:'2-digit', month:'short', year:'numeric' });
+    return d.toLocaleDateString('es-CL', { weekday:'short', day:'2-digit', month:'short' });
+  } catch(e) { return str; }
+}
+
 function buildPartidoCard(p, finalizado) {
   const local  = p.local  || { nombre: '?' };
   const visita = p.visita || { nombre: '?' };
@@ -766,14 +808,24 @@ async function renderPosiciones() {
   const cat = getCatActual();
   if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2)">Sin categorías.</div>'; return; }
   el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando tabla...</div>';
-  const rows = await supa('standings', '?categoria_id=eq.' + cat.id + '&order=pts.desc,dg.desc,gf.desc');
+  let rows = null;
+  try {
+    const r = await supa('standings', '?categoria_id=eq.' + cat.id + '&order=pts.desc');
+    if (r && !r.error && r.length) rows = r;
+  } catch(e) {}
   let h = '<div class="tv-sec-label">Tabla de posiciones</div>';
   if (!rows || !rows.length) {
     h += '<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin partidos finalizados aún.</div>';
   } else {
+    // Ordenar por pts desc, diferencia de goles desc
+    rows.sort(function(a,b) {
+      const dga = Number(a.gf||0) - Number(a.gc||0);
+      const dgb = Number(b.gf||0) - Number(b.gc||0);
+      return (Number(b.pts)||0) - (Number(a.pts)||0) || dgb - dga || (Number(b.gf)||0) - (Number(a.gf)||0);
+    });
     h += '<div class="st-wrap"><table class="st-table"><thead><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>Dif</th><th>Pts</th></tr></thead><tbody>';
     rows.forEach(function(r, i) {
-      const dg = Number(r.dg)||0;
+      const dg = Number(r.gf||0) - Number(r.gc||0);
       const rkCls = i===0?'rk-1':i===1?'rk-2':i===2?'rk-3':'';
       h += '<tr>'
         + '<td><span class="rk ' + rkCls + '">' + (i+1) + '</span></td>'
