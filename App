@@ -265,43 +265,54 @@ a{text-decoration:none;color:inherit}
      VISTA TORNEO (público)
 ════════════════════════════════════════════════════════════════════ -->
 <div id="torneo-view">
-  <!-- Header sticky -->
-  <div class="tv-header">
-    <div class="tv-header-top">
-      <button class="back-btn" onclick="volverPublico()">←</button>
-      <div style="flex:1;min-width:0">
-        <div id="tv-nombre" class="tv-title"></div>
-        <div id="tv-ciudad" class="tv-sub"></div>
-      </div>
-      <button class="tv-share" onclick="compartirTorneo()" title="Compartir">⬆</button>
-      <button class="btn-ghost" onclick="openModal('modal-login-org')" style="white-space:nowrap;font-size:11px;padding:5px 12px">Organizador</button>
-    </div>
-    <!-- Selector de categoría -->
-    <div class="tv-cat-bar">
-      <span class="tv-cat-label">Categoría</span>
-      <select class="tv-cat-select" id="tv-cat-select" onchange="cambiarCategoria(this.value)">
-        <option value="">Cargando...</option>
-      </select>
-    </div>
-    <!-- Tabs -->
-    <div class="tv-tabs">
-      <button class="tv-tab active" onclick="showTab('tab-posiciones',this)">📊 Puntaje</button>
-      <button class="tv-tab" onclick="showTab('tab-fixture',this)">📅 Fixture</button>
-      <button class="tv-tab" onclick="showTab('tab-resultados',this)">🏆 Resultados</button>
-      <button class="tv-tab" onclick="showTab('tab-nomina',this)">📋 Nómina</button>
-      <button class="tv-tab" onclick="showTab('tab-noticias',this)">📰 Noticias</button>
-      <button class="tv-tab" onclick="showTab('tab-sanciones',this)">⚠️ Sanciones</button>
-    </div>
+  <button class="back-btn" onclick="volverPublico()">←</button>
+  <!-- Hero -->
+  <div class="tv-hero">
+    <div id="tv-temporada" class="tv-temporada"></div>
+    <div id="tv-nombre" class="tv-titulo"></div>
+    <div id="tv-ciudad" class="tv-ciudad"></div>
   </div>
-  <!-- Contenido -->
-  <div class="tv-content">
-    <div id="tab-posiciones"></div>
-    <div id="tab-fixture" style="display:none"></div>
+  <!-- Selector categorías -->
+  <div class="tv-cat-section">
+    <div class="tv-cat-label">Selecciona una liga</div>
+    <div class="tv-cat-grid" id="tv-cat-grid"></div>
+  </div>
+  <!-- Contenido por tab -->
+  <div class="tv-content" id="tv-content-main">
+    <div id="tab-fixture"></div>
     <div id="tab-resultados" style="display:none"></div>
-    <div id="tab-nomina" style="display:none"></div>
+    <div id="tab-posiciones" style="display:none"></div>
+    <div id="tab-clubes" style="display:none"></div>
     <div id="tab-noticias" style="display:none"></div>
     <div id="tab-sanciones" style="display:none"></div>
   </div>
+  <!-- Bottom navbar -->
+  <nav class="tv-navbar">
+    <button class="tv-nav-btn active" onclick="showTab('tab-fixture',this)" id="tnav-fixture">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+      Fixture
+    </button>
+    <button class="tv-nav-btn" onclick="showTab('tab-resultados',this)">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Resultados
+    </button>
+    <button class="tv-nav-btn" onclick="showTab('tab-posiciones',this)">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Puntaje
+    </button>
+    <button class="tv-nav-btn" onclick="showTab('tab-clubes',this)">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      Clubes
+    </button>
+    <button class="tv-nav-btn" onclick="showTab('tab-noticias',this)">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Z"/></svg>
+      Noticias
+    </button>
+    <button class="tv-nav-btn" onclick="showTab('tab-sanciones',this)">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+      Sanciones
+    </button>
+  </nav>
 </div>
 
 <!-- ════════════════════════════════════════════════════════════════════
@@ -566,14 +577,15 @@ function esc(str) { return (str||'').replace(/'/g, "\\'").replace(/"/g, '&quot;'
 async function abrirTorneo(id, nombre, ciudad, temporada) {
   TORNEO_ACTUAL = { id, nombre, ciudad, temporada };
   document.getElementById('tv-nombre').textContent = nombre;
-  document.getElementById('tv-ciudad').textContent = '📍 ' + ciudad + (temporada ? ' · ' + temporada : '');
+  document.getElementById('tv-ciudad').textContent = ciudad ? '📍 ' + ciudad : '';
+  document.getElementById('tv-temporada').textContent = temporada || '';
   showView('torneo-view');
   // Reset tabs
-  document.querySelectorAll('.tv-tab').forEach(b => b.classList.remove('active'));
-  document.querySelector('.tv-tab').classList.add('active');
-  ['tab-posiciones','tab-fixture','tab-resultados','tab-nomina','tab-noticias','tab-sanciones'].forEach(t => {
-    document.getElementById(t).style.display = t === 'tab-posiciones' ? 'block' : 'none';
-    document.getElementById(t).innerHTML = '';
+  document.querySelectorAll('.tv-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tnav-fixture').classList.add('active');
+  ['tab-fixture','tab-resultados','tab-posiciones','tab-clubes','tab-noticias','tab-sanciones'].forEach(t => {
+    const el = document.getElementById(t);
+    if (el) { el.style.display = t === 'tab-fixture' ? 'block' : 'none'; el.innerHTML = ''; }
   });
   await loadCategorias(id);
 }
@@ -581,19 +593,21 @@ async function abrirTorneo(id, nombre, ciudad, temporada) {
 function volverPublico() {
   TORNEO_ACTUAL = null;
   showView('pub-view');
+  loadTorneos();
 }
 
 function showTab(tabId, btn) {
-  document.querySelectorAll('.tv-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tv-nav-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  ['tab-posiciones','tab-fixture','tab-resultados','tab-nomina','tab-noticias','tab-sanciones'].forEach(t => {
-    document.getElementById(t).style.display = t === tabId ? 'block' : 'none';
+  ['tab-fixture','tab-resultados','tab-posiciones','tab-clubes','tab-noticias','tab-sanciones'].forEach(t => {
+    const el = document.getElementById(t);
+    if (el) el.style.display = t === tabId ? 'block' : 'none';
   });
   if (!TORNEO_ACTUAL) return;
-  if (tabId === 'tab-posiciones') renderPosiciones();
   if (tabId === 'tab-fixture')    renderFixture();
   if (tabId === 'tab-resultados') renderResultados();
-  if (tabId === 'tab-nomina')     renderNomina();
+  if (tabId === 'tab-posiciones') renderPosiciones();
+  if (tabId === 'tab-clubes')     renderClubes();
   if (tabId === 'tab-noticias')   renderNoticias();
   if (tabId === 'tab-sanciones')  renderSanciones();
 }
@@ -602,31 +616,43 @@ async function loadCategorias(torneo_id) {
   const cats = await supa('categorias', '?torneo_id=eq.' + torneo_id + '&activo=eq.true&order=orden');
   CATEGORIAS = cats || [];
   EQUIPOS = {};
-  // Llenar selector de categorías
-  const sel = document.getElementById('tv-cat-select');
-  if (sel) {
+  // Renderizar grid de categorías
+  const grid = document.getElementById('tv-cat-grid');
+  if (grid) {
     if (!CATEGORIAS.length) {
-      sel.innerHTML = '<option value="">Sin categorías</option>';
+      grid.innerHTML = '<div style="grid-column:1/-1;font-size:13px;color:var(--text2);padding:8px 0">Sin categorías registradas.</div>';
     } else {
-      sel.innerHTML = CATEGORIAS.map(c => '<option value="' + c.id + '">' + c.nombre + '</option>').join('');
+      grid.innerHTML = CATEGORIAS.map((c, i) =>
+        '<button class="tv-cat-btn' + (i===0?' active':'') + '" onclick="seleccionarCat(this,\'' + c.id + '\')" data-id="' + c.id + '">'
+        + '<div class="tv-cat-btn-name">' + c.nombre + '</div>'
+        + '</button>'
+      ).join('');
     }
   }
-  // Precargar equipos de la primera categoría
+  // Precargar equipos primera categoría
   if (CATEGORIAS.length) {
     const eqs = await supa('equipos', '?categoria_id=eq.' + CATEGORIAS[0].id + '&activo=eq.true&order=nombre');
     EQUIPOS[CATEGORIAS[0].id] = eqs || [];
   }
+  renderFixture();
+}
+
+function seleccionarCat(btn, catId) {
+  document.querySelectorAll('.tv-cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  CAT_ACTUAL = catId;
   renderTabActual();
 }
 
 function getCatActual() {
-  const sel = document.getElementById('tv-cat-select');
-  if (!sel || !sel.value) return CATEGORIAS[0] || null;
-  return CATEGORIAS.find(c => c.id === sel.value) || CATEGORIAS[0] || null;
+  if (CAT_ACTUAL) return CATEGORIAS.find(c => c.id === CAT_ACTUAL) || CATEGORIAS[0] || null;
+  return CATEGORIAS[0] || null;
 }
 
+var CAT_ACTUAL = null;
+
 async function cambiarCategoria(catId) {
-  // Precargar equipos si no están en caché
+  CAT_ACTUAL = catId;
   if (!EQUIPOS[catId]) {
     const eqs = await supa('equipos', '?categoria_id=eq.' + catId + '&activo=eq.true&order=nombre');
     EQUIPOS[catId] = eqs || [];
@@ -635,145 +661,127 @@ async function cambiarCategoria(catId) {
 }
 
 function renderTabActual() {
-  const activeTab = document.querySelector('.tv-tab.active');
-  if (!activeTab) return;
-  const onclick = activeTab.getAttribute('onclick');
-  if (onclick.includes('posiciones')) renderPosiciones();
-  else if (onclick.includes('fixture'))    renderFixture();
+  const activeBtn = document.querySelector('.tv-nav-btn.active');
+  if (!activeBtn) return;
+  const onclick = activeBtn.getAttribute('onclick') || '';
+  if (onclick.includes('fixture'))    renderFixture();
   else if (onclick.includes('resultados')) renderResultados();
-  else if (onclick.includes('nomina'))     renderNomina();
+  else if (onclick.includes('posiciones')) renderPosiciones();
+  else if (onclick.includes('clubes'))     renderClubes();
   else if (onclick.includes('noticias'))   renderNoticias();
   else if (onclick.includes('sanciones'))  renderSanciones();
 }
 
-async function renderPosiciones() {
-  const el = document.getElementById('tab-posiciones');
-  const cat = getCatActual();
-  if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px">Sin categorías.</div>'; return; }
-  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando tabla...</div>';
-  const rows = await supa('standings', '?categoria_id=eq.' + cat.id + '&order=pts.desc,dg.desc,gf.desc');
-  if (!rows || !rows.length) {
-    el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin partidos finalizados aún en ' + cat.nombre + '.</div>';
-    return;
-  }
-  let h = '<div style="overflow-x:auto"><table class="st-table"><thead><tr>'
-    + '<th>#</th><th>Equipo</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DIF</th><th>PTS</th>'
-    + '</tr></thead><tbody>';
-  rows.forEach((r, i) => {
-    const dg = Number(r.dg) || 0;
-    const rkCls = i===0?'rk-1':i===1?'rk-2':i===2?'rk-3':'';
-    h += '<tr>'
-      + '<td><span class="rk ' + rkCls + '">' + (i+1) + '</span></td>'
-      + '<td><span class="color-dot" style="background:' + (r.color||'#475569') + '"></span>' + r.equipo_nombre + '</td>'
-      + '<td>' + r.pj + '</td><td>' + r.pg + '</td><td>' + r.pe + '</td><td>' + r.pp + '</td>'
-      + '<td>' + r.gf + '</td><td>' + r.gc + '</td>'
-      + '<td class="' + (dg>0?'dif-pos':dg<0?'dif-neg':'') + '">' + (dg>0?'+':'') + dg + '</td>'
-      + '<td><span class="pts-cell">' + r.pts + '</span></td>'
-      + '</tr>';
-  });
-  h += '</tbody></table></div>';
-  el.innerHTML = h;
-}
-
+// ── RENDER FIXTURE ────────────────────────────────────────────────────
 async function renderFixture() {
   const el = document.getElementById('tab-fixture');
   const cat = getCatActual();
-  if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2)">Sin categorías.</div>'; return; }
-  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando fixture...</div>';
-  const partidos = await supa('partidos', '?categoria_id=eq.' + cat.id
+  if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2);text-align:center">Sin categorías.</div>'; return; }
+  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
+  const partidos = await supa('partidos',
+    '?categoria_id=eq.' + cat.id
     + '&select=*,local:equipo_local(nombre,color_local),visita:equipo_visita(nombre,color_local)'
     + '&estado=neq.finalizado&order=nro_fecha,fecha,hora');
   if (!partidos || !partidos.length) {
     el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin partidos programados en ' + cat.nombre + '.</div>';
     return;
   }
-  const grupos = {};
-  partidos.forEach(p => { const k = 'Fecha ' + (p.nro_fecha||'') + (p.fecha?' · '+formatFecha(p.fecha):''); if(!grupos[k]) grupos[k]=[]; grupos[k].push(p); });
-  let h = '';
-  Object.entries(grupos).forEach(function([fecha, ps]) {
-    h += '<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin:12px 0 8px">' + fecha + '</div>';
-    ps.forEach(function(p) { h += renderMatchCard(p); });
-  });
+  let h = '<div class="tv-section-lbl">Próximos partidos</div>';
+  partidos.forEach(function(p) { h += renderPartidoCard(p, false); });
   el.innerHTML = h;
 }
 
+// ── RENDER RESULTADOS ─────────────────────────────────────────────────
 async function renderResultados() {
   const el = document.getElementById('tab-resultados');
   const cat = getCatActual();
   if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2)">Sin categorías.</div>'; return; }
-  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando resultados...</div>';
-  const partidos = await supa('partidos', '?categoria_id=eq.' + cat.id
+  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
+  const partidos = await supa('partidos',
+    '?categoria_id=eq.' + cat.id
     + '&select=*,local:equipo_local(nombre,color_local),visita:equipo_visita(nombre,color_local)'
-    + '&estado=eq.finalizado&order=nro_fecha.desc,fecha.desc,hora.desc');
+    + '&estado=eq.finalizado&order=nro_fecha.desc,fecha.desc');
   if (!partidos || !partidos.length) {
     el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin resultados en ' + cat.nombre + '.</div>';
     return;
   }
-  let h = '';
-  partidos.forEach(function(p) { h += renderMatchCard(p); });
+  let h = '<div class="tv-section-lbl">Resultados</div>';
+  partidos.forEach(function(p) { h += renderPartidoCard(p, true); });
   el.innerHTML = h;
 }
 
-async function renderNomina() {
-  const el = document.getElementById('tab-nomina');
+// ── RENDER POSICIONES ─────────────────────────────────────────────────
+async function renderPosiciones() {
+  const el = document.getElementById('tab-posiciones');
   const cat = getCatActual();
   if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2)">Sin categorías.</div>'; return; }
-  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando nóminas...</div>';
-  const equipos = EQUIPOS[cat.id] || await supa('equipos', '?categoria_id=eq.' + cat.id + '&activo=eq.true&order=nombre');
-  if (!equipos || !equipos.length) {
-    el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin equipos en ' + cat.nombre + '.</div>';
-    return;
+  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando tabla...</div>';
+  const rows = await supa('standings', '?categoria_id=eq.' + cat.id + '&order=pts.desc,dg.desc,gf.desc');
+  let h = '<div class="tv-section-lbl">Tabla de posiciones</div>';
+  if (!rows || !rows.length) {
+    h += '<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin partidos finalizados aún.</div>';
+  } else {
+    h += '<div style="overflow-x:auto;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:4px 0">';
+    h += '<table class="st-table"><thead><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>Dif</th><th>Pts</th></tr></thead><tbody>';
+    rows.forEach(function(r, i) {
+      const dg = Number(r.dg) || 0;
+      const rkCls = i===0?'rk-1':i===1?'rk-2':i===2?'rk-3':'';
+      h += '<tr>'
+        + '<td><span class="rk ' + rkCls + '">' + (i+1) + '</span></td>'
+        + '<td><span class="color-dot" style="background:' + (r.color||'#475569') + '"></span>' + r.equipo_nombre + '</td>'
+        + '<td>' + r.pj + '</td><td>' + r.pg + '</td><td>' + r.pe + '</td><td>' + r.pp + '</td>'
+        + '<td>' + r.gf + '</td><td>' + r.gc + '</td>'
+        + '<td class="' + (dg>0?'dif-pos':dg<0?'dif-neg':'') + '">' + (dg>0?'+':'') + dg + '</td>'
+        + '<td><span class="pts-cell">' + r.pts + '</span></td></tr>';
+    });
+    h += '</tbody></table></div>';
   }
-  let h = '';
-  equipos.forEach(function(e) {
-    h += '<div class="p-card" style="margin-bottom:10px">';
-    h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">';
-    h += '<div style="width:14px;height:14px;border-radius:50%;background:' + (e.color_local||'#1d4ed8') + ';flex-shrink:0"></div>';
-    h += '<div style="font-family:Barlow Condensed,sans-serif;font-size:18px;font-weight:900;color:var(--text)">' + e.nombre + '</div>';
-    h += '</div>';
-    h += '<div style="font-size:12px;color:var(--text3);font-style:italic">Nómina no disponible públicamente</div>';
-    h += '</div>';
-  });
+  // Reportes PDF
+  h += '<div class="tv-section-lbl" style="margin-top:20px">Reportes y documentos</div>';
+  h += '<button class="pdf-btn" onclick="alert(\'PDF próximamente\')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Descargar fixture PDF</button>';
+  h += '<button class="pdf-btn" onclick="alert(\'PDF próximamente\')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Descargar resultados PDF</button>';
+  h += '<button class="pdf-btn" onclick="alert(\'PDF próximamente\')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Descargar tabla de posiciones PDF</button>';
+  h += '<button class="pdf-btn pdf-btn-ghost" onclick="alert(\'Reglamento próximamente\')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Ver reglamento del torneo</button>';
+  // Botón acceso admin
+  h += '<div style="text-align:center;margin-top:16px">';
+  h += '<button class="btn-ghost" onclick="openModal(\'modal-login-org\')" style="font-size:12px"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg> Acceso administrador</button>';
+  h += '</div>';
   el.innerHTML = h;
 }
 
-function renderMatchCard(p) {
-  const local  = p.local  || { nombre: '?', color_local: '#475569' };
-  const visita = p.visita || { nombre: '?', color_local: '#475569' };
-  const finalizado = p.estado === 'finalizado';
-  const enVivo = p.estado === 'en_vivo';
-  const locWin = finalizado && p.pts_local > p.pts_visita;
-  const visWin = finalizado && p.pts_visita > p.pts_local;
-  return `<div class="match-card">
-    <div class="match-fase">${p.fase||'Fase Regular'} ${p.cancha ? '· ' + p.cancha : ''}</div>
-    <div class="match-teams">
-      <div class="match-team">
-        <div class="match-team-name ${locWin?'win':''}">${local.nombre}</div>
-      </div>
-      <div>
-        ${finalizado
-          ? `<div class="match-score"><span class="${locWin?'score-win':'score-lose'}">${p.pts_local}</span> <span style="font-size:14px;color:var(--text3)">-</span> <span class="${visWin?'score-win':'score-lose'}">${p.pts_visita}</span></div>
-             <div style="text-align:center;margin-top:4px"><span class="badge badge-final">Final</span></div>`
-          : enVivo
-          ? `<div class="match-vs"><span class="live-dot"></span>EN VIVO</div>`
-          : `<div class="match-vs" style="font-size:12px">${p.hora||'--:--'}</div>
-             <div style="text-align:center;margin-top:4px"><span class="badge badge-prox">${formatFecha(p.fecha,'corto')}</span></div>`}
-      </div>
-      <div class="match-team" style="text-align:right">
-        <div class="match-team-name ${visWin?'win':''}">${visita.nombre}</div>
-      </div>
-    </div>
-  </div>`;
+// ── RENDER CLUBES ─────────────────────────────────────────────────────
+async function renderClubes() {
+  const el = document.getElementById('tab-clubes');
+  const cat = getCatActual();
+  if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2)">Sin categorías.</div>'; return; }
+  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
+  const equipos = EQUIPOS[cat.id] || await supa('equipos', '?categoria_id=eq.' + cat.id + '&activo=eq.true&order=nombre');
+  EQUIPOS[cat.id] = equipos || [];
+  if (!equipos || !equipos.length) {
+    el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin clubes en ' + cat.nombre + '.</div>';
+    return;
+  }
+  let h = '<div class="tv-section-lbl">Clubes participantes</div>';
+  h += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">';
+  equipos.forEach(function(e) {
+    h += '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;align-items:center;gap:10px">';
+    h += '<div style="width:36px;height:36px;border-radius:50%;background:' + (e.color_local||'#1d4ed8') + ';flex-shrink:0"></div>';
+    h += '<div style="font-weight:700;font-size:14px;color:var(--text)">' + e.nombre + '</div>';
+    h += '</div>';
+  });
+  h += '</div>';
+  el.innerHTML = h;
 }
 
+// ── RENDER NOTICIAS ───────────────────────────────────────────────────
 async function renderNoticias() {
   const el = document.getElementById('tab-noticias');
-  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando noticias...</div>';
+  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
   const news = await supa('noticias', '?torneo_id=eq.' + TORNEO_ACTUAL.id + '&publicado=eq.true&order=created_at.desc');
-  if (!news || !news.length) { el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin noticias publicadas aún.</div>'; return; }
-  let h = '';
+  if (!news || !news.length) { el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin noticias publicadas.</div>'; return; }
+  let h = '<div class="tv-section-lbl">Noticias</div>';
   news.forEach(function(n) {
-    h += '<div class="p-card" style="margin-bottom:10px">';
+    h += '<div class="match-card" style="margin-bottom:10px">';
     h += '<div style="font-size:10px;color:var(--text3);margin-bottom:6px">' + formatFecha(n.created_at,'fecha') + '</div>';
     h += '<div style="font-weight:700;font-size:16px;color:var(--text);margin-bottom:6px">' + n.titulo + '</div>';
     if (n.contenido) h += '<div style="font-size:13px;color:var(--text2);line-height:1.6">' + n.contenido + '</div>';
@@ -782,837 +790,70 @@ async function renderNoticias() {
   el.innerHTML = h;
 }
 
+// ── RENDER SANCIONES ──────────────────────────────────────────────────
 async function renderSanciones() {
   const el = document.getElementById('tab-sanciones');
-  if (!CATEGORIAS.length) { el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px">Sin categorías.</div>'; return; }
-  let html = '';
-  for (const cat of CATEGORIAS) {
-    const sancs = await supa('sanciones', `?categoria_id=eq.${cat.id}&order=created_at.desc`);
-    if (!sancs || !sancs.length) continue;
-    html += `<div style="margin-bottom:16px"><div class="section-label">${cat.nombre}</div>`;
-    sancs.forEach(s => {
-      html += `<div class="p-card" style="margin-bottom:8px">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start">
-          <div>
-            <div style="font-weight:700;color:var(--text)">${s.jugador_nombre||'Sin nombre'}</div>
-            <div style="font-size:12px;color:var(--text2)">${s.tipo||''} ${s.descripcion ? '· ' + s.descripcion : ''}</div>
-          </div>
-          ${s.fecha_fin ? `<div style="font-size:11px;color:var(--orange)">Hasta: ${formatFecha(s.fecha_fin,'corto')}</div>` : ''}
-        </div>
-      </div>`;
-    });
-    html += '</div>';
-  }
-  el.innerHTML = html || '<div style="padding:20px;color:var(--text2);font-size:13px">Sin sanciones registradas.</div>';
+  const cat = getCatActual();
+  if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2)">Sin categorías.</div>'; return; }
+  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
+  const sancs = await supa('sanciones', '?categoria_id=eq.' + cat.id + '&order=created_at.desc');
+  if (!sancs || !sancs.length) { el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin sanciones en ' + cat.nombre + '.</div>'; return; }
+  let h = '<div class="tv-section-lbl">Sanciones</div>';
+  sancs.forEach(function(s) {
+    h += '<div class="match-card" style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px">';
+    h += '<div>';
+    h += '<div style="font-weight:700;color:var(--text)">' + (s.jugador_nombre||'Sin nombre') + '</div>';
+    h += '<div style="font-size:12px;color:var(--text2)">' + (s.tipo||'') + (s.descripcion?' · '+s.descripcion:'') + '</div>';
+    if (s.fecha_fin) h += '<div style="font-size:11px;color:var(--orange);margin-top:2px">Hasta: ' + formatFecha(s.fecha_fin,'corto') + '</div>';
+    h += '</div>';
+    h += '<span style="background:rgba(249,115,22,.12);color:var(--orange);border:1px solid rgba(249,115,22,.2);font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;white-space:nowrap">Sancionado</span>';
+    h += '</div>';
+  });
+  el.innerHTML = h;
 }
 
-// ── AUTH ──────────────────────────────────────────────────────────────────────
-async function loginAdmin(e) {
-  e.preventDefault();
-  const errEl = document.getElementById('admin-error');
-  const btn = document.getElementById('admin-btn');
-  errEl.style.display = 'none';
-  btn.disabled = true; btn.textContent = 'Ingresando...';
-  const json = await api('checkLogin', {
-    email:    document.getElementById('admin-email').value.trim(),
-    password: document.getElementById('admin-pass').value,
-  });
-  btn.disabled = false; btn.textContent = 'INGRESAR';
-  if (json.success) {
-    SESSION = { rol: 'admin', token: json.token, nombre: json.nombre, email: json.email };
-    closeModal('modal-login-admin');
-    initPanel();
+// ── RENDER PARTIDO CARD ───────────────────────────────────────────────
+function renderPartidoCard(p, finalizado) {
+  const local  = p.local  || { nombre: '?' };
+  const visita = p.visita || { nombre: '?' };
+  const locWin = finalizado && (p.pts_local > p.pts_visita);
+  const visWin = finalizado && (p.pts_visita > p.pts_local);
+  let h = '<div class="match-card">';
+  // Número partido + badge estado
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+  h += '<div class="match-nro" style="margin:0">Partido N° ' + (p.nro_fecha||'') + '</div>';
+  if (finalizado) {
+    h += '<span class="match-badge badge-final">Final</span>';
+  } else if (p.estado === 'en_vivo') {
+    h += '<span class="match-badge badge-live" style="display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:var(--red);display:inline-block;animation:pulse 1s infinite"></span>En Vivo</span>';
   } else {
-    errEl.textContent = json.message || 'Error al ingresar';
-    errEl.style.display = 'block';
+    h += '<span class="match-badge badge-proximo">Próximo</span>';
   }
-}
-
-async function loginOrg(e) {
-  e.preventDefault();
-  const errEl = document.getElementById('org-error');
-  const btn = document.getElementById('org-btn');
-  errEl.style.display = 'none';
-  btn.disabled = true; btn.textContent = 'Ingresando...';
-  const json = await api('checkLogin', {
-    email:    document.getElementById('org-email').value.trim(),
-    password: document.getElementById('org-pass').value,
-  });
-  btn.disabled = false; btn.textContent = 'INGRESAR';
-  if (json.success) {
-    SESSION = { rol: 'organizador', token: json.token, nombre: json.nombre, org_id: json.org_id, ciudad: json.ciudad };
-    closeModal('modal-login-org');
-    initPanel();
+  h += '</div>';
+  // Equipos y marcador
+  h += '<div class="match-teams">';
+  h += '<div class="match-team-name' + (locWin?' win':'') + '">' + local.nombre + '</div>';
+  if (finalizado) {
+    h += '<div class="match-score-box">' + (p.pts_local||0) + '–' + (p.pts_visita||0) + '</div>';
   } else {
-    errEl.textContent = json.message || 'Email o clave incorrectos';
-    errEl.style.display = 'block';
+    h += '<div class="match-score-box vs">vs</div>';
   }
-}
-
-function logout() {
-  SESSION = null;
-  showView('pub-view');
-  loadTorneos();
-}
-
-// ── PANEL ─────────────────────────────────────────────────────────────────────
-function initPanel() {
-  showView('panel-view');
-  document.getElementById('panel-user-name').textContent = SESSION.nombre;
-  const badge = document.getElementById('panel-role-badge');
-  if (SESSION.rol === 'admin') {
-    badge.textContent = 'Admin';
-    badge.style.cssText = 'background:rgba(29,78,216,.2);color:#93c5fd;border:1px solid rgba(29,78,216,.3);font-size:10px;padding:2px 8px;border-radius:100px';
-    document.getElementById('sidebar-admin').style.display = 'flex';
-    document.getElementById('sidebar-org').style.display = 'none';
-    showPanel('p-solicitudes', document.querySelector('#sidebar-admin .sb-btn'));
-  } else {
-    badge.textContent = 'Organizador · ' + (SESSION.org_id||'');
-    badge.style.cssText = 'background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3);font-size:10px;padding:2px 8px;border-radius:100px';
-    document.getElementById('sidebar-admin').style.display = 'none';
-    document.getElementById('sidebar-org').style.display = 'flex';
-    showPanel('p-dashboard', document.querySelector('#sidebar-org .sb-btn'));
+  h += '<div class="match-team-name right' + (visWin?' win':'') + '">' + visita.nombre + '</div>';
+  h += '</div>';
+  // Meta info
+  h += '<div class="match-meta">';
+  if (p.fecha) h += '<span>' + formatFecha(p.fecha) + '</span>';
+  if (p.hora)  h += '<span class="match-meta-sep">·</span><span>' + p.hora + '</span>';
+  if (p.cancha) h += '<span class="match-meta-sep">·</span><span>' + p.cancha + '</span>';
+  if (p.url_transmision) {
+    h += '<span class="match-meta-sep">·</span><a href="' + p.url_transmision + '" target="_blank" style="color:var(--red);display:flex;align-items:center;gap:4px;font-weight:700">';
+    h += '<svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.25 8.25 0 004.83 1.56V6.81a4.85 4.85 0 01-1.06-.12z"/></svg>';
+    h += 'En vivo</a>';
   }
+  h += '</div>';
+  h += '</div>';
+  return h;
 }
-
-function showPanel(panelId, btn) {
-  document.querySelectorAll('.sb-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  renderPanel(panelId);
-}
-
-// ── RENDER PANELES ────────────────────────────────────────────────────────────
-async function renderPanel(id) {
-  const main = document.getElementById('panel-main');
-  main.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px">Cargando...</div>';
-
-  switch(id) {
-
-    case 'p-solicitudes': {
-      const json = await api('listarSolicitudes');
-      const sols = json.data || [];
-      const pendientes = sols.filter(s => s.estado === 'pendiente');
-      const badge = document.getElementById('sb-badge-sol');
-      if (badge) { badge.textContent = pendientes.length; badge.style.display = pendientes.length ? 'inline' : 'none'; }
-      main.innerHTML = `<div class="panel-content">
-        <div class="panel-title">Solicitudes</div>
-        <div class="panel-sub">${sols.length} total · ${pendientes.length} pendientes</div>
-        ${!sols.length ? '<div style="padding:20px;color:var(--text2)">Sin solicitudes aún.</div>' :
-          sols.map(s => `
-          <div class="sol-card ${s.estado}">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
-              <div>
-                <div style="font-weight:700;font-size:15px;color:var(--text)">${s.nombre}</div>
-                <div style="font-size:12px;color:var(--text2)">${s.email} ${s.telefono ? '· ' + s.telefono : ''}</div>
-              </div>
-              <span class="badge ${s.estado==='pendiente'?'badge-draft':s.estado==='aprobada'?'badge-active':''}">${s.estado}</span>
-            </div>
-            <div class="sol-info">
-              <div class="sol-info-item"><div class="sol-info-lbl">Ciudad</div><div class="sol-info-val">${s.ciudad}</div></div>
-              <div class="sol-info-item"><div class="sol-info-lbl">Deporte</div><div class="sol-info-val">${s.deporte||'Básquetbol'}</div></div>
-              <div class="sol-info-item"><div class="sol-info-lbl">Categorías est.</div><div class="sol-info-val">${s.cant_categorias||1}</div></div>
-              <div class="sol-info-item"><div class="sol-info-lbl">Fecha</div><div class="sol-info-val">${formatFecha(s.created_at,'fecha')}</div></div>
-            </div>
-            ${s.descripcion ? `<div style="font-size:12px;color:var(--text2);margin-bottom:10px;background:var(--bg3);border-radius:8px;padding:8px 10px">${s.descripcion}</div>` : ''}
-            ${s.estado === 'pendiente' ? `
-            <div style="display:flex;gap:8px">
-              <button class="btn-sm btn-sm-primary" onclick="aprobarSolicitud('${s.id}')">✓ Aprobar y generar acceso</button>
-              <button class="btn-sm btn-sm-danger" onclick="rechazarSolicitud('${s.id}')">✕ Rechazar</button>
-              <button class="btn-sm" onclick="window.open('mailto:${s.email}')">✉</button>
-            </div>` : s.estado === 'aprobada' && s.org_id ? `
-            <div class="org-id-display">
-              <div><div style="font-size:10px;color:var(--text2);margin-bottom:2px">ID Organizador</div><div class="org-id-val">${s.org_id}</div></div>
-              <div><div style="font-size:10px;color:var(--text2);margin-bottom:2px">Clave acceso</div><div class="org-clave">${s.clave_acceso||'Generada'}</div></div>
-            </div>
-            <div style="font-size:11px;color:var(--text3)">Comparte el email y clave con el organizador</div>` : ''}
-          </div>`).join('')}
-      </div>`;
-      break;
-    }
-
-    case 'p-torneos': {
-      const json = await api('getTorneosAdmin');
-      const torneos = json.data || [];
-      main.innerHTML = `<div class="panel-content">
-        <div class="panel-title">Torneos</div>
-        <div class="panel-sub">${torneos.length} registrados</div>
-        ${!torneos.length ? '<div style="padding:20px;color:var(--text2)">Sin torneos aún.</div>' :
-          torneos.map(t => `
-          <div class="p-card">
-            <div class="p-card-header">
-              <div>
-                <div class="p-card-title">${t.nombre}</div>
-                <div class="p-card-sub">📍 ${t.ciudad} · ${t.organizadores?.nombre||'Sin org.'}</div>
-              </div>
-              <div class="p-card-actions">
-                <span class="badge ${t.visible?'badge-active':'badge-draft'}">${t.visible?'Visible':'Oculto'}</span>
-                <button class="btn-sm ${t.visible?'btn-sm-danger':''}" onclick="adminTogglePublicar('${t.id}',${!t.visible})">${t.visible?'Ocultar':'Publicar'}</button>
-                <button class="btn-sm btn-sm-danger" onclick="eliminarTorneo('${t.id}')">Eliminar</button>
-              </div>
-            </div>
-            <div style="font-size:12px;color:var(--text2)">${t.deporte||'Básquetbol'} · ${t.temporada||'Sin temporada'} · Estado: ${t.estado}</div>
-          </div>`).join('')}
-      </div>`;
-      break;
-    }
-
-    case 'p-organizadores': {
-      const json = await api('listarOrganizadores');
-      const orgs = json.data || [];
-      main.innerHTML = `<div class="panel-content">
-        <div class="panel-title">Organizadores</div>
-        <div class="panel-sub">${orgs.length} registrados</div>
-        <div class="metrics-grid" style="grid-template-columns:repeat(2,1fr);max-width:300px;margin-bottom:20px">
-          <div class="metric-card"><div class="metric-num">${orgs.length}</div><div class="metric-lbl">Total</div></div>
-          <div class="metric-card"><div class="metric-num">${orgs.filter(o=>o.activo).length}</div><div class="metric-lbl">Activos</div></div>
-        </div>
-        ${!orgs.length ? '<div style="padding:20px;color:var(--text2)">Sin organizadores aún.</div>' :
-          orgs.map(o => `
-          <div class="p-card">
-            <div class="p-card-header">
-              <div>
-                <div class="p-card-title">${o.nombre}</div>
-                <div class="p-card-sub">${o.email} · 📍 ${o.ciudad}</div>
-              </div>
-              <div class="p-card-actions">
-                <span class="badge ${o.activo?'badge-active':'badge-draft'}">${o.activo?'Activo':'Suspendido'}</span>
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between">
-              <div style="font-size:12px;color:var(--text3)">${o.org_id} · ${o.torneos_count||0} torneo(s)</div>
-              <div style="display:flex;gap:6px">
-                <button class="btn-sm" onclick="resetPassword('${o.org_id}')">Nueva clave</button>
-                <button class="btn-sm ${o.activo?'btn-sm-danger':''}" onclick="toggleOrg('${o.org_id}',${!o.activo})">${o.activo?'Suspender':'Activar'}</button>
-              </div>
-            </div>
-          </div>`).join('')}
-      </div>`;
-      break;
-    }
-
-    case 'p-metricas': {
-      const json = await api('getMetricas');
-      const d = json.data || {};
-      main.innerHTML = `<div class="panel-content">
-        <div class="panel-title">Métricas</div>
-        <div class="panel-sub">Estado general del sistema</div>
-        <div class="metrics-grid">
-          <div class="metric-card"><div class="metric-num">${d.solicitudes||0}</div><div class="metric-lbl">Solicitudes</div></div>
-          <div class="metric-card"><div class="metric-num">${d.organizadores||0}</div><div class="metric-lbl">Organizadores</div></div>
-          <div class="metric-card"><div class="metric-num">${d.torneos||0}</div><div class="metric-lbl">Torneos</div></div>
-          <div class="metric-card"><div class="metric-num">${d.equipos||0}</div><div class="metric-lbl">Equipos</div></div>
-        </div>
-      </div>`;
-      break;
-    }
-
-    case 'p-dashboard': {
-      const json = await api('getMiTorneo');
-      const torneo = json.data;
-      main.innerHTML = `<div class="panel-content">
-        <div class="panel-title">Bienvenido, ${SESSION.nombre}</div>
-        <div class="panel-sub">${SESSION.org_id} · ${SESSION.ciudad||''}</div>
-        ${!torneo ? `
-        <div class="p-card" style="text-align:center;padding:28px">
-          <div style="font-size:36px;margin-bottom:12px">🏆</div>
-          <div style="font-weight:700;font-size:16px;color:var(--text);margin-bottom:8px">Crea tu primer torneo</div>
-          <div style="font-size:13px;color:var(--text2);margin-bottom:16px">Comienza configurando tu torneo, categorías y equipos</div>
-          <button class="btn-sm btn-sm-primary" style="padding:10px 20px" onclick="showCrearTorneo()">+ Crear torneo</button>
-        </div>` : `
-        <div class="p-card">
-          <div class="p-card-header">
-            <div><div class="p-card-title">${torneo.nombre}</div><div class="p-card-sub">${torneo.temporada||''}</div></div>
-            <div class="p-card-actions">
-              <span class="badge ${torneo.visible?'badge-active':'badge-draft'}">${torneo.visible?'Publicado':'Borrador'}</span>
-              <button class="btn-sm btn-sm-primary" onclick="togglePublicar('${torneo.id}',${!torneo.visible})">${torneo.visible?'Ocultar':'Publicar'}</button>
-            </div>
-          </div>
-          <div style="font-size:12px;color:var(--text2)">${torneo.deporte||'Básquetbol'} · ${torneo.ciudad}</div>
-          ${torneo.descripcion ? `<div style="font-size:13px;color:var(--text2);margin-top:8px">${torneo.descripcion}</div>` : ''}
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:16px">
-          ${[['p-categorias','🏆','Categorías'],['p-equipos','👥','Equipos'],['p-fixture','📅','Fixture'],['p-noticias','📰','Noticias']].map(([p,ic,lb]) =>
-            `<div class="p-card" style="text-align:center;cursor:pointer;padding:18px" onclick="showPanel('${p}',null)">
-              <div style="font-size:28px;margin-bottom:6px">${ic}</div>
-              <div style="font-weight:700;font-size:13px;color:var(--text)">${lb}</div>
-            </div>`).join('')}
-        </div>`}
-      </div>`;
-      break;
-    }
-
-    case 'p-categorias': {
-      const json = await api('getMiTorneo');
-      const torneo = json.data;
-      if (!torneo) { main.innerHTML = '<div class="panel-content"><div class="panel-title">Categorías</div><div style="padding:20px;color:var(--text2)">Primero crea un torneo.</div></div>'; break; }
-      const cats = await api('getMisCategorias', { torneo_id: torneo.id });
-      main.innerHTML = `<div class="panel-content">
-        <div class="panel-title">Categorías</div>
-        <div class="panel-sub">Torneo: ${torneo.nombre}</div>
-        <div class="p-card" style="margin-bottom:16px">
-          <div class="f-group"><label class="f-label">Nombre de la categoría</label><input class="f-input" id="cat-nombre" type="text" placeholder="Ej: Masculino A, Femenino, Sub-15..."></div>
-          <div class="f-row">
-            <div class="f-group"><label class="f-label">Pts Victoria</label><input class="f-input" id="cat-ptv" type="number" value="2" min="0"></div>
-            <div class="f-group"><label class="f-label">Pts Derrota</label><input class="f-input" id="cat-ptd" type="number" value="1" min="0"></div>
-          </div>
-          <button class="btn-sm btn-sm-primary" onclick="crearCategoria('${torneo.id}')">+ Agregar categoría</button>
-        </div>
-        ${!(cats.data||[]).length ? '<div style="font-size:13px;color:var(--text2)">Sin categorías aún.</div>' :
-          (cats.data||[]).map(c => `
-          <div class="p-card">
-            <div class="p-card-header">
-              <div class="p-card-title">${c.nombre}</div>
-              <div class="p-card-actions">
-                <button class="btn-sm btn-sm-danger" onclick="eliminarCategoria('${c.id}')">Eliminar</button>
-              </div>
-            </div>
-            <div style="font-size:12px;color:var(--text2)">Victoria: ${c.pts_victoria}pts · Derrota: ${c.pts_derrota}pts · Empate: ${c.pts_empate}pts</div>
-          </div>`).join('')}
-      </div>`;
-      break;
-    }
-
-    case 'p-equipos': {
-      const jtorneo = await api('getMiTorneo');
-      const torneo2 = jtorneo.data;
-      if (!torneo2) {
-        main.innerHTML = '<div class="panel-content"><div class="panel-title">Equipos</div><div style="padding:20px;color:var(--text2)">Primero crea un torneo.</div></div>';
-        break;
-      }
-      const jcats2 = await api('getMisCategorias', { torneo_id: torneo2.id });
-      const catsEq = jcats2.data || [];
-      let eqHtml = '';
-      for (const cat of catsEq) {
-        const jEqs = await api('getEquiposCategoria', { categoria_id: cat.id });
-        const eqs = jEqs.data || [];
-        const catId = cat.id;
-        eqHtml += '<div style="margin-bottom:20px">';
-        eqHtml += '<div class="section-label">' + cat.nombre + '</div>';
-        eqHtml += '<div class="p-card" style="margin-bottom:10px">';
-        eqHtml += '<div class="f-row">';
-        eqHtml += '<div class="f-group"><label class="f-label">Nombre equipo</label>';
-        eqHtml += '<input class="f-input" id="eq-nom-' + catId + '" type="text" placeholder="Nombre del equipo"></div>';
-        eqHtml += '<div class="f-group"><label class="f-label">Color</label>';
-        eqHtml += '<input class="f-input" id="eq-col-' + catId + '" type="color" value="#1d4ed8" style="height:40px;padding:4px"></div>';
-        eqHtml += '</div>';
-        eqHtml += '<button class="btn-sm btn-sm-primary" onclick="crearEquipo(this)" data-cat="' + catId + '">+ Agregar equipo</button>';
-        eqHtml += '</div>';
-        if (!eqs.length) {
-          eqHtml += '<div style="font-size:13px;color:var(--text2);padding:8px 0">Sin equipos aún.</div>';
-        } else {
-          eqs.forEach(function(e) {
-            eqHtml += '<div class="p-card" style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:6px">';
-            eqHtml += '<div style="width:12px;height:12px;border-radius:50%;background:' + (e.color_local || '#1d4ed8') + ';flex-shrink:0"></div>';
-            eqHtml += '<div style="font-weight:600;font-size:14px;flex:1">' + e.nombre + '</div>';
-            eqHtml += '<div style="display:flex;gap:6px">';
-            eqHtml += '<button class="btn-sm" onclick="editarEquipoModal(this)" data-id="' + e.id + '" data-nombre="' + e.nombre.replace(/"/g,'&quot;') + '" data-color="' + (e.color_local||'#1d4ed8') + '">Editar</button>';
-            eqHtml += '<button class="btn-sm btn-sm-danger" onclick="eliminarEquipo(this)" data-id="' + e.id + '">Eliminar</button>';
-            eqHtml += '</div></div>';
-          });
-        }
-        eqHtml += '</div>';
-      }
-      main.innerHTML = '<div class="panel-content"><div class="panel-title">Equipos</div>'
-        + '<div class="panel-sub">Torneo: ' + torneo2.nombre + '</div>'
-        + (!catsEq.length ? '<div style="padding:20px;color:var(--text2)">Primero crea las categorías.</div>' : eqHtml)
-        + '</div>';
-      break;
-    }
-
-    case 'p-fixture': {
-      const jtf = await api('getMiTorneo');
-      const torneoFix = jtf.data;
-      if (!torneoFix) { main.innerHTML = '<div class="panel-content"><div class="panel-title">Fixture</div><div style="padding:20px;color:var(--text2)">Primero crea un torneo.</div></div>'; break; }
-      const jcf = await api('getMisCategorias', { torneo_id: torneoFix.id });
-      const catsFix = jcf.data || [];
-      const catOpts = catsFix.map(c => '<option value="' + c.id + '">' + c.nombre + '</option>').join('');
-      main.innerHTML = '<div class="panel-content">'
-        + '<div class="panel-title">Fixture</div>'
-        + '<div class="panel-sub">Programa los partidos manualmente</div>'
-        + '<div class="p-card" style="margin-bottom:16px">'
-        + '<div class="f-row"><div class="f-group"><label class="f-label">N° Partido</label><input class="f-input" id="fix-nro" type="number" value="1" min="1" placeholder="1"></div>'
-        + '<div class="f-group"><label class="f-label">Categoría</label><select class="f-select" id="fix-cat" onchange="loadEquiposFixture(this.value)">' + catOpts + '</select></div></div>'
-        + '<div class="f-row"><div class="f-group"><label class="f-label">Equipo local</label><select class="f-select" id="fix-local"></select></div>'
-        + '<div class="f-group"><label class="f-label">Equipo visita</label><select class="f-select" id="fix-visita"></select></div></div>'
-        + '<div class="f-row"><div class="f-group"><label class="f-label">Fecha</label><input class="f-input" id="fix-fecha" type="date"></div>'
-        + '<div class="f-group"><label class="f-label">Hora</label><input class="f-input" id="fix-hora" type="time"></div></div>'
-        + '<div class="f-row"><div class="f-group"><label class="f-label">Cancha</label><input class="f-input" id="fix-cancha" type="text" placeholder="Nombre de la cancha"></div>'
-        + '<div class="f-group"><label class="f-label">Fase</label><input class="f-input" id="fix-fase" type="text" value="Fase Regular"></div></div>'
-        + '<div class="f-group"><label class="f-label">URL Transmisión en vivo (opcional)</label><input class="f-input" id="fix-url" type="url" placeholder="https://youtube.com/..."></div>'
-        + '<button class="btn-sm btn-sm-primary" onclick="crearPartido()">+ Programar partido</button>'
-        + '</div>'
-        + '<div id="fix-lista"></div>'
-        + '</div>';
-      if (catsFix.length) {
-        loadEquiposFixture(catsFix[0].id);
-        loadPartidosFixture(catsFix[0].id);
-      }
-      break;
-    }
-
-    case 'p-resultados': {
-      const jtr = await api('getMiTorneo');
-      const torneoRes = jtr.data;
-      if (!torneoRes) { main.innerHTML = '<div class="panel-content"><div class="panel-title">Resultados</div><div style="padding:20px;color:var(--text2)">Sin torneo.</div></div>'; break; }
-      const jcr = await api('getMisCategorias', { torneo_id: torneoRes.id });
-      const catsRes = jcr.data || [];
-      let resHtml = '';
-      for (const cat of catsRes) {
-        const jpr = await api('getPartidosCategoria', { categoria_id: cat.id, estado: 'programado' });
-        const partidos = jpr.data || [];
-        if (!partidos.length) continue;
-        resHtml += '<div style="margin-bottom:20px"><div class="section-label">' + cat.nombre + '</div>';
-        partidos.forEach(p => {
-          const inp = (id, ph) => '<input type="number" id="' + id + '" min="0" style="width:44px;text-align:center;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:5px 4px;color:var(--text);font-size:15px;font-weight:700" placeholder="' + ph + '">';
-          resHtml += '<div class="p-card" style="margin-bottom:10px">';
-          resHtml += '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">Partido ' + (p.nro_fecha||'') + ' · ' + formatFecha(p.fecha,'corto') + ' ' + (p.hora||'') + (p.cancha?' · '+p.cancha:'') + '</div>';
-          resHtml += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">';
-          resHtml += '<div style="flex:1;font-weight:700;font-size:14px">' + (p.local?.nombre||'?') + '</div>';
-          resHtml += inp('r-loc-' + p.id, '0') + '<span style="color:var(--text3);font-weight:700;font-size:18px"> - </span>' + inp('r-vis-' + p.id, '0');
-          resHtml += '<div style="flex:1;font-weight:700;font-size:14px;text-align:right">' + (p.visita?.nombre||'?') + '</div>';
-          resHtml += '</div>';
-          // Cuartos
-          resHtml += '<div style="background:var(--bg3);border-radius:10px;padding:10px;margin-bottom:10px">';
-          resHtml += '<div style="font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Parciales por cuarto (opcional)</div>';
-          resHtml += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">';
-          ['1','2','3','4'].forEach(q => {
-            resHtml += '<div style="text-align:center">';
-            resHtml += '<div style="font-size:10px;color:var(--text3);margin-bottom:4px">Q' + q + '</div>';
-            resHtml += '<div style="display:flex;gap:3px;justify-content:center">';
-            resHtml += inp('q' + q + '-loc-' + p.id, '-') + inp('q' + q + '-vis-' + p.id, '-');
-            resHtml += '</div></div>';
-          });
-          resHtml += '</div></div>';
-          resHtml += '<button class="btn-sm btn-sm-primary" style="width:100%" onclick="cargarResultado(this)" data-id="' + p.id + '">✓ Guardar resultado final</button>';
-          resHtml += '</div>';
-        });
-        resHtml += '</div>';
-      }
-      main.innerHTML = '<div class="panel-content"><div class="panel-title">Resultados</div><div class="panel-sub">Registra el resultado final y parciales por cuarto</div>'
-        + (resHtml || '<div style="padding:20px;color:var(--text2)">Sin partidos programados pendientes.</div>')
-        + '</div>';
-      break;
-    }
-
-    case 'p-noticias': {
-      const json = await api('getMiTorneo');
-      const torneo = json.data;
-      if (!torneo) { main.innerHTML = '<div class="panel-content"><div class="panel-title">Noticias</div><div style="padding:20px;color:var(--text2)">Sin torneo.</div></div>'; break; }
-      const news = await supa('noticias', `?torneo_id=eq.${torneo.id}&order=created_at.desc`);
-      main.innerHTML = `<div class="panel-content">
-        <div class="panel-title">Noticias</div>
-        <div class="p-card" style="margin-bottom:16px">
-          <div class="f-group"><label class="f-label">Título</label><input class="f-input" id="news-titulo" type="text" placeholder="Título de la noticia"></div>
-          <div class="f-group"><label class="f-label">Contenido</label><textarea class="f-input" id="news-contenido" rows="3" style="resize:none" placeholder="Contenido..."></textarea></div>
-          <button class="btn-sm btn-sm-primary" onclick="crearNoticia('${torneo.id}')">Publicar noticia</button>
-        </div>
-        ${!(news||[]).length ? '<div style="font-size:13px;color:var(--text2)">Sin noticias.</div>' :
-          (news||[]).map(n => `
-          <div class="p-card" style="margin-bottom:8px">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start">
-              <div><div style="font-weight:700;font-size:14px;color:var(--text)">${n.titulo}</div>
-              <div style="font-size:12px;color:var(--text2);margin-top:4px">${n.contenido||''}</div></div>
-              <button class="btn-sm btn-sm-danger" onclick="eliminarNoticia('${n.id}','${torneo.id}')">✕</button>
-            </div>
-          </div>`).join('')}
-      </div>`;
-      break;
-    }
-
-    case 'p-sanciones': {
-      const jts = await api('getMiTorneo');
-      const torneoSan = jts.data;
-      if (!torneoSan) { main.innerHTML = '<div class="panel-content"><div class="panel-title">Sanciones</div><div style="padding:20px;color:var(--text2)">Sin torneo.</div></div>'; break; }
-      const jcs = await api('getMisCategorias', { torneo_id: torneoSan.id });
-      const catsSan = jcs.data || [];
-      const catOptsSan = catsSan.map(c => '<option value="' + c.id + '">' + c.nombre + '</option>').join('');
-      // Cargar sanciones existentes
-      let sanHtml = '';
-      for (const cat of catsSan) {
-        const jsan = await api('getSancionesCategoria', { categoria_id: cat.id });
-        const sanciones = jsan.data || [];
-        if (!sanciones.length) continue;
-        sanHtml += '<div style="margin-bottom:16px"><div class="section-label">' + cat.nombre + '</div>';
-        sanciones.forEach(s => {
-          sanHtml += '<div class="p-card" style="margin-bottom:8px">';
-          sanHtml += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">';
-          sanHtml += '<div style="flex:1">';
-          sanHtml += '<div style="font-weight:700;color:var(--text)">' + (s.jugador_nombre||'Sin nombre') + '</div>';
-          sanHtml += '<div style="font-size:12px;color:var(--text2)">' + (s.tipo||'') + (s.descripcion?' · '+s.descripcion:'') + '</div>';
-          if (s.fecha_fin) sanHtml += '<div style="font-size:11px;color:var(--orange);margin-top:2px">Hasta: ' + formatFecha(s.fecha_fin,'corto') + '</div>';
-          if (s.fecha_apelacion) sanHtml += '<div style="font-size:11px;color:var(--blue);margin-top:2px">Apelación: ' + formatFecha(s.fecha_apelacion,'corto') + '</div>';
-          sanHtml += '</div>';
-          sanHtml += '<div style="display:flex;gap:6px;flex-shrink:0">';
-            sanHtml += '<button class="btn-sm" onclick="editarSancionModal(this)" data-id="' + s.id + '" data-jug="' + (s.jugador_nombre||"").replace(/"/g,"&quot;") + '" data-tipo="' + (s.tipo||"") + '" data-desc="' + (s.descripcion||"") + '" data-fin="' + (s.fecha_fin||"") + '" data-apel="' + (s.fecha_apelacion||"") + '">Editar</button>';
-            sanHtml += '<button class="btn-sm btn-sm-danger" onclick="eliminarSancion(this)" data-id="' + s.id + '">Eliminar</button>';
-          sanHtml += '</div></div></div>';
-        });
-        sanHtml += '</div>';
-      }
-      main.innerHTML = '<div class="panel-content">'
-        + '<div class="panel-title">Sanciones</div>'
-        + '<div class="p-card" style="margin-bottom:16px">'
-        + '<div class="f-group"><label class="f-label">Categoría</label><select class="f-select" id="san-cat">' + catOptsSan + '</select></div>'
-        + '<div class="f-row"><div class="f-group"><label class="f-label">Jugador</label><input class="f-input" id="san-jug" type="text" placeholder="Nombre del jugador"></div>'
-        + '<div class="f-group"><label class="f-label">Tipo</label><input class="f-input" id="san-tipo" type="text" placeholder="Ej: Técnica, Expulsión"></div></div>'
-        + '<div class="f-group"><label class="f-label">Descripción</label><input class="f-input" id="san-desc" type="text" placeholder="Detalle de la sanción"></div>'
-        + '<div class="f-row"><div class="f-group"><label class="f-label">Fecha fin sanción</label><input class="f-input" id="san-fin" type="date"></div>'
-        + '<div class="f-group"><label class="f-label">Fecha apelación</label><input class="f-input" id="san-apel" type="date"></div></div>'
-        + '<button class="btn-sm btn-sm-primary" onclick="crearSancion()">+ Registrar sanción</button>'
-        + '</div>'
-        + (sanHtml || '')
-        + '</div>';
-      break;
-    }
-
-    default:
-      main.innerHTML = '<div class="panel-content"><div style="color:var(--text2)">Panel en construcción.</div></div>';
-  }
-}
-
-// ── ACCIONES ADMIN ────────────────────────────────────────────────────────────
-async function aprobarSolicitud(id) {
-  if (!confirm('¿Aprobar esta solicitud y generar acceso al organizador?')) return;
-  toast('Procesando...', '');
-  const json = await api('aprobarSolicitud', { id });
-  if (json.success) {
-    toast('✓ Aprobada — ' + json.org_id, 'ok');
-    // Mostrar modal con credenciales
-    mostrarCredenciales(json.org_id, json.clave_acceso, json.email);
-    renderPanel('p-solicitudes');
-  } else {
-    toast(json.message || 'Error', 'err');
-  }
-}
-
-function mostrarCredenciales(orgId, clave, email) {
-  const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
-  overlay.innerHTML = `<div style="background:#0d1829;border:1px solid rgba(29,78,216,.4);border-radius:20px;padding:28px;max-width:360px;width:100%;text-align:center">
-    <div style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:16px;text-transform:uppercase;letter-spacing:1px">✅ Acceso generado</div>
-    <div style="background:#111;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px;margin-bottom:12px;text-align:left">
-      <div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">ID Organizador</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:#1d4ed8;letter-spacing:4px">${orgId}</div>
-    </div>
-    <div style="background:#111;border:1px solid rgba(249,115,22,.2);border-radius:12px;padding:16px;margin-bottom:16px;text-align:left">
-      <div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Clave de acceso</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:#f97316;letter-spacing:4px">${clave}</div>
-      <div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:4px">Enviar al email: ${email}</div>
-    </div>
-    <div style="font-size:11px;color:rgba(255,255,255,.3);margin-bottom:16px;line-height:1.6">El organizador ingresa con su email y esta clave.<br>Guárdalos antes de cerrar.</div>
-    <button onclick="navigator.clipboard?.writeText('ID: ${orgId}\\nClave: ${clave}').then(()=>{this.textContent='✓ Copiado'})" style="width:100%;padding:11px;border-radius:10px;background:#1d4ed8;border:none;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;letter-spacing:.5px">COPIAR CREDENCIALES</button>
-    <button onclick="this.closest('div[style*=fixed]').remove()" style="width:100%;padding:10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.4);font-size:13px;cursor:pointer">Cerrar</button>
-  </div>`;
-  document.body.appendChild(overlay);
-}
-
-async function rechazarSolicitud(id) {
-  if (!confirm('¿Rechazar esta solicitud?')) return;
-  const json = await api('rechazarSolicitud', { id });
-  toast(json.success ? 'Solicitud rechazada' : json.message, json.success ? '' : 'err');
-  if (json.success) renderPanel('p-solicitudes');
-}
-
-async function eliminarTorneo(id) {
-  if (!confirm('¿Eliminar este torneo? El organizador no podrá acceder.')) return;
-  const json = await api('eliminarTorneo', { id });
-  toast(json.success ? '✓ Torneo eliminado' : json.message, json.success ? 'ok' : 'err');
-  if (json.success) renderPanel('p-torneos');
-}
-
-async function toggleOrg(org_id, activo) {
-  const json = await api('toggleOrganizador', { org_id, activo });
-  toast(json.success ? (activo ? '✓ Activado' : 'Suspendido') : json.message, json.success ? 'ok' : 'err');
-  if (json.success) renderPanel('p-organizadores');
-}
-
-async function resetPassword(org_id) {
-  if (!confirm('¿Generar nueva clave para este organizador?')) return;
-  const json = await api('resetPassword', { org_id });
-  if (json.success) {
-    toast('✓ Nueva clave generada', 'ok');
-    mostrarCredenciales(org_id, json.clave_acceso, '');
-  } else {
-    toast(json.message, 'err');
-  }
-}
-
-// ── ACCIONES ORGANIZADOR ──────────────────────────────────────────────────────
-function showCrearTorneo() {
-  const nombre = prompt('Nombre del torneo:');
-  if (!nombre) return;
-  const temporada = prompt('Temporada (ej: Apertura 2026):') || '';
-  crearTorneoAPI(nombre, temporada);
-}
-
-async function crearTorneoAPI(nombre, temporada) {
-  const json = await api('crearTorneo', { nombre, temporada, ciudad: SESSION.ciudad });
-  if (json.success) {
-    toast('✓ Torneo creado', 'ok');
-    renderPanel('p-dashboard');
-  } else {
-    toast(json.message, 'err');
-  }
-}
-
-async function togglePublicar(id, visible) {
-  const json = await api('publicarTorneo', { id, visible });
-  toast(json.success ? (visible ? '✓ Torneo publicado' : 'Torneo ocultado') : json.message, json.success ? 'ok' : 'err');
-  if (json.success) renderPanel('p-dashboard');
-}
-
-async function adminTogglePublicar(id, visible) {
-  if (!confirm(visible ? 'Publicar torneo para el publico?' : 'Ocultar este torneo?')) return;
-  const json = await api('publicarTorneo', { id, visible });
-  toast(json.success ? (visible ? 'Torneo publicado' : 'Torneo ocultado') : json.message, json.success ? 'ok' : 'err');
-  if (json.success) renderPanel('p-torneos');
-}
-
-async function crearCategoria(torneo_id) {
-  const nombre = document.getElementById('cat-nombre')?.value.trim();
-  if (!nombre) { toast('Ingresa el nombre de la categoría', 'err'); return; }
-  const ptv = parseInt(document.getElementById('cat-ptv')?.value) || 2;
-  const ptd = parseInt(document.getElementById('cat-ptd')?.value) || 1;
-  const json = await api('crearCategoria', { torneo_id, nombre, pts_victoria: ptv, pts_derrota: ptd });
-  toast(json.success ? '✓ Categoría creada' : json.message, json.success ? 'ok' : 'err');
-  if (json.success) renderPanel('p-categorias');
-}
-
-async function eliminarCategoria(id) {
-  if (!confirm('¿Eliminar esta categoría?')) return;
-  const json = await api('eliminarCategoria', { id });
-  toast(json.success ? '✓ Eliminada' : json.message, json.success ? 'ok' : 'err');
-  if (json.success) renderPanel('p-categorias');
-}
-
-async function crearEquipo(btn) {
-  const categoria_id = btn ? btn.dataset.cat : null;
-  if (!categoria_id) { toast('Error al obtener categoría', 'err'); return; }
-  const nombre = document.getElementById('eq-nom-' + categoria_id)?.value.trim();
-  const color  = document.getElementById('eq-col-' + categoria_id)?.value || '#1d4ed8';
-  if (!nombre) { toast('Ingresa el nombre del equipo', 'err'); return; }
-  const json = await api('crearEquipo', { categoria_id, nombre, color_local: color });
-  toast(json.success ? '✓ Equipo creado' : json.message, json.success ? 'ok' : 'err');
-  if (json.success) renderPanel('p-equipos');
-}
-
-async function eliminarEquipo(btn) {
-  const id = btn ? btn.dataset.id : null;
-  if (!id) return;
-  if (!confirm('¿Eliminar este equipo?')) return;
-  const json = await api('eliminarEquipo', { id });
-  toast(json.success ? '✓ Eliminado' : json.message, json.success ? 'ok' : 'err');
-  if (json.success) renderPanel('p-equipos');
-}
-
-async function loadEquiposFixture(catId) {
-  const jEq = await api('getEquiposCategoria', { categoria_id: catId });
-  const eqs = jEq.data || [];
-  const opts = eqs.map(e => '<option value="' + e.id + '">' + e.nombre + '</option>').join('');
-  ['fix-local','fix-visita'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = opts || '<option value="">Sin equipos</option>';
-  });
-  loadPartidosFixture(catId);
-}
-
-async function loadPartidosFixture(catId) {
-  const lista = document.getElementById('fix-lista');
-  if (!lista) return;
-  lista.innerHTML = '<div style="font-size:12px;color:var(--text2)">Cargando...</div>';
-  const jPar = await api('getPartidosCategoria', { categoria_id: catId });
-  const partidos = jPar.data || [];
-  if (!partidos.length) { lista.innerHTML = '<div style="font-size:13px;color:var(--text2);padding:8px 0">Sin partidos programados.</div>'; return; }
-  lista.innerHTML = '<div class="section-label" style="margin-top:12px">Partidos programados</div>'
-    + partidos.map(p => {
-      const local  = p.local  || { nombre:'?' };
-      const visita = p.visita || { nombre:'?' };
-      return '<div class="p-card" style="margin-bottom:8px">'
-        + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
-        + '<div style="font-size:11px;color:var(--text3)">Partido ' + (p.nro_fecha||'') + ' · ' + (p.fase||'') + '</div>'
-        + '<div style="display:flex;gap:6px">'
-        + '<button class="btn-sm" onclick="editarPartidoModal(this)" data-id="' + p.id + '">Editar</button>'
-        + '<button class="btn-sm btn-sm-danger" onclick="eliminarPartido(this)" data-id="' + p.id + '">Eliminar</button>'
-        + '</div></div>'
-        + '<div style="display:flex;align-items:center;justify-content:space-between;font-weight:600;font-size:14px">'
-        + '<span>' + local.nombre + '</span><span style="color:var(--text3);font-size:12px">vs</span><span>' + visita.nombre + '</span>'
-        + '</div>'
-        + '<div style="font-size:11px;color:var(--text2);margin-top:6px">'
-        + formatFecha(p.fecha,'corto') + (p.hora?' · '+p.hora:'') + (p.cancha?' · '+p.cancha:'')
-        + (p.url_transmision ? ' · <a href="' + p.url_transmision + '" target="_blank" style="color:var(--blue)">Ver en vivo</a>' : '')
-        + '</div></div>';
-    }).join('');
-}
-
-async function crearPartido() {
-  const catId  = document.getElementById('fix-cat')?.value;
-  const local  = document.getElementById('fix-local')?.value;
-  const visita = document.getElementById('fix-visita')?.value;
-  if (!catId || !local || !visita) { toast('Selecciona categoría y equipos', 'err'); return; }
-  if (local === visita) { toast('Los equipos no pueden ser iguales', 'err'); return; }
-  const json = await api('crearPartido', {
-    categoria_id:    catId,
-    equipo_local:    local,
-    equipo_visita:   visita,
-    fecha:           document.getElementById('fix-fecha')?.value || null,
-    hora:            document.getElementById('fix-hora')?.value  || null,
-    cancha:          document.getElementById('fix-cancha')?.value.trim() || null,
-    fase:            document.getElementById('fix-fase')?.value.trim() || 'Fase Regular',
-    nro_fecha:       parseInt(document.getElementById('fix-nro')?.value) || 1,
-    url_transmision: document.getElementById('fix-url')?.value.trim() || null,
-  });
-  toast(json.success ? '✓ Partido programado' : json.message, json.success ? 'ok' : 'err');
-  if (json.success) loadPartidosFixture(catId);
-}
-
-async function eliminarPartido(btn) {
-  const id = btn ? btn.dataset.id : null;
-  if (!id) return;
-  if (!confirm('¿Eliminar este partido?')) return;
-  const json = await api('eliminarPartido', { id });
-  toast(json.success ? '✓ Eliminado' : json.message, json.success ? 'ok' : 'err');
-  if (json.success) {
-    const catId = document.getElementById('fix-cat')?.value;
-    if (catId) loadPartidosFixture(catId);
-  }
-}
-
-async function cargarResultado(btn) {
-  const id = btn ? btn.dataset.id : null;
-  if (!id) return;
-  const ptsLocal  = parseInt(document.getElementById('r-loc-'+id)?.value);
-  const ptsVisita = parseInt(document.getElementById('r-vis-'+id)?.value);
-  if (isNaN(ptsLocal) || isNaN(ptsVisita)) { toast('Ingresa los puntos del partido', 'err'); return; }
-  const data = { id, pts_local: ptsLocal, pts_visita: ptsVisita };
-  ['1','2','3','4'].forEach(function(q) {
-    const ql = parseInt(document.getElementById('q'+q+'-loc-'+id)?.value);
-    const qv = parseInt(document.getElementById('q'+q+'-vis-'+id)?.value);
-    if (!isNaN(ql)) { data['q'+q+'_local'] = ql; data['q'+q+'_visita'] = isNaN(qv) ? 0 : qv; }
-  });
-  const json = await api('actualizarResultado', data);
-  toast(json.success ? '✓ Resultado guardado' : json.message, json.success ? 'ok' : 'err');
-  if (json.success) renderPanel('p-resultados');
-}
-
-async function crearNoticia(torneo_id) {
-  const titulo    = document.getElementById('news-titulo')?.value.trim();
-  const contenido = document.getElementById('news-contenido')?.value.trim();
-  if (!titulo) { toast('Ingresa el título', 'err'); return; }
-  const json = await api('crearNoticia', { torneo_id, titulo, contenido });
-  toast(json.success ? '✓ Noticia publicada' : json.message, json.success ? 'ok' : 'err');
-  if (json.success) renderPanel('p-noticias');
-}
-
-async function eliminarNoticia(id, torneo_id) {
-  if (!confirm('¿Eliminar esta noticia?')) return;
-  const json = await api('eliminarNoticia', { id });
-  toast(json.success ? '✓ Eliminada' : json.message, json.success ? 'ok' : 'err');
-  if (json.success) renderPanel('p-noticias');
-}
-
-async function crearSancion() {
-  const catId = document.getElementById('san-cat')?.value;
-  const tipo  = document.getElementById('san-tipo')?.value.trim();
-  if (!catId || !tipo) { toast('Completa categoría y tipo', 'err'); return; }
-  const json = await api('crearSancion', {
-    categoria_id:    catId,
-    jugador_nombre:  document.getElementById('san-jug')?.value.trim() || null,
-    tipo,
-    descripcion:     document.getElementById('san-desc')?.value.trim() || null,
-    fecha_fin:       document.getElementById('san-fin')?.value  || null,
-    fecha_apelacion: document.getElementById('san-apel')?.value || null,
-  });
-  toast(json.success ? '✓ Sanción registrada' : json.message, json.success ? 'ok' : 'err');
-  if (json.success) renderPanel('p-sanciones');
-}
-
-// Editar equipo modal
-function editarEquipoModal(btn) {
-  const id     = btn ? btn.dataset.id     : null;
-  const nombre = btn ? btn.dataset.nombre : '';
-  const color  = btn ? btn.dataset.color  : '#1d4ed8';
-  if (!id) return;
-  const nuevoNombre = prompt('Nombre del equipo:', nombre);
-  if (!nuevoNombre) return;
-  api('actualizarEquipo', { id, nombre: nuevoNombre, color_local: color }).then(json => {
-    toast(json.success ? '✓ Equipo actualizado' : json.message, json.success ? 'ok' : 'err');
-    if (json.success) renderPanel('p-equipos');
-  });
-}
-
-// Editar sancion modal
-function editarSancionModal(btn) {
-  const id       = btn ? btn.dataset.id   : null;
-  const jugador  = btn ? btn.dataset.jug  : '';
-  const tipo     = btn ? btn.dataset.tipo : '';
-  const desc     = btn ? btn.dataset.desc : '';
-  const fechaFin = btn ? btn.dataset.fin  : '';
-  const fechaApel= btn ? btn.dataset.apel : '';
-  if (!id) return;
-  const nuevoJug  = prompt('Jugador:', jugador) || jugador;
-  const nuevoTipo = prompt('Tipo de sanción:', tipo) || tipo;
-  if (!nuevoTipo) return;
-  api('actualizarSancion', {
-    id, jugador_nombre: nuevoJug, tipo: nuevoTipo,
-    descripcion: desc, fecha_fin: fechaFin || null, fecha_apelacion: fechaApel || null,
-  }).then(function(json) {
-    toast(json.success ? '✓ Sanción actualizada' : json.message, json.success ? 'ok' : 'err');
-    if (json.success) renderPanel('p-sanciones');
-  });
-}
-
-// Editar partido modal
-async function editarPartidoModal(btn) {
-  const id = btn ? btn.dataset.id : null;
-  if (!id) return;
-  const fecha  = prompt('Nueva fecha (YYYY-MM-DD):') || null;
-  const hora   = prompt('Nueva hora (HH:MM):') || null;
-  const cancha = prompt('Cancha:') || null;
-  const url    = prompt('URL transmisión (vacío = ninguna):') || null;
-  const json = await api('actualizarPartido', { id, fecha, hora, cancha, url_transmision: url, fase: 'Fase Regular', nro_fecha: 1 });
-  toast(json.success ? '✓ Partido actualizado' : json.message, json.success ? 'ok' : 'err');
-  const catId = document.getElementById('fix-cat')?.value;
-  if (json.success && catId) loadPartidosFixture(catId);
-}
-
-// ── SOLICITUD PÚBLICA ─────────────────────────────────────────────────────────
-async function enviarSolicitud(e) {
-  e.preventDefault();
-  const errEl = document.getElementById('sol-error');
-  const btn   = document.getElementById('sol-btn');
-  errEl.style.display = 'none';
-  btn.disabled = true; btn.textContent = 'Enviando...';
-  const json = await api('crearSolicitud', {
-    nombre:          document.getElementById('sol-nombre').value.trim(),
-    email:           document.getElementById('sol-email').value.trim(),
-    telefono:        document.getElementById('sol-tel').value.trim(),
-    ciudad:          document.getElementById('sol-ciudad').value.trim(),
-    deporte:         document.getElementById('sol-deporte').value.trim() || 'Básquetbol',
-    descripcion:     document.getElementById('sol-desc').value.trim(),
-    cant_categorias: parseInt(document.getElementById('sol-cats').value) || 1,
-  });
-  btn.disabled = false; btn.textContent = 'ENVIAR SOLICITUD';
-  if (json.success) {
-    document.getElementById('sol-email-confirm').textContent = document.getElementById('sol-email').value;
-    document.getElementById('sol-form-wrap').style.display = 'none';
-    document.getElementById('sol-success').style.display = 'block';
-  } else {
-    errEl.textContent = json.message || 'Error al enviar';
-    errEl.style.display = 'block';
-  }
-}
-
-// ── UTILIDADES ────────────────────────────────────────────────────────────────
-function formatFecha(str, tipo = 'normal') {
-  if (!str) return '—';
-  try {
-    const d = new Date(str);
-    if (tipo === 'corto') return d.toLocaleDateString('es-CL', { day:'2-digit', month:'short' });
-    if (tipo === 'fecha') return d.toLocaleDateString('es-CL', { day:'2-digit', month:'short', year:'numeric' });
-    return d.toLocaleDateString('es-CL', { weekday:'short', day:'2-digit', month:'short' });
-  } catch(e) { return str; }
-}
-
 
 function compartirTorneo() {
   const url = window.location.href;
