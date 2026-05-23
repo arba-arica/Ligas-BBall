@@ -643,7 +643,7 @@ async function loadCategorias(torneo_id) {
     grid.innerHTML = '<div style="color:rgba(255,255,255,.4);font-size:12px;padding:8px">Sin categorías registradas.</div>';
   } else {
     grid.innerHTML = CATEGORIAS.map((c, i) =>
-      '<button class="tv-liga-btn' + (i===0?' active':'') + '" onclick="selCat(this,'' + c.id + '')">'
+      '<button class="tv-liga-btn' + (i===0?' active':'') + '" data-id="' + c.id + '" onclick="selCat(this,this.dataset.id)">'
       + '<div class="tv-liga-btn-name">' + c.nombre + '</div>'
       + '</button>'
     ).join('');
@@ -787,11 +787,11 @@ async function renderPosiciones() {
   }
   // Reportes
   h += '<div class="tv-sec-label">Reportes y documentos</div>';
-  h += '<button class="pdf-btn-dark" onclick="alert('PDF próximamente')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar fixture PDF</button>';
-  h += '<button class="pdf-btn-dark" onclick="alert('PDF próximamente')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar resultados PDF</button>';
-  h += '<button class="pdf-btn-dark" onclick="alert('PDF próximamente')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar tabla de posiciones PDF</button>';
-  h += '<button class="pdf-btn-dark pdf-btn-ghost" onclick="alert('Reglamento próximamente')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Ver reglamento del torneo</button>';
-  h += '<div style="text-align:center;padding:8px 0"><button class="tv-admin-btn" onclick="openModal('modal-login-admin')"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg>Acceso administrador</button></div>';
+  h += '<button class="pdf-btn-dark" onclick="pdfalert()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar fixture PDF</button>';
+  h += '<button class="pdf-btn-dark" onclick="pdfalert()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar resultados PDF</button>';
+  h += '<button class="pdf-btn-dark" onclick="pdfalert()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar tabla de posiciones PDF</button>';
+  h += '<button class="pdf-btn-dark pdf-btn-ghost" onclick="pdfalert()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Ver reglamento del torneo</button>';
+  h += '<div style="text-align:center;padding:8px 0"><button class="tv-admin-btn" onclick="pdfopenAdmin()"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg>Acceso administrador</button></div>';
   el.innerHTML = h;
 }
 
@@ -877,6 +877,8 @@ function compartirTorneo() {
     navigator.clipboard.writeText(url).then(function() { toast('Link copiado', 'ok'); });
   }
 }
+function pdfalert() { toast("Próximamente disponible", ""); }
+
 // ── INIT ──────────────────────────────────────────────────────────────────────
 // Iniciar mostrando vista pública
 document.getElementById('pub-view').style.display = 'flex';
