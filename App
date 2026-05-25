@@ -84,7 +84,7 @@ a{text-decoration:none;color:inherit}
 .tv-content{flex:1;padding:14px 16px 90px;overflow-y:auto}
 
 /* Navbar inferior */
-.tv-navbar{position:fixed;bottom:0;left:0;right:0;z-index:50;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:8px 0 max(8px,env(safe-area-inset-bottom))}
+.tv-navbar{position:fixed;bottom:0;left:0;right:0;z-index:50;background:var(--surface);border-top:1px solid var(--border);display:none;justify-content:space-around;padding:8px 0 max(8px,env(safe-area-inset-bottom))}
 .tv-nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;cursor:pointer;color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;padding:4px 10px;min-width:52px;transition:color .2s}
 .tv-nav-btn.active{color:#1e3a8a}
 [data-theme="dark"] .tv-nav-btn.active{color:#93c5fd}
@@ -624,6 +624,7 @@ async function abrirTorneo(id, nombre, ciudad, temporada) {
   document.getElementById('tv-nombre').textContent = nombre;
   document.getElementById('tv-temporada-lbl').textContent = (temporada ? temporada.toUpperCase() : '') + (ciudad ? ' · ' + ciudad.toUpperCase() : '');
   showView('torneo-view');
+  document.querySelector('.tv-navbar').style.display = 'flex';
   // Reset
   document.querySelectorAll('.tv-nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tnav-fixture').classList.add('active');
@@ -637,6 +638,7 @@ async function abrirTorneo(id, nombre, ciudad, temporada) {
 
 function volverPublico() {
   TORNEO_ACTUAL = null;
+  document.querySelector('.tv-navbar').style.display = 'none';
   showView('pub-view');
   loadTorneos();
 }
