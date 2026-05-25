@@ -933,6 +933,89 @@ function compartirTorneo() {
 }
 function pdfalert() { toast("Próximamente disponible", ""); }
 
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+async function loginAdmin(e) {
+  e.preventDefault();
+  const errEl = document.getElementById('admin-error');
+  const btn   = document.getElementById('admin-btn');
+  errEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Ingresando...';
+  try {
+    const json = await api('checkLogin', {
+      email:    document.getElementById('admin-email').value.trim(),
+      password: document.getElementById('admin-pass').value,
+    });
+    if (json.success) {
+      SESSION = { rol: 'admin', token: json.token, nombre: json.nombre, email: json.email };
+      closeModal('modal-login-admin');
+      initPanel();
+    } else {
+      errEl.textContent = json.message || 'Email o contraseña incorrectos';
+      errEl.style.display = 'block';
+    }
+  } catch(err) {
+    errEl.textContent = 'Error de conexion';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'INGRESAR';
+  }
+}
+
+async function loginOrg(e) {
+  e.preventDefault();
+  const errEl = document.getElementById('org-error');
+  const btn   = document.getElementById('org-btn');
+  errEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Ingresando...';
+  try {
+    const json = await api('checkLogin', {
+      email:    document.getElementById('org-email').value.trim(),
+      password: document.getElementById('org-pass').value,
+    });
+    if (json.success) {
+      SESSION = { rol: 'organizador', token: json.token, nombre: json.nombre, org_id: json.org_id, ciudad: json.ciudad };
+      closeModal('modal-login-org');
+      initPanel();
+    } else {
+      errEl.textContent = json.message || 'Email o clave incorrectos';
+      errEl.style.display = 'block';
+    }
+  } catch(err) {
+    errEl.textContent = 'Error de conexion';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'INGRESAR';
+  }
+}
+
+function logout() {
+  SESSION = null;
+  var nb = document.querySelector('.tv-navbar');
+  if (nb) nb.style.display = 'none';
+  showView('pub-view');
+  loadTorneos();
+}
+
+function initPanel() {
+  showView('panel-view');
+  document.getElementById('panel-user-name').textContent = SESSION.nombre;
+  var badge = document.getElementById('panel-role-badge');
+  if (SESSION.rol === 'admin') {
+    badge.textContent = 'Admin';
+    badge.style.cssText = 'background:rgba(29,78,216,.2);color:#93c5fd;border:1px solid rgba(29,78,216,.3);font-size:10px;padding:2px 8px;border-radius:100px';
+    document.getElementById('sidebar-admin').style.display = 'flex';
+    document.getElementById('sidebar-org').style.display = 'none';
+    showPanel('p-solicitudes', document.querySelector('#sidebar-admin .sb-btn'));
+  } else {
+    badge.textContent = 'Organizador ' + (SESSION.org_id||'');
+    badge.style.cssText = 'background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3);font-size:10px;padding:2px 8px;border-radius:100px';
+    document.getElementById('sidebar-admin').style.display = 'none';
+    document.getElementById('sidebar-org').style.display = 'flex';
+    showPanel('p-dashboard', document.querySelector('#sidebar-org .sb-btn'));
+  }
+}
+
 // ── INIT ──────────────────────────────────────────────────────────────────────
 // Iniciar mostrando vista pública
 document.getElementById('pub-view').style.display = 'flex';
