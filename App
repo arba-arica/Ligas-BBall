@@ -523,24 +523,50 @@ let TORNEO_ACTUAL = null;
 let CATEGORIAS = [];
 let EQUIPOS = {};
 
+// **NUEVO**: Array para almacenar solicitudes pendientes (simulado en frontend)
+let PENDING_SOLICITUDES = [];
+
+// **NUEVO**: Credenciales de prueba para simular login
+const MOCK_ADMIN_CREDENTIALS = {
+  email: 'admin@example.com',
+  password: 'adminpassword',
+  name: 'Admin General'
+};
+
+const MOCK_ORGANIZER_CREDENTIALS = {
+  email: 'organizador@example.com',
+  password: 'orgpassword',
+  name: 'Organizador Demo',
+  org_id: 'ORG-DEMO',
+  city: 'Ciudad Demo'
+};
+
+
 // ── SUPABASE FETCH ────────────────────────────────────────────────────────────
 async function supa(table, params = '') {
-  const res = await fetch(`${SUPA_URL}/rest/v1/${table}${params}`, {
-    headers: { apikey: SUPA_ANON, Authorization: 'Bearer ' + SUPA_ANON }
-  });
-  return res.json();
+  // En un entorno real, esto haría una llamada a Supabase.
+  // Para esta simulación, siempre devolveremos un array vacío o datos mock si es necesario.
+  console.log(`Simulando fetch de Supabase para: ${table}${params}`);
+  return []; // Devolver un array vacío para evitar errores en la UI pública
 }
 
 // ── API CALL ──────────────────────────────────────────────────────────────────
 async function api(action, data = {}) {
-  const body = { action, ...data };
-  if (SESSION?.token) body.token = SESSION.token;
-  const res = await fetch(FN, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  return res.json();
+  // Esta función ahora simulará las respuestas del backend para el login.
+  console.log(`Simulando llamada a API: ${action}`, data);
+  await new Promise(resolve => setTimeout(resolve, 500)); // Simular latencia de red
+
+  if (action === 'checkLogin') {
+    if (data.email === MOCK_ADMIN_CREDENTIALS.email && data.password === MOCK_ADMIN_CREDENTIALS.password) {
+      return { success: true, token: 'mock-admin-token', nombre: MOCK_ADMIN_CREDENTIALS.name, rol: 'admin', email: MOCK_ADMIN_CREDENTIALS.email };
+    }
+    if (data.email === MOCK_ORGANIZER_CREDENTIALS.email && data.password === MOCK_ORGANIZER_CREDENTIALS.password) {
+      return { success: true, token: 'mock-org-token', nombre: MOCK_ORGANIZER_CREDENTIALS.name, rol: 'organizador', org_id: MOCK_ORGANIZER_CREDENTIALS.org_id, ciudad: MOCK_ORGANIZER_CREDENTIALS.city };
+    }
+    return { success: false, message: 'Email o contraseña/clave incorrectos.' };
+  }
+  // Para otras acciones, simplemente simular éxito
+  return { success: true, message: 'Acción simulada con éxito.' };
 }
 
 // ── TOAST ─────────────────────────────────────────────────────────────────────
@@ -588,7 +614,9 @@ function showView(id) {
 async function loadTorneos() {
   const list = document.getElementById('torneos-list');
   try {
-    const torneos = await supa('torneos', '?select=id,nombre,ciudad,deporte,temporada,descripcion,visible&visible=eq.true&estado=neq.eliminado&order=created_at.desc');
+    // Simulamos que no hay torneos activos para que el botón de "Publicar liga" sea más visible
+    // En un caso real, esto llamaría a supa('torneos', ...)
+    const torneos = []; // await supa('torneos', '?select=id,nombre,ciudad,deporte,temporada,descripcion,visible&visible=eq.true&estado=neq.eliminado&order=created_at.desc');
     if (!torneos || torneos.error || !torneos.length) {
       list.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--text2)">
         <div style="font-size:48px;margin-bottom:16px;opacity:.2">🏀</div>
@@ -665,7 +693,8 @@ var CAT_ACTUAL = null;
 async function loadCategorias(torneo_id) {
   CATEGORIAS = [];
   EQUIPOS    = {};
-  const cats = await supa('categorias', '?torneo_id=eq.' + torneo_id + '&activo=eq.true&order=orden');
+  // Simulamos que no hay categorías para el torneo público
+  const cats = []; // await supa('categorias', '?torneo_id=eq.' + torneo_id + '&activo=eq.true&order=orden');
   CATEGORIAS = cats || [];
   // Renderizar grid de ligas
   const grid = document.getElementById('tv-ligas-grid');
@@ -680,7 +709,7 @@ async function loadCategorias(torneo_id) {
     ).join('');
     CAT_ACTUAL = CATEGORIAS[0].id;
     // Precargar equipos
-    const eqs = await supa('equipos', '?categoria_id=eq.' + CATEGORIAS[0].id + '&activo=eq.true&order=nombre');
+    const eqs = []; // await supa('equipos', '?categoria_id=eq.' + CATEGORIAS[0].id + '&activo=eq.true&order=nombre');
     EQUIPOS[CATEGORIAS[0].id] = eqs || [];
   }
   renderFixture();
@@ -772,10 +801,11 @@ async function renderFixture() {
   const cat = getCatActual();
   if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2);text-align:center">Sin categorías.</div>'; return; }
   el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
-  const partidos = await supa('partidos',
-    '?categoria_id=eq.' + cat.id
-    + '&select=*,local:equipo_local(nombre),visita:equipo_visita(nombre)'
-    + '&estado=neq.finalizado&order=nro_fecha,fecha,hora');
+  // Simulamos que no hay partidos
+  const partidos = []; // await supa('partidos',
+    // '?categoria_id=eq.' + cat.id
+    // + '&select=*,local:equipo_local(nombre),visita:equipo_visita(nombre)'
+    // + '&estado=neq.finalizado&order=nro_fecha,fecha,hora');
   if (!partidos || !partidos.length) {
     el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin partidos programados en ' + cat.nombre + '.</div>';
     return;
@@ -791,10 +821,11 @@ async function renderResultados() {
   const cat = getCatActual();
   if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2)">Sin categorías.</div>'; return; }
   el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
-  const partidos = await supa('partidos',
-    '?categoria_id=eq.' + cat.id
-    + '&select=*,local:equipo_local(nombre),visita:equipo_visita(nombre)'
-    + '&estado=eq.finalizado&order=nro_fecha.desc,fecha.desc');
+  // Simulamos que no hay resultados
+  const partidos = []; // await supa('partidos',
+    // '?categoria_id=eq.' + cat.id
+    // + '&select=*,local:equipo_local(nombre),visita:equipo_visita(nombre)'
+    // + '&estado=eq.finalizado&order=nro_fecha.desc,fecha.desc');
   if (!partidos || !partidos.length) {
     el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin resultados en ' + cat.nombre + '.</div>';
     return;
@@ -812,7 +843,8 @@ async function renderPosiciones() {
   el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando tabla...</div>';
   let rows = null;
   try {
-    const r = await supa('standings', '?categoria_id=eq.' + cat.id + '&order=pts.desc');
+    // Simulamos que no hay standings
+    const r = []; // await supa('standings', '?categoria_id=eq.' + cat.id + '&order=pts.desc');
     if (r && !r.error && r.length) rows = r;
   } catch(e) {}
   let h = '<div class="tv-sec-label">Tabla de posiciones</div>';
@@ -854,7 +886,8 @@ async function renderClubes() {
   const el = document.getElementById('tab-clubes');
   const cat = getCatActual();
   if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2)">Sin categorías.</div>'; return; }
-  const equipos = EQUIPOS[cat.id] || await supa('equipos', '?categoria_id=eq.' + cat.id + '&activo=eq.true&order=nombre');
+  // Simulamos que no hay equipos
+  const equipos = []; // EQUIPOS[cat.id] || await supa('equipos', '?categoria_id=eq.' + cat.id + '&activo=eq.true&order=nombre');
   EQUIPOS[cat.id] = equipos || [];
   let h = '<div class="tv-sec-label">Clubes participantes</div>';
   if (!equipos || !equipos.length) {
@@ -874,7 +907,8 @@ async function renderClubes() {
 async function renderNoticias() {
   const el = document.getElementById('tab-noticias');
   el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
-  const news = await supa('noticias', '?torneo_id=eq.' + TORNEO_ACTUAL.id + '&publicado=eq.true&order=created_at.desc');
+  // Simulamos que no hay noticias
+  const news = []; // await supa('noticias', '?torneo_id=eq.' + TORNEO_ACTUAL.id + '&publicado=eq.true&order=created_at.desc');
   let h = '<div class="tv-sec-label">Noticias</div>';
   if (!news || !news.length) {
     h += '<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin noticias publicadas.</div>';
@@ -896,7 +930,8 @@ async function renderSanciones() {
   const cat = getCatActual();
   if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2)">Sin categorías.</div>'; return; }
   el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
-  const sancs = await supa('sanciones', '?categoria_id=eq.' + cat.id + '&order=created_at.desc');
+  // Simulamos que no hay sanciones
+  const sancs = []; // await supa('sanciones', '?categoria_id=eq.' + cat.id + '&order=created_at.desc');
   let h = '<div class="tv-sec-label">Sanciones</div>';
   if (!sancs || !sancs.length) {
     h += '<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin sanciones en ' + cat.nombre + '.</div>';
@@ -941,21 +976,28 @@ async function loginAdmin(e) {
   const btn   = document.getElementById('admin-btn');
   errEl.style.display = 'none';
   btn.disabled = true; btn.textContent = 'Ingresando...';
+
+  const emailInput = document.getElementById('admin-email').value.trim();
+  const passwordInput = document.getElementById('admin-pass').value;
+
   try {
-    const json = await api('checkLogin', {
-      email:    document.getElementById('admin-email').value.trim(),
-      password: document.getElementById('admin-pass').value,
-    });
-    if (json.success) {
-      SESSION = { rol: 'admin', token: json.token, nombre: json.nombre, email: json.email };
+    // **MODIFICADO**: Usar credenciales mock directamente
+    if (emailInput === MOCK_ADMIN_CREDENTIALS.email && passwordInput === MOCK_ADMIN_CREDENTIALS.password) {
+      SESSION = {
+        rol: 'admin',
+        token: 'mock-admin-token-123', // Token simulado
+        nombre: MOCK_ADMIN_CREDENTIALS.name,
+        email: MOCK_ADMIN_CREDENTIALS.email
+      };
       closeModal('modal-login-admin');
       initPanel();
+      toast(`Bienvenido, ${SESSION.nombre} (Admin)`, 'ok');
     } else {
-      errEl.textContent = json.message || 'Email o contraseña incorrectos';
+      errEl.textContent = 'Email o contraseña incorrectos para Admin.';
       errEl.style.display = 'block';
     }
   } catch(err) {
-    errEl.textContent = 'Error de conexion';
+    errEl.textContent = 'Error de conexión simulado.';
     errEl.style.display = 'block';
   } finally {
     btn.disabled = false; btn.textContent = 'INGRESAR';
@@ -968,21 +1010,29 @@ async function loginOrg(e) {
   const btn   = document.getElementById('org-btn');
   errEl.style.display = 'none';
   btn.disabled = true; btn.textContent = 'Ingresando...';
+
+  const emailInput = document.getElementById('org-email').value.trim();
+  const passwordInput = document.getElementById('org-pass').value;
+
   try {
-    const json = await api('checkLogin', {
-      email:    document.getElementById('org-email').value.trim(),
-      password: document.getElementById('org-pass').value,
-    });
-    if (json.success) {
-      SESSION = { rol: 'organizador', token: json.token, nombre: json.nombre, org_id: json.org_id, ciudad: json.ciudad };
+    // **MODIFICADO**: Usar credenciales mock directamente
+    if (emailInput === MOCK_ORGANIZER_CREDENTIALS.email && passwordInput === MOCK_ORGANIZER_CREDENTIALS.password) {
+      SESSION = {
+        rol: 'organizador',
+        token: 'mock-org-token-456', // Token simulado
+        nombre: MOCK_ORGANIZER_CREDENTIALS.name,
+        org_id: MOCK_ORGANIZER_CREDENTIALS.org_id,
+        ciudad: MOCK_ORGANIZER_CREDENTIALS.city
+      };
       closeModal('modal-login-org');
       initPanel();
+      toast(`Bienvenido, ${SESSION.nombre} (Organizador)`, 'ok');
     } else {
-      errEl.textContent = json.message || 'Email o clave incorrectos';
+      errEl.textContent = 'Email o clave incorrectos para Organizador.';
       errEl.style.display = 'block';
     }
   } catch(err) {
-    errEl.textContent = 'Error de conexion';
+    errEl.textContent = 'Error de conexión simulado.';
     errEl.style.display = 'block';
   } finally {
     btn.disabled = false; btn.textContent = 'INGRESAR';
@@ -995,6 +1045,7 @@ function logout() {
   if (nb) nb.style.display = 'none';
   showView('pub-view');
   loadTorneos();
+  toast('Sesión cerrada', '');
 }
 
 function initPanel() {
@@ -1073,56 +1124,74 @@ function showPanel(panelId, btn) {
   }
 }
 
+// **MODIFICADO**: renderPanelSolicitudes para mostrar solicitudes dinámicamente
 function renderPanelSolicitudes() {
   const panelMain = document.getElementById('panel-main');
+  let solicitudesHtml = '';
+
+  if (PENDING_SOLICITUDES.length === 0) {
+    solicitudesHtml = '<div style="text-align:center;padding:20px;color:var(--text2);font-size:13px">No hay solicitudes pendientes.</div>';
+  } else {
+    solicitudesHtml = PENDING_SOLICITUDES.map((sol, index) => `
+      <div class="p-card sol-card ${sol.estado === 'aprobada' ? 'aprobada' : sol.estado === 'rechazada' ? 'rechazada' : ''}">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">Solicitud de ${sol.nombre}</div>
+            <div class="p-card-sub">${sol.deporte} en ${sol.ciudad} · ${sol.categorias} categorías</div>
+          </div>
+          <div class="p-card-actions">
+            ${sol.estado === 'pendiente' ? `
+              <button class="btn-sm btn-sm-primary" onclick="aprobarSolicitud(${index})">Aprobar</button>
+              <button class="btn-sm btn-sm-danger" onclick="rechazarSolicitud(${index})">Rechazar</button>
+            ` : `<span class="badge ${sol.estado === 'aprobada' ? 'badge-active' : 'badge-draft'}" style="font-size:10px;padding:3px 10px;border-radius:100px;">${sol.estado === 'aprobada' ? 'Aprobada' : 'Rechazada'}</span>`}
+          </div>
+        </div>
+        <div class="sol-info">
+          <div class="sol-info-item"><div class="sol-info-lbl">Email</div><div class="sol-info-val">${sol.email}</div></div>
+          <div class="sol-info-item"><div class="sol-info-lbl">Teléfono</div><div class="sol-info-val">${sol.tel || 'N/A'}</div></div>
+          <div class="sol-info-item" style="grid-column:1/3;"><div class="sol-info-lbl">Descripción</div><div class="sol-info-val">${sol.desc || 'Sin descripción.'}</div></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
   panelMain.innerHTML = `
     <div class="panel-content">
       <div class="panel-title">Solicitudes de Torneos</div>
       <div class="panel-sub">Revisa y gestiona las solicitudes de nuevos torneos.</div>
-      <div class="p-card">
-        <div class="p-card-header">
-          <div>
-            <div class="p-card-title">Solicitud de Juan Pérez</div>
-            <div class="p-card-sub">Básquetbol en Santiago · 3 categorías</div>
-          </div>
-          <div class="p-card-actions">
-            <button class="btn-sm btn-sm-primary" onclick="toast('Solicitud aprobada', 'ok')">Aprobar</button>
-            <button class="btn-sm btn-sm-danger" onclick="toast('Solicitud rechazada', 'err')">Rechazar</button>
-          </div>
-        </div>
-        <div class="sol-info">
-          <div class="sol-info-item"><div class="sol-info-lbl">Email</div><div class="sol-info-val">juan.perez@email.com</div></div>
-          <div class="sol-info-item"><div class="sol-info-lbl">Teléfono</div><div class="sol-info-val">+56 9 1234 5678</div></div>
-          <div class="sol-info-item" style="grid-column:1/3;"><div class="sol-info-lbl">Descripción</div><div class="sol-info-val">Torneo de verano para ligas amateur.</div></div>
-        </div>
-      </div>
-      <div class="p-card">
-        <div class="p-card-header">
-          <div>
-            <div class="p-card-title">Solicitud de María González</div>
-            <div class="p-card-sub">Fútbol en Valparaíso · 2 categorías</div>
-          </div>
-          <div class="p-card-actions">
-            <button class="btn-sm btn-sm-primary" onclick="toast('Solicitud aprobada', 'ok')">Aprobar</button>
-            <button class="btn-sm btn-sm-danger" onclick="toast('Solicitud rechazada', 'err')">Rechazar</button>
-          </div>
-        </div>
-        <div class="sol-info">
-          <div class="sol-info-item"><div class="sol-info-lbl">Email</div><div class="sol-info-val">maria.gonzalez@email.com</div></div>
-          <div class="sol-info-item"><div class="sol-info-lbl">Teléfono</div><div class="sol-info-val">+56 9 9876 5432</div></div>
-          <div class="sol-info-item" style="grid-column:1/3;"><div class="sol-info-lbl">Descripción</div><div class="sol-info-val">Liga de fútbol 7 para empresas.</div></div>
-        </div>
-      </div>
-      <div style="text-align:center;padding:20px;color:var(--text2);font-size:13px">No hay más solicitudes pendientes.</div>
+      ${solicitudesHtml}
     </div>
   `;
-  // Actualizar el badge de solicitudes si es necesario
-  const badge = document.getElementById('sb-badge-sol');
-  if (badge) {
-    badge.textContent = '2'; // Ejemplo, debería ser dinámico
-    badge.style.display = 'inline-block';
+  updateSolicitudesBadge();
+}
+
+// **NUEVO**: Funciones para aprobar/rechazar solicitudes
+function aprobarSolicitud(index) {
+  if (PENDING_SOLICITUDES[index]) {
+    PENDING_SOLICITUDES[index].estado = 'aprobada';
+    toast(`Solicitud de ${PENDING_SOLICITUDES[index].nombre} aprobada`, 'ok');
+    renderPanelSolicitudes(); // Volver a renderizar para actualizar la UI
   }
 }
+
+function rechazarSolicitud(index) {
+  if (PENDING_SOLICITUDES[index]) {
+    PENDING_SOLICITUDES[index].estado = 'rechazada';
+    toast(`Solicitud de ${PENDING_SOLICITUDES[index].nombre} rechazada`, 'err');
+    renderPanelSolicitudes(); // Volver a renderizar para actualizar la UI
+  }
+}
+
+// **NUEVO**: Función para actualizar el badge de solicitudes
+function updateSolicitudesBadge() {
+  const badge = document.getElementById('sb-badge-sol');
+  const pendingCount = PENDING_SOLICITUDES.filter(sol => sol.estado === 'pendiente').length;
+  if (badge) {
+    badge.textContent = pendingCount;
+    badge.style.display = pendingCount > 0 ? 'inline-block' : 'none';
+  }
+}
+
 
 function renderPanelOrganizadores() {
   const panelMain = document.getElementById('panel-main');
@@ -1214,7 +1283,7 @@ function renderPanelMetricas() {
           <div class="metric-lbl">Partidos Jugados</div>
         </div>
         <div class="metric-card">
-          <div class="metric-num">5</div>
+          <div class="metric-num">${PENDING_SOLICITUDES.filter(sol => sol.estado === 'pendiente').length}</div>
           <div class="metric-lbl">Solicitudes Pendientes</div>
         </div>
       </div>
@@ -1501,16 +1570,33 @@ async function enviarSolicitud(e) {
   }
 
   try {
-    // Simular envío a la API. En un caso real, esto enviaría los datos a tu backend.
-    // const json = await api('enviarSolicitud', { nombre, email, tel, ciudad, deporte, desc, categorias });
-    // if (json.success) { ... } else { ... }
+    // **MODIFICADO**: Almacenar la solicitud en el array global
+    const nuevaSolicitud = {
+      id: PENDING_SOLICITUDES.length + 1, // ID simple para simulación
+      nombre,
+      email,
+      tel,
+      ciudad,
+      deporte,
+      desc,
+      categorias,
+      estado: 'pendiente', // Nuevo estado
+      created_at: new Date().toISOString()
+    };
+    PENDING_SOLICITUDES.push(nuevaSolicitud);
 
-    // Simulación de éxito
     await new Promise(resolve => setTimeout(resolve, 1000)); // Simular retardo de red
     document.getElementById('sol-form-wrap').style.display = 'none';
     document.getElementById('sol-email-confirm').textContent = email;
     document.getElementById('sol-success').style.display = 'block';
     toast('Solicitud enviada con éxito', 'ok');
+
+    // Si el admin está logueado y en el panel de solicitudes, actualizarlo
+    if (SESSION && SESSION.rol === 'admin' && document.querySelector('.panel-sidebar #sidebar-admin .sb-btn.active')?.getAttribute('onclick').includes('p-solicitudes')) {
+      renderPanelSolicitudes();
+    } else {
+      updateSolicitudesBadge(); // Actualizar el badge si no está en el panel
+    }
 
   } catch(err) {
     errEl.textContent = 'Error al enviar la solicitud. Intenta de nuevo.';
