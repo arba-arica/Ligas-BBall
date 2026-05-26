@@ -590,7 +590,7 @@ async function loadTorneos() {
   try {
     const torneos = await supa('torneos', '?select=id,nombre,ciudad,deporte,temporada,descripcion,visible&visible=eq.true&estado=neq.eliminado&order=created_at.desc');
     if (!torneos || torneos.error || !torneos.length) {
-      list.innerHTML = `<div style="text-align:center;padding:48px 20px">
+      list.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--text2)">
         <div style="font-size:48px;margin-bottom:16px;opacity:.2">🏀</div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px">Sin torneos activos aún</div>
         <div style="font-size:13px;color:var(--text2);margin-bottom:20px">Sé el primero en publicar tu torneo</div>
@@ -1015,6 +1015,511 @@ function initPanel() {
     showPanel('p-dashboard', document.querySelector('#sidebar-org .sb-btn'));
   }
 }
+
+// ── FUNCIONES DE PANEL (ADMIN/ORGANIZADOR) ────────────────────────────────────
+
+/**
+ * Muestra el panel especificado y actualiza el botón activo en el sidebar.
+ * @param {string} panelId El ID del panel a mostrar (ej. 'p-solicitudes').
+ * @param {HTMLElement} btn El botón del sidebar que fue clickeado.
+ */
+function showPanel(panelId, btn) {
+  // Remover la clase 'active' de todos los botones del sidebar
+  document.querySelectorAll('.panel-sidebar .sb-btn').forEach(b => b.classList.remove('active'));
+  // Añadir la clase 'active' al botón clickeado
+  if (btn) btn.classList.add('active');
+
+  const panelMain = document.getElementById('panel-main');
+  panelMain.innerHTML = ''; // Limpiar contenido anterior
+
+  // Renderizar el contenido del panel según el ID
+  switch (panelId) {
+    case 'p-solicitudes':
+      renderPanelSolicitudes();
+      break;
+    case 'p-torneos':
+      renderPanelTorneos();
+      break;
+    case 'p-organizadores':
+      renderPanelOrganizadores();
+      break;
+    case 'p-metricas':
+      renderPanelMetricas();
+      break;
+    case 'p-dashboard':
+      renderPanelDashboard();
+      break;
+    case 'p-categorias':
+      renderPanelCategorias();
+      break;
+    case 'p-equipos':
+      renderPanelEquipos();
+      break;
+    case 'p-fixture':
+      renderPanelFixture();
+      break;
+    case 'p-resultados':
+      renderPanelResultados();
+      break;
+    case 'p-noticias':
+      renderPanelNoticias();
+      break;
+    case 'p-sanciones':
+      renderPanelSanciones();
+      break;
+    default:
+      panelMain.innerHTML = '<div class="panel-content"><div class="panel-title">Panel no encontrado</div><div class="panel-sub">El panel solicitado no existe o no está implementado.</div></div>';
+      break;
+  }
+}
+
+function renderPanelSolicitudes() {
+  const panelMain = document.getElementById('panel-main');
+  panelMain.innerHTML = `
+    <div class="panel-content">
+      <div class="panel-title">Solicitudes de Torneos</div>
+      <div class="panel-sub">Revisa y gestiona las solicitudes de nuevos torneos.</div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">Solicitud de Juan Pérez</div>
+            <div class="p-card-sub">Básquetbol en Santiago · 3 categorías</div>
+          </div>
+          <div class="p-card-actions">
+            <button class="btn-sm btn-sm-primary" onclick="toast('Solicitud aprobada', 'ok')">Aprobar</button>
+            <button class="btn-sm btn-sm-danger" onclick="toast('Solicitud rechazada', 'err')">Rechazar</button>
+          </div>
+        </div>
+        <div class="sol-info">
+          <div class="sol-info-item"><div class="sol-info-lbl">Email</div><div class="sol-info-val">juan.perez@email.com</div></div>
+          <div class="sol-info-item"><div class="sol-info-lbl">Teléfono</div><div class="sol-info-val">+56 9 1234 5678</div></div>
+          <div class="sol-info-item" style="grid-column:1/3;"><div class="sol-info-lbl">Descripción</div><div class="sol-info-val">Torneo de verano para ligas amateur.</div></div>
+        </div>
+      </div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">Solicitud de María González</div>
+            <div class="p-card-sub">Fútbol en Valparaíso · 2 categorías</div>
+          </div>
+          <div class="p-card-actions">
+            <button class="btn-sm btn-sm-primary" onclick="toast('Solicitud aprobada', 'ok')">Aprobar</button>
+            <button class="btn-sm btn-sm-danger" onclick="toast('Solicitud rechazada', 'err')">Rechazar</button>
+          </div>
+        </div>
+        <div class="sol-info">
+          <div class="sol-info-item"><div class="sol-info-lbl">Email</div><div class="sol-info-val">maria.gonzalez@email.com</div></div>
+          <div class="sol-info-item"><div class="sol-info-lbl">Teléfono</div><div class="sol-info-val">+56 9 9876 5432</div></div>
+          <div class="sol-info-item" style="grid-column:1/3;"><div class="sol-info-lbl">Descripción</div><div class="sol-info-val">Liga de fútbol 7 para empresas.</div></div>
+        </div>
+      </div>
+      <div style="text-align:center;padding:20px;color:var(--text2);font-size:13px">No hay más solicitudes pendientes.</div>
+    </div>
+  `;
+  // Actualizar el badge de solicitudes si es necesario
+  const badge = document.getElementById('sb-badge-sol');
+  if (badge) {
+    badge.textContent = '2'; // Ejemplo, debería ser dinámico
+    badge.style.display = 'inline-block';
+  }
+}
+
+function renderPanelOrganizadores() {
+  const panelMain = document.getElementById('panel-main');
+  panelMain.innerHTML = `
+    <div class="panel-content">
+      <div class="panel-title">Gestión de Organizadores</div>
+      <div class="panel-sub">Administra las cuentas de los organizadores de torneos.</div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">Juan Pérez</div>
+            <div class="p-card-sub">juan.perez@email.com · ID: ORG-001</div>
+          </div>
+          <div class="p-card-actions">
+            <button class="btn-sm" onclick="toast('Editando organizador', '')">Editar</button>
+            <button class="btn-sm btn-sm-danger" onclick="toast('Organizador eliminado', 'err')">Eliminar</button>
+          </div>
+        </div>
+      </div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">María González</div>
+            <div class="p-card-sub">maria.gonzalez@email.com · ID: ORG-002</div>
+          </div>
+          <div class="p-card-actions">
+            <button class="btn-sm" onclick="toast('Editando organizador', '')">Editar</button>
+            <button class="btn-sm btn-sm-danger" onclick="toast('Organizador eliminado', 'err')">Eliminar</button>
+          </div>
+        </div>
+      </div>
+      <button class="f-submit" style="max-width:200px;margin-top:20px;" onclick="toast('Abriendo formulario de nuevo organizador', '')">Agregar Organizador</button>
+    </div>
+  `;
+}
+
+function renderPanelTorneos() {
+  const panelMain = document.getElementById('panel-main');
+  panelMain.innerHTML = `
+    <div class="panel-content">
+      <div class="panel-title">Gestión de Torneos</div>
+      <div class="panel-sub">Administra todos los torneos activos e inactivos.</div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">Liga de Verano Santiago</div>
+            <div class="p-card-sub">Organizador: Juan Pérez · Estado: Activo</div>
+          </div>
+          <div class="p-card-actions">
+            <button class="btn-sm" onclick="toast('Editando torneo', '')">Editar</button>
+            <button class="btn-sm btn-sm-danger" onclick="toast('Torneo despublicado', 'err')">Despublicar</button>
+          </div>
+        </div>
+      </div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">Copa Ciudad Valparaíso</div>
+            <div class="p-card-sub">Organizador: María González · Estado: Borrador</div>
+          </div>
+          <div class="p-card-actions">
+            <button class="btn-sm" onclick="toast('Editando torneo', '')">Editar</button>
+            <button class="btn-sm btn-primary" onclick="toast('Torneo publicado', 'ok')">Publicar</button>
+          </div>
+        </div>
+      </div>
+      <button class="f-submit" style="max-width:200px;margin-top:20px;" onclick="toast('Abriendo formulario de nuevo torneo', '')">Crear Torneo</button>
+    </div>
+  `;
+}
+
+function renderPanelMetricas() {
+  const panelMain = document.getElementById('panel-main');
+  panelMain.innerHTML = `
+    <div class="panel-content">
+      <div class="panel-title">Métricas del Sistema</div>
+      <div class="panel-sub">Estadísticas generales de la plataforma.</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-num">12</div>
+          <div class="metric-lbl">Torneos Activos</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-num">345</div>
+          <div class="metric-lbl">Equipos Registrados</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-num">890</div>
+          <div class="metric-lbl">Partidos Jugados</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-num">5</div>
+          <div class="metric-lbl">Solicitudes Pendientes</div>
+        </div>
+      </div>
+      <div class="p-card">
+        <div class="p-card-title">Actividad Reciente</div>
+        <div class="p-card-sub">Últimas acciones en la plataforma.</div>
+        <ul style="list-style:none;padding:0;margin-top:10px;font-size:13px;color:var(--text2)">
+          <li style="margin-bottom:5px">Organizador ORG-001 actualizó fixture de Liga de Verano.</li>
+          <li style="margin-bottom:5px">Nueva solicitud de torneo de María P.</li>
+          <li style="margin-bottom:5px">Admin aprobó solicitud de Juan C.</li>
+        </ul>
+      </div>
+    </div>
+  `;
+}
+
+function renderPanelDashboard() {
+  const panelMain = document.getElementById('panel-main');
+  panelMain.innerHTML = `
+    <div class="panel-content">
+      <div class="panel-title">Dashboard de Organizador</div>
+      <div class="panel-sub">Resumen y acceso rápido a la gestión de tu torneo.</div>
+      <div class="org-id-display">
+        <div>
+          <div style="font-size:10px;color:var(--blue);font-weight:700;letter-spacing:1px;text-transform:uppercase">Tu ID de Organizador</div>
+          <div class="org-id-val">${SESSION.org_id || 'N/A'}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--orange);font-weight:700;letter-spacing:1px;text-transform:uppercase">Clave de Acceso</div>
+          <div class="org-clave">••••••••</div>
+        </div>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-num">3</div>
+          <div class="metric-lbl">Categorías</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-num">24</div>
+          <div class="metric-lbl">Equipos</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-num">18</div>
+          <div class="metric-lbl">Partidos Pendientes</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-num">2</div>
+          <div class="metric-lbl">Noticias Publicadas</div>
+        </div>
+      </div>
+      <div class="p-card">
+        <div class="p-card-title">Próximos Partidos</div>
+        <div class="p-card-sub">Partidos de tu torneo en los próximos días.</div>
+        <ul style="list-style:none;padding:0;margin-top:10px;font-size:13px;color:var(--text2)">
+          <li style="margin-bottom:5px">Cat. A: Equipo 1 vs Equipo 2 (Mañana 18:00)</li>
+          <li style="margin-bottom:5px">Cat. B: Equipo 3 vs Equipo 4 (Jueves 20:00)</li>
+        </ul>
+      </div>
+    </div>
+  `;
+}
+
+function renderPanelCategorias() {
+  const panelMain = document.getElementById('panel-main');
+  panelMain.innerHTML = `
+    <div class="panel-content">
+      <div class="panel-title">Gestión de Categorías</div>
+      <div class="panel-sub">Administra las categorías de tu torneo.</div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">Categoría Masculina A</div>
+            <div class="p-card-sub">10 equipos · Activa</div>
+          </div>
+          <div class="p-card-actions">
+            <button class="btn-sm" onclick="toast('Editando categoría', '')">Editar</button>
+            <button class="btn-sm btn-sm-danger" onclick="toast('Categoría eliminada', 'err')">Eliminar</button>
+          </div>
+        </div>
+      </div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">Categoría Femenina</div>
+            <div class="p-card-sub">8 equipos · Activa</div>
+          </div>
+          <div class="p-card-actions">
+            <button class="btn-sm" onclick="toast('Editando categoría', '')">Editar</button>
+            <button class="btn-sm btn-sm-danger" onclick="toast('Categoría eliminada', 'err')">Eliminar</button>
+          </div>
+        </div>
+      </div>
+      <button class="f-submit" style="max-width:200px;margin-top:20px;" onclick="toast('Abriendo formulario de nueva categoría', '')">Agregar Categoría</button>
+    </div>
+  `;
+}
+
+function renderPanelEquipos() {
+  const panelMain = document.getElementById('panel-main');
+  panelMain.innerHTML = `
+    <div class="panel-content">
+      <div class="panel-title">Gestión de Equipos</div>
+      <div class="panel-sub">Administra los equipos de tu torneo.</div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">Los Invencibles</div>
+            <div class="p-card-sub">Categoría Masculina A · Color: Azul</div>
+          </div>
+          <div class="p-card-actions">
+            <button class="btn-sm" onclick="toast('Editando equipo', '')">Editar</button>
+            <button class="btn-sm btn-sm-danger" onclick="toast('Equipo eliminado', 'err')">Eliminar</button>
+          </div>
+        </div>
+      </div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">Las Guerreras</div>
+            <div class="p-card-sub">Categoría Femenina · Color: Rojo</div>
+          </div>
+          <div class="p-card-actions">
+            <button class="btn-sm" onclick="toast('Editando equipo', '')">Editar</button>
+            <button class="btn-sm btn-sm-danger" onclick="toast('Equipo eliminado', 'err')">Eliminar</button>
+          </div>
+        </div>
+      </div>
+      <button class="f-submit" style="max-width:200px;margin-top:20px;" onclick="toast('Abriendo formulario de nuevo equipo', '')">Agregar Equipo</button>
+    </div>
+  `;
+}
+
+function renderPanelFixture() {
+  const panelMain = document.getElementById('panel-main');
+  panelMain.innerHTML = `
+    <div class="panel-content">
+      <div class="panel-title">Gestión de Fixture</div>
+      <div class="panel-sub">Programa y organiza los partidos de tu torneo.</div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">Partido N°1 - Cat. Masculina A</div>
+            <div class="p-card-sub">Los Invencibles vs Los Titanes · 15/07 20:00</div>
+          </div>
+          <div class="p-card-actions">
+            <button class="btn-sm" onclick="toast('Editando partido', '')">Editar</button>
+            <button class="btn-sm btn-sm-danger" onclick="toast('Partido eliminado', 'err')">Eliminar</button>
+          </div>
+        </div>
+      </div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">Partido N°2 - Cat. Femenina</div>
+            <div class="p-card-sub">Las Guerreras vs Las Fénix · 16/07 19:00</div>
+          </div>
+          <div class="p-card-actions">
+            <button class="btn-sm" onclick="toast('Editando partido', '')">Editar</button>
+            <button class="btn-sm btn-sm-danger" onclick="toast('Partido eliminado', 'err')">Eliminar</button>
+          </div>
+        </div>
+      </div>
+      <button class="f-submit" style="max-width:200px;margin-top:20px;" onclick="toast('Abriendo formulario de nuevo partido', '')">Agregar Partido</button>
+    </div>
+  `;
+}
+
+function renderPanelResultados() {
+  const panelMain = document.getElementById('panel-main');
+  panelMain.innerHTML = `
+    <div class="panel-content">
+      <div class="panel-title">Gestión de Resultados</div>
+      <div class="panel-sub">Registra y actualiza los resultados de los partidos.</div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">Partido N°1 - Cat. Masculina A</div>
+            <div class="p-card-sub">Los Invencibles (85) vs Los Titanes (72) · Finalizado</div>
+          </div>
+          <div class="p-card-actions">
+            <button class="btn-sm" onclick="toast('Editando resultado', '')">Editar</button>
+            <button class="btn-sm btn-sm-danger" onclick="toast('Resultado eliminado', 'err')">Eliminar</button>
+          </div>
+        </div>
+      </div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">Partido N°2 - Cat. Femenina</div>
+            <div class="p-card-sub">Las Guerreras (60) vs Las Fénix (62) · Finalizado</div>
+          </div>
+          <div class="p-card-actions">
+            <button class="btn-sm" onclick="toast('Editando resultado', '')">Editar</button>
+            <button class="btn-sm btn-sm-danger" onclick="toast('Resultado eliminado', 'err')">Eliminar</button>
+          </div>
+        </div>
+      </div>
+      <button class="f-submit" style="max-width:200px;margin-top:20px;" onclick="toast('Abriendo formulario de registro de resultado', '')">Registrar Resultado</button>
+    </div>
+  `;
+}
+
+function renderPanelNoticias() {
+  const panelMain = document.getElementById('panel-main');
+  panelMain.innerHTML = `
+    <div class="panel-content">
+      <div class="panel-title">Gestión de Noticias</div>
+      <div class="panel-sub">Publica y administra las noticias de tu torneo.</div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">¡Gran inicio de temporada!</div>
+            <div class="p-card-sub">Publicado el 14/07/2024</div>
+          </div>
+          <div class="p-card-actions">
+            <button class="btn-sm" onclick="toast('Editando noticia', '')">Editar</button>
+            <button class="btn-sm btn-sm-danger" onclick="toast('Noticia eliminada', 'err')">Eliminar</button>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--text2);margin-top:10px">La Liga de Verano ha comenzado con partidos emocionantes...</div>
+      </div>
+      <button class="f-submit" style="max-width:200px;margin-top:20px;" onclick="toast('Abriendo formulario de nueva noticia', '')">Crear Noticia</button>
+    </div>
+  `;
+}
+
+function renderPanelSanciones() {
+  const panelMain = document.getElementById('panel-main');
+  panelMain.innerHTML = `
+    <div class="panel-content">
+      <div class="panel-title">Gestión de Sanciones</div>
+      <div class="panel-sub">Aplica y administra las sanciones en tu torneo.</div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">Tarjeta Roja - Jugador X</div>
+            <div class="p-card-sub">Equipo: Los Invencibles · Fecha: 14/07/2024</div>
+          </div>
+          <div class="p-card-actions">
+            <button class="btn-sm" onclick="toast('Editando sanción', '')">Editar</button>
+            <button class="btn-sm btn-sm-danger" onclick="toast('Sanción eliminada', 'err')">Eliminar</button>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--text2);margin-top:10px">Motivo: Conducta antideportiva. Suspendido por 1 partido.</div>
+      </div>
+      <button class="f-submit" style="max-width:200px;margin-top:20px;" onclick="toast('Abriendo formulario de nueva sanción', '')">Aplicar Sanción</button>
+    </div>
+  `;
+}
+
+/**
+ * Función llamada desde la vista pública para acceder al panel de administración.
+ * Abre el modal de login de administrador.
+ */
+function pdfopenAdmin() {
+  openModal('modal-login-admin');
+  toast("Inicia sesión como administrador para acceder", "");
+}
+
+/**
+ * Maneja el envío del formulario de solicitud de publicación de liga.
+ * @param {Event} e El evento de envío del formulario.
+ */
+async function enviarSolicitud(e) {
+  e.preventDefault();
+  const errEl = document.getElementById('sol-error');
+  const btn   = document.getElementById('sol-btn');
+  errEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Enviando...';
+
+  const nombre = document.getElementById('sol-nombre').value.trim();
+  const email = document.getElementById('sol-email').value.trim();
+  const tel = document.getElementById('sol-tel').value.trim();
+  const ciudad = document.getElementById('sol-ciudad').value.trim();
+  const deporte = document.getElementById('sol-deporte').value.trim();
+  const desc = document.getElementById('sol-desc').value.trim();
+  const categorias = document.getElementById('sol-cats').value;
+
+  if (!nombre || !email || !ciudad || !deporte) {
+    errEl.textContent = 'Por favor, completa todos los campos requeridos.';
+    errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'ENVIAR SOLICITUD';
+    return;
+  }
+
+  try {
+    // Simular envío a la API. En un caso real, esto enviaría los datos a tu backend.
+    // const json = await api('enviarSolicitud', { nombre, email, tel, ciudad, deporte, desc, categorias });
+    // if (json.success) { ... } else { ... }
+
+    // Simulación de éxito
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simular retardo de red
+    document.getElementById('sol-form-wrap').style.display = 'none';
+    document.getElementById('sol-email-confirm').textContent = email;
+    document.getElementById('sol-success').style.display = 'block';
+    toast('Solicitud enviada con éxito', 'ok');
+
+  } catch(err) {
+    errEl.textContent = 'Error al enviar la solicitud. Intenta de nuevo.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'ENVIAR SOLICITUD';
+  }
+}
+
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 // Iniciar mostrando vista pública
