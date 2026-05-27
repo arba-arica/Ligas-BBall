@@ -489,9 +489,9 @@ function pbnClick(panelId,btn,navId){
   if(panelId==='p-mas'){
     openInlineModal('<div class="modal-title" style="margin-bottom:16px">Más opciones</div>'
       +'<div style="display:grid;gap:8px">'
-      +'<button class="f-submit" style="margin:0" onclick="closeInlineModal();showPanel('p-categorias',null)">🏅 Categorías</button>'
-      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel('p-noticias',null)">📰 Noticias</button>'
-      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel('p-sanciones',null)">⚠️ Sanciones</button>'
+      +'<button class="f-submit" style="margin:0" onclick="closeInlineModal();showPanel(\'p-categorias\',null)">🏅 Categorías</button>'
+      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-noticias\',null)">📰 Noticias</button>'
+      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-sanciones\',null)">⚠️ Sanciones</button>'
       +'</div>');
     return;
   }
