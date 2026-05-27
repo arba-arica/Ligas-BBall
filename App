@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>ACTIVA PLAY — Torneos deportivos</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;900&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#0a0a0a;--bg2:#111;--bg3:#161616;--surface:#1a1a1a;
@@ -16,10 +16,10 @@
 }
 [data-theme="light"]{--bg:#f8fafc;--bg2:#fff;--bg3:#f1f5f9;--surface:#fff;--border:rgba(0,0,0,.07);--border2:rgba(0,0,0,.12);--text:#0f172a;--text2:#475569;--text3:#94a3b8;}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Archivo',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;transition:background .25s,color .25s}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;transition:background .25s,color .25s}
 button,input,select,textarea{font-family:inherit}
 a{text-decoration:none;color:inherit}
-.logo{display:flex;align-items:center;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;letter-spacing:1px;color:var(--text)}
+.logo{display:flex;align-items:center;font-family:'Oswald',sans-serif;font-size:22px;font-weight:900;letter-spacing:1.5px;color:var(--text)}
 .logo-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--blue);margin:0 4px;margin-bottom:2px;flex-shrink:0}
 .logo-acc{color:var(--orange)}
 /* PUB */
@@ -32,7 +32,7 @@ a{text-decoration:none;color:inherit}
 .btn-solid:hover{opacity:.85}
 .btn-orange{background:var(--orange)}
 .pub-hero{background:linear-gradient(180deg,var(--blue-dim) 0%,transparent 100%);padding:28px 16px 20px;text-align:center;border-bottom:1px solid var(--border)}
-.pub-hero-title{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;color:var(--text);letter-spacing:-.5px;line-height:1}
+.pub-hero-title{font-family:'Oswald',sans-serif;font-size:32px;font-weight:900;color:var(--text);letter-spacing:.5px;line-height:1}
 .pub-hero-title span{color:var(--orange)}
 .pub-hero-sub{font-size:13px;color:var(--text2);margin-top:6px}
 .pub-content{flex:1;padding:20px 16px 80px;max-width:640px;margin:0 auto;width:100%}
@@ -41,7 +41,7 @@ a{text-decoration:none;color:inherit}
 .torneo-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px;cursor:pointer;transition:all .2s}
 .torneo-card:hover{border-color:var(--blue-glow);background:var(--bg3);transform:translateX(3px)}
 .torneo-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
-.torneo-nombre{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--text);letter-spacing:-.3px}
+.torneo-nombre{font-family:'Oswald',sans-serif;font-size:20px;font-weight:900;color:var(--text);letter-spacing:.3px}
 .torneo-ciudad{font-size:12px;color:var(--text2);margin-top:2px}
 .badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
 .badge-active{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)}
@@ -51,7 +51,7 @@ a{text-decoration:none;color:inherit}
 .tv-hero{background:#1e3a8a;padding:28px 18px 22px;text-align:center;flex-shrink:0;position:relative}
 .tv-back{position:absolute;top:12px;left:12px;width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:16px}
 .tv-temporada-lbl{font-size:11px;font-weight:700;letter-spacing:2px;color:#f97316;text-transform:uppercase;margin-bottom:4px}
-.tv-torneo-nombre{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:#fff;letter-spacing:.5px;line-height:1.1;margin-bottom:16px}
+.tv-torneo-nombre{font-family:'Oswald',sans-serif;font-size:26px;font-weight:900;color:#fff;letter-spacing:.5px;line-height:1.1;margin-bottom:16px}
 .tv-share-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:100px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:12px;font-weight:700;cursor:pointer}
 .tv-ligas-section{background:#1e3a8a;padding:0 18px 18px;flex-shrink:0}
 .tv-ligas-label{font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:10px}
@@ -68,7 +68,7 @@ a{text-decoration:none;color:inherit}
 .tv-nav-dot{width:4px;height:4px;border-radius:50%;background:#1e3a8a;margin-top:1px;opacity:0;transition:opacity .2s}
 [data-theme="dark"] .tv-nav-dot{background:#93c5fd}
 .tv-nav-btn.active .tv-nav-dot{opacity:1}
-.tv-sec-label{font-family:'Archivo',sans-serif;font-weight:700;font-size:11px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;margin:16px 0 8px;display:flex;align-items:center;gap:8px}
+.tv-sec-label{font-family:'Source Sans 3',sans-serif;font-weight:700;font-size:11px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;margin:16px 0 8px;display:flex;align-items:center;gap:8px}
 .tv-sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
 /* PARTIDO CARD */
 .mc{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:8px}
@@ -82,12 +82,12 @@ a{text-decoration:none;color:inherit}
 [data-theme="dark"] .mc-badge-final{background:var(--blue-dim);color:#93c5fd;border-color:var(--blue-glow)}
 .mc-badge-live{background:rgba(239,68,68,.1);color:#dc2626;border:1px solid #fecaca}
 .mc-teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin-bottom:10px}
-.mc-team{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--text);line-height:1.2}
+.mc-team{font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;color:var(--text);line-height:1.2}
 .mc-team.right{text-align:right}
 .mc-team.win{color:var(--blue)}
 [data-theme="dark"] .mc-team.win{color:#93c5fd}
-.mc-score{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:var(--orange);background:rgba(249,115,22,.1);padding:4px 12px;border-radius:8px;text-align:center;white-space:nowrap}
-.mc-vs{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--blue);background:var(--blue-dim);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin:0 auto;border:1px solid var(--blue-glow)}
+.mc-score{font-family:'Oswald',sans-serif;font-size:26px;font-weight:900;color:var(--orange);background:rgba(249,115,22,.1);padding:4px 12px;border-radius:8px;text-align:center;white-space:nowrap}
+.mc-vs{font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;color:var(--blue);background:var(--blue-dim);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin:0 auto;border:1px solid var(--blue-glow)}
 .mc-footer{padding-top:8px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px}
 .mc-meta{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .mc-meta-sep{color:var(--border2)}
@@ -100,9 +100,9 @@ a{text-decoration:none;color:inherit}
 .st-table td{padding:10px 6px;text-align:center;border-bottom:1px solid var(--border);color:var(--text2);font-weight:500}
 .st-table tr:last-child td{border-bottom:none}
 .st-table td:nth-child(2){text-align:left;padding-left:10px;font-weight:700;font-size:13px;color:var(--text)}
-.rk{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:900}
+.rk{font-family:'Oswald',sans-serif;font-size:15px;font-weight:900}
 .rk-1{color:var(--orange)}.rk-2{color:var(--text2)}.rk-3{color:#78716c}
-.pts-cell{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;color:var(--blue)}
+.pts-cell{font-family:'Oswald',sans-serif;font-size:16px;font-weight:900;color:var(--blue)}
 [data-theme="dark"] .pts-cell{color:#93c5fd}
 .dif-pos{color:var(--green)}.dif-neg{color:var(--red)}
 .color-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
@@ -113,7 +113,7 @@ a{text-decoration:none;color:inherit}
 .san-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:0 14px 14px 0;padding:12px 14px;margin-bottom:8px}
 .san-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
 .san-type{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--red);background:rgba(239,68,68,.1);padding:2px 8px;border-radius:100px;border:1px solid rgba(239,68,68,.2)}
-.san-player{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:3px}
+.san-player{font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:3px}
 .san-detail{font-size:12px;color:var(--text2);line-height:1.5}
 .club-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:6px}
 .club-color{width:36px;height:36px;border-radius:50%;flex-shrink:0}
@@ -121,7 +121,7 @@ a{text-decoration:none;color:inherit}
 .news-card-tv{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden}
 .news-card-body{padding:12px 14px}
 .news-date-tv{font-size:10px;font-weight:700;color:var(--orange);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
-.news-title-tv{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:900;color:var(--text);line-height:1.3;margin-bottom:4px}
+.news-title-tv{font-family:'Oswald',sans-serif;font-size:17px;font-weight:900;color:var(--text);line-height:1.3;margin-bottom:4px}
 .news-desc-tv{font-size:13px;color:var(--text2);line-height:1.6}
 .tv-admin-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:transparent;border:1px solid var(--border);border-radius:100px;cursor:pointer;font-size:12px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin-top:8px}
 .tv-admin-btn:hover{border-color:var(--border2);color:var(--text)}
@@ -138,7 +138,7 @@ a{text-decoration:none;color:inherit}
 .sb-btn svg{width:15px;height:15px;flex-shrink:0}
 .sb-badge{background:var(--orange);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:100px;margin-left:auto}
 .panel-content{padding:20px;max-width:800px}
-.panel-title{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:var(--text);letter-spacing:-.3px;margin-bottom:4px}
+.panel-title{font-family:'Oswald',sans-serif;font-size:24px;font-weight:900;color:var(--text);letter-spacing:.3px;margin-bottom:4px}
 .panel-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
 .p-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px}
 .p-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
@@ -152,7 +152,7 @@ a{text-decoration:none;color:inherit}
 .btn-sm-primary:hover{opacity:.85;color:#fff;border-color:var(--blue)}
 .metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px}
 .metric-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center}
-.metric-num{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;color:var(--orange)}
+.metric-num{font-family:'Oswald',sans-serif;font-size:32px;font-weight:900;color:var(--orange)}
 .metric-lbl{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
 .sol-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--orange);border-radius:var(--r);padding:14px;margin-bottom:10px}
 .sol-info{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
@@ -160,7 +160,7 @@ a{text-decoration:none;color:inherit}
 .sol-info-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
 .sol-info-val{font-size:13px;font-weight:600;color:var(--text)}
 .org-id-display{background:var(--blue-dim);border:1px solid var(--blue-glow);border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin:10px 0}
-.org-id-val{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:var(--blue);letter-spacing:3px}
+.org-id-val{font-family:'Oswald',sans-serif;font-size:24px;font-weight:900;color:var(--blue);letter-spacing:4px}
 .org-clave{font-size:16px;font-weight:700;color:var(--orange);letter-spacing:2px}
 /* TOAST */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;border:1px solid var(--border2);color:var(--text);padding:10px 20px;border-radius:100px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
@@ -172,24 +172,24 @@ a{text-decoration:none;color:inherit}
 .modal-overlay.open{opacity:1;pointer-events:all}
 .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:420px;max-height:90svh;overflow-y:auto;padding:24px;transform:translateY(16px);transition:transform .25s;position:relative}
 .modal-overlay.open .modal{transform:translateY(0)}
-.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--text);letter-spacing:-.3px;margin-bottom:4px}
+.modal-title{font-family:'Oswald',sans-serif;font-size:22px;font-weight:900;color:var(--text);letter-spacing:.3px;margin-bottom:4px}
 .modal-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
 .modal-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:8px;background:var(--surface);border:1px solid var(--border);cursor:pointer;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center}
 .modal-close:hover{border-color:var(--red);color:var(--red)}
 /* FORMS */
 .f-group{margin-bottom:12px}
 .f-label{display:block;font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px}
-.f-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text);outline:none;transition:border-color .2s;font-family:'Archivo',sans-serif}
+.f-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text);outline:none;transition:border-color .2s;font-family:'Source Sans 3',sans-serif}
 .f-input:focus{border-color:var(--blue)}
 .f-input::placeholder{color:var(--text3)}
 textarea.f-input{resize:none}
-.f-select{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text);outline:none;cursor:pointer;appearance:none;font-family:'Archivo',sans-serif}
+.f-select{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text);outline:none;cursor:pointer;appearance:none;font-family:'Source Sans 3',sans-serif}
 .f-select:focus{border-color:var(--blue)}
 .f-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .f-section{font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin:16px 0 10px;display:flex;align-items:center;gap:8px}
 .f-section::after{content:'';flex:1;height:1px;background:var(--border)}
 .f-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--red);margin-bottom:10px;display:none}
-.f-submit{width:100%;padding:13px;border-radius:12px;background:var(--blue);border:none;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.5px;cursor:pointer;margin-top:8px;transition:opacity .2s}
+.f-submit{width:100%;padding:13px;border-radius:12px;background:var(--blue);border:none;color:#fff;font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;letter-spacing:.5px;cursor:pointer;margin-top:8px;transition:opacity .2s}
 .f-submit:hover{opacity:.88}
 .f-submit:disabled{opacity:.5;cursor:not-allowed}
 .f-submit.btn-orange-submit{background:var(--orange)}
@@ -427,7 +427,7 @@ textarea.f-input{resize:none}
     </div>
     <div id="sol-success" style="display:none;text-align:center;padding:20px 0">
       <div style="font-size:48px;margin-bottom:16px">✅</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px">¡Solicitud enviada!</div>
+      <div style="font-family:'Oswald',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px">¡Solicitud enviada!</div>
       <div style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6">Te contactaremos a <strong id="sol-email-confirm"></strong><br>para confirmar y darte acceso.</div>
       <button class="f-submit" onclick="closeModal('modal-solicitud')">Cerrar</button>
     </div>
@@ -505,7 +505,7 @@ async function loadTorneos(){
   var list=document.getElementById('torneos-list');
   try{
     var torneos=await supa('torneos','?select=id,nombre,ciudad,deporte,temporada,descripcion,visible&visible=eq.true&estado=neq.eliminado&order=created_at.desc');
-    if(!torneos||torneos.error||!torneos.length){list.innerHTML='<div style="text-align:center;padding:48px 20px"><div style="font-size:48px;margin-bottom:16px;opacity:.2">🏀</div><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px">Sin torneos activos aún</div><div style="font-size:13px;color:var(--text2);margin-bottom:20px">Sé el primero en publicar tu torneo</div><button class="btn-solid btn-orange" onclick="openModal(\'modal-solicitud\')" style="padding:12px 28px;font-size:14px;border-radius:12px">PUBLICAR MI LIGA →</button></div>';return;}
+    if(!torneos||torneos.error||!torneos.length){list.innerHTML='<div style="text-align:center;padding:48px 20px"><div style="font-size:48px;margin-bottom:16px;opacity:.2">🏀</div><div style="font-family:\'Oswald\',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px">Sin torneos activos aún</div><div style="font-size:13px;color:var(--text2);margin-bottom:20px">Sé el primero en publicar tu torneo</div><button class="btn-solid btn-orange" onclick="openModal(\'modal-solicitud\')" style="padding:12px 28px;font-size:14px;border-radius:12px">PUBLICAR MI LIGA →</button></div>';return;}
     list.innerHTML=torneos.map(function(t){return'<div class="torneo-card" onclick="abrirTorneo(\''+t.id+'\',\''+esc(t.nombre)+'\',\''+esc(t.ciudad)+'\',\''+esc(t.temporada||'')+'\')"><div class="torneo-card-header"><div><div class="torneo-nombre">'+t.nombre+'</div><div class="torneo-ciudad">📍 '+t.ciudad+(t.temporada?' · '+t.temporada:'')+'</div></div><span class="badge badge-active">● Activo</span></div>'+(t.descripcion?'<div style="font-size:13px;color:var(--text2);margin-bottom:10px">'+t.descripcion+'</div>':'')+'<div style="font-size:11px;color:var(--text3)">'+(t.deporte||'Básquetbol')+' · Toca para ver tabla y fixture →</div></div>';}).join('');
   }catch(e){list.innerHTML='<div style="text-align:center;padding:32px;color:var(--text2);font-size:13px">Error al cargar torneos</div>';}
 }
@@ -769,7 +769,7 @@ async function renderOrganizadores(){
   var h='<div class="panel-content"><div class="panel-title">Organizadores</div><div class="panel-sub">'+r.data.length+' registrado(s)</div>';
   if(!r.data.length)h+='<div class="p-card" style="text-align:center;padding:32px;color:var(--text2)">Sin organizadores</div>';
   else r.data.forEach(function(o){
-    h+='<div class="p-card"><div class="p-card-header"><div><div class="p-card-title">'+o.nombre+' <span style="font-family:\'Barlow Condensed\',sans-serif;font-size:14px;color:var(--blue);letter-spacing:1px">'+o.org_id+'</span></div><div class="p-card-sub">'+o.email+' · '+o.ciudad+' · '+(o.torneos_count||0)+' torneo(s)</div></div>';
+    h+='<div class="p-card"><div class="p-card-header"><div><div class="p-card-title">'+o.nombre+' <span style="font-family:\'Oswald\',sans-serif;font-size:14px;color:var(--blue);letter-spacing:1.5px">'+o.org_id+'</span></div><div class="p-card-sub">'+o.email+' · '+o.ciudad+' · '+(o.torneos_count||0)+' torneo(s)</div></div>';
     h+='<div class="p-card-actions"><span class="badge '+(o.activo?'badge-active':'')+'" style="'+(o.activo?'':'background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)')+'">'+( o.activo?'Activo':'Suspendido')+'</span>';
     h+='<button class="btn-sm" onclick="toggleOrg(\''+o.org_id+'\','+!o.activo+',\''+o.nombre.replace(/'/g,"\\'")+'\')">'+( o.activo?'Suspender':'Activar')+'</button>';
     h+='<button class="btn-sm" onclick="resetearClave(\''+o.org_id+'\',\''+o.nombre.replace(/'/g,"\\'")+'\')">Reset clave</button></div></div>';
@@ -792,7 +792,7 @@ async function getCats(){if(_catsCache)return _catsCache;var tid=await getTorneo
 async function renderDashboard(){
   var r=await api('getMiTorneo');
   var h='<div class="panel-content"><div class="panel-title">Dashboard</div><div class="panel-sub">Bienvenido, '+(SESSION.nombre||'')+'</div>';
-  if(!r.success||!r.data){h+='<div class="p-card" style="text-align:center;padding:32px"><div style="font-size:40px;margin-bottom:16px">🏆</div><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:20px;font-weight:900;color:var(--text);margin-bottom:8px">Aún no tienes un torneo</div><div style="font-size:13px;color:var(--text2);margin-bottom:20px">Crea tu torneo para comenzar.</div><button class="f-submit" style="max-width:260px;margin:0 auto" onclick="abrirCrearTorneo()">+ CREAR MI TORNEO</button></div>';}
+  if(!r.success||!r.data){h+='<div class="p-card" style="text-align:center;padding:32px"><div style="font-size:40px;margin-bottom:16px">🏆</div><div style="font-family:\'Oswald\',sans-serif;font-size:20px;font-weight:900;color:var(--text);margin-bottom:8px">Aún no tienes un torneo</div><div style="font-size:13px;color:var(--text2);margin-bottom:20px">Crea tu torneo para comenzar.</div><button class="f-submit" style="max-width:260px;margin:0 auto" onclick="abrirCrearTorneo()">+ CREAR MI TORNEO</button></div>';}
   else{var t=r.data;
     h+='<div class="p-card"><div class="p-card-header"><div><div class="p-card-title">'+t.nombre+'</div><div class="p-card-sub">'+t.ciudad+(t.temporada?' · '+t.temporada:'')+'</div></div><div class="p-card-actions"><span class="badge '+(t.visible?'badge-active':'badge-draft')+'">'+(t.visible?'● Publicado':'○ Borrador')+'</span><button class="btn-sm btn-sm-primary" onclick="editarTorneo(\''+t.id+'\',\''+encodeURIComponent(JSON.stringify(t))+'\')">Editar</button></div></div>';
     if(t.descripcion)h+='<div style="font-size:13px;color:var(--text2);margin-top:8px">'+t.descripcion+'</div>';
@@ -933,9 +933,9 @@ async function cargarResultadosPanel(catId){
   if(!r.success||!r.data.length){el.innerHTML='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin partidos.</div>';return;}
   var h='';r.data.forEach(function(p){var lN=p.local?p.local.nombre:'?',vN=p.visita?p.visita.nombre:'?',fin=p.estado==='finalizado';
     h+='<div class="p-card" style="margin-bottom:8px"><div style="font-size:11px;color:var(--text2);margin-bottom:8px">Fecha '+(p.nro_fecha||'—')+(p.fecha?' · '+p.fecha:'')+' · '+(p.fase||'')+'</div>';
-    h+='<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-bottom:12px"><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:15px;font-weight:700;color:var(--text)">'+lN+'</div>';
-    h+=(fin?'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:22px;font-weight:900;color:var(--orange);text-align:center">'+p.pts_local+'–'+p.pts_visita+'</div>':'<div style="font-size:12px;font-weight:700;color:var(--text2);text-align:center">VS</div>');
-    h+='<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:15px;font-weight:700;color:var(--text);text-align:right">'+vN+'</div></div>';
+    h+='<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-bottom:12px"><div style="font-family:\'Oswald\',sans-serif;font-size:15px;font-weight:700;color:var(--text)">'+lN+'</div>';
+    h+=(fin?'<div style="font-family:\'Oswald\',sans-serif;font-size:22px;font-weight:900;color:var(--orange);text-align:center">'+p.pts_local+'–'+p.pts_visita+'</div>':'<div style="font-size:12px;font-weight:700;color:var(--text2);text-align:center">VS</div>');
+    h+='<div style="font-family:\'Oswald\',sans-serif;font-size:15px;font-weight:700;color:var(--text);text-align:right">'+vN+'</div></div>';
     h+='<div style="display:flex;gap:6px;justify-content:flex-end"><button class="btn-sm btn-sm-primary" onclick="abrirCargarResultado(\''+p.id+'\',\''+lN.replace(/'/g,"\\'")+'\',\''+vN.replace(/'/g,"\\'")+'\','+(p.pts_local||0)+','+(p.pts_visita||0)+')">'+(fin?'Editar resultado':'Cargar resultado')+'</button>';
     h+=(!fin?'<button class="btn-sm" onclick="marcarEnVivo(\''+p.id+'\')">En vivo</button>':'');h+='</div></div>';
   });el.innerHTML=h;
@@ -1003,7 +1003,7 @@ async function renderProgramacion(){
   if(!dias.length){h+='<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin partidos programados aún.</div>';el.innerHTML=h;return;}
   dias.forEach(function(dia){
     var fechaCompleta=dia!=='Sin fecha'?new Date(dia+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):dia;
-    h+='<div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin:16px 0 8px;display:flex;align-items:center;gap:8px">'+fechaCompleta+'<span style="flex:1;height:1px;background:var(--border);display:inline-block"></span></div>';
+    h+='<div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin:16px 0 8px;display:flex;align-items:center;gap:8px">'+fechaCompleta+'<span style="flex:1;height:1px;background:var(--border);display:inline-block"></span></div>';
     porFecha[dia].sort(function(a,b){return(a.partido.hora||'').localeCompare(b.partido.hora||'');});
     porFecha[dia].forEach(function(item){
       var p=item.partido,cat=item.cat;
