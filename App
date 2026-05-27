@@ -332,7 +332,7 @@ textarea.f-input{resize:none}
     <!-- SIDEBAR ORGANIZADOR -->
     <div class="panel-sidebar" id="sidebar-org" style="display:none">
       <div class="sb-section">Navegacion</div>
-      <button class="sb-btn active" onclick="showPanel('p-dashboard',this)" style="justify-content:center;margin-top:8px;background:rgba(29,78,216,.25);color:#fff;font-weight:700;border-radius:10px;padding:12px 8px">
+      <button class="sb-btn active" onclick="showPanel('p-dashboard',this)" style="justify-content:center;flex-direction:column;align-items:center;text-align:center;margin-top:8px;background:rgba(29,78,216,.25);color:#fff;border-radius:10px;padding:14px 8px;gap:6px">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         ← Menú principal
       </button>
@@ -341,9 +341,9 @@ textarea.f-input{resize:none}
   </div>
   <!-- Bottom nav para mobile (admin) -->
   <nav class="panel-bottom-nav" id="pbn-admin" style="display:none">
-    <button class="pbn-btn active" id="pbn-sol" onclick="pbnClick('p-solicitudes',this,'pbn-admin')">
-      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      Solicitudes
+    <button class="pbn-btn active" id="pbn-sol" onclick="pbnClick('p-dashboard',this,'pbn-admin')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Inicio
     </button>
     <button class="pbn-btn" onclick="pbnClick('p-torneos',this,'pbn-admin')">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
@@ -360,7 +360,7 @@ textarea.f-input{resize:none}
   </nav>
   <!-- Bottom nav para mobile (organizador) — solo Inicio -->
   <nav class="panel-bottom-nav" id="pbn-org" style="display:none">
-    <button class="pbn-btn active" onclick="pbnClick('p-dashboard',this,'pbn-org')">
+    <button class="pbn-btn active" onclick="pbnClick('p-dashboard',this,'pbn-org')" style="flex-direction:column;align-items:center">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Menú principal
     </button>
@@ -447,7 +447,7 @@ function toggleTheme(){
   document.documentElement.setAttribute('data-theme',dark?'light':'dark');
   try{localStorage.setItem('ap_theme',dark?'light':'dark');}catch(e){}
   var btn=document.querySelector('.pub-nav-btns .btn-ghost');
-  if(btn&&btn.textContent.trim()==='☀️'||btn&&btn.textContent.trim()==='🌙')btn.textContent=dark?'🌙':'☀️';
+  if(btn)btn.textContent=dark?'\u263D':'\u2600';
 }
 (function(){try{var t=localStorage.getItem('ap_theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
 function toast(msg,type){type=type||'';var el=document.getElementById('toast');el.textContent=msg;el.className='toast show '+type;setTimeout(function(){el.classList.remove('show');},3200);}
@@ -465,19 +465,20 @@ function pbnClick(panelId,btn,navId){
   document.querySelectorAll('#'+navId+' .pbn-btn').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active');
   if(panelId==='p-mas'){
-    openInlineModal('<div class="modal-title" style="margin-bottom:16px">Todas las secciones</div>'
+    var masHtml='<div class="modal-title" style="margin-bottom:16px">Mas opciones</div>'
       +'<div style="display:grid;gap:8px">'
-      +'<button class="f-submit" style="margin:0" onclick="closeInlineModal();showPanel(\'p-fixture\',null)">📅 Fixture</button>'
-      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-resultados\',null)">⚽ Resultados</button>'
-      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-equipos\',null)">👥 Equipos</button>'
-      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-categorias\',null)">🏅 Categorías</button>'
-      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-noticias\',null)">📰 Noticias</button>'
-      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-sanciones\',null)">⚠️ Sanciones</button>'
-      +'</div>');
+      +'<button class="f-submit" style="margin:0" onclick="closeInlineModal();showPanel(\'p-fixture\',null)">Fixture</button>'
+      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-resultados\',null)">Resultados</button>'
+      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-categorias\',null)">Categorias</button>'
+      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-noticias\',null)">Noticias</button>'
+      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-sanciones\',null)">Sanciones</button>'
+      +'</div>';
+    openInlineModal(masHtml);
     return;
   }
   showPanel(panelId,null);
 }
+
 function metricCard(num,lbl){return'<div class="metric-card"><div class="metric-num">'+num+'</div><div class="metric-lbl">'+lbl+'</div></div>';}
 function quickAction(label,icon,onclick){return'<button class="p-card" onclick="'+onclick+'" style="cursor:pointer;text-align:center"><div style="font-size:28px;margin-bottom:8px">'+icon+'</div><div style="font-size:13px;font-weight:700;color:var(--text)">'+label+'</div></button>';}
 
@@ -486,8 +487,8 @@ async function loadTorneos(){
   var list=document.getElementById('torneos-list');
   try{
     var torneos=await supa('torneos','?select=id,nombre,ciudad,deporte,temporada,descripcion,visible&visible=eq.true&estado=neq.eliminado&order=created_at.desc');
-    if(!torneos||torneos.error||!torneos.length){list.innerHTML='<div style="text-align:center;padding:48px 20px"><div style="font-size:48px;margin-bottom:16px;opacity:.2">🏀</div><div style="font-family:\'Oswald\',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px">Sin torneos activos aún</div><div style="font-size:13px;color:var(--text2);margin-bottom:20px">Sé el primero en publicar tu torneo</div><button class="btn-solid btn-orange" onclick="openModal(\'modal-solicitud\')" style="padding:12px 28px;font-size:14px;border-radius:12px">PUBLICAR MI LIGA →</button></div>';return;}
-    list.innerHTML=torneos.map(function(t){return'<div class="torneo-card" onclick="abrirTorneo(\''+t.id+'\',\''+esc(t.nombre)+'\',\''+esc(t.ciudad)+'\',\''+esc(t.temporada||'')+'\')"><div class="torneo-card-header"><div><div class="torneo-nombre">'+t.nombre+'</div><div class="torneo-ciudad">📍 '+t.ciudad+(t.temporada?' · '+t.temporada:'')+'</div></div><span class="badge badge-active">● Activo</span></div>'+(t.descripcion?'<div style="font-size:13px;color:var(--text2);margin-bottom:10px">'+t.descripcion+'</div>':'')+'<div style="font-size:11px;color:var(--text3)">'+(t.deporte||'Básquetbol')+' · Toca para ver tabla y fixture →</div></div>';}).join('');
+    if(!torneos||torneos.error||!torneos.length){list.innerHTML='<div style="text-align:center;padding:48px 20px"><div style="font-size:48px;margin-bottom:16px;opacity:.2"></div><div style="font-family:\'Oswald\',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px">Sin torneos activos aún</div><div style="font-size:13px;color:var(--text2);margin-bottom:20px">Sé el primero en publicar tu torneo</div><button class="btn-solid btn-orange" onclick="openModal(\'modal-solicitud\')" style="padding:12px 28px;font-size:14px;border-radius:12px">PUBLICAR MI LIGA →</button></div>';return;}
+    list.innerHTML=torneos.map(function(t){return'<div class="torneo-card" onclick="abrirTorneo(\''+t.id+'\',\''+esc(t.nombre)+'\',\''+esc(t.ciudad)+'\',\''+esc(t.temporada||'')+'\')"><div class="torneo-card-header"><div><div class="torneo-nombre">'+t.nombre+'</div><div class="torneo-ciudad">'+t.ciudad+(t.temporada?' · '+t.temporada:'')+'</div></div><span class="badge badge-active">● Activo</span></div>'+(t.descripcion?'<div style="font-size:13px;color:var(--text2);margin-bottom:10px">'+t.descripcion+'</div>':'')+'<div style="font-size:11px;color:var(--text3)">'+(t.deporte||'Básquetbol')+' · Toca para ver tabla y fixture →</div></div>';}).join('');
   }catch(e){list.innerHTML='<div style="text-align:center;padding:32px;color:var(--text2);font-size:13px">Error al cargar torneos</div>';}
 }
 
@@ -562,9 +563,9 @@ function buildPartidoCard(p,finalizado){
   h+='</div>';
   // Labels Local / Visita
   h+='<div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:4px;margin-bottom:4px;padding:0 2px">';
-  h+='<div style="font-size:9px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase">🏠 Local</div>';
+  h+='<div style="font-size:9px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase">Local</div>';
   h+='<div></div>';
-  h+='<div style="font-size:9px;font-weight:700;color:var(--orange);letter-spacing:1px;text-transform:uppercase;text-align:right">Visita ✈️</div>';
+  h+='<div style="font-size:9px;font-weight:700;color:var(--orange);letter-spacing:1px;text-transform:uppercase;text-align:right">Visita</div>';
   h+='</div>';
   // Equipos + marcador
   h+='<div class="mc-teams">';
@@ -578,19 +579,25 @@ function buildPartidoCard(p,finalizado){
   h+='<div class="mc-meta" style="justify-content:center">';
   h+='<span>Partido N° '+(p.nro_fecha||'—')+'</span>';
   if(p.fase&&p.fase!=='Fase Regular')h+='<span class="mc-meta-sep">·</span><span style="color:var(--orange);font-weight:700">'+p.fase+'</span>';
-  if(p.cancha)h+='<span class="mc-meta-sep">·</span><span>📍 '+p.cancha+'</span>';
+  if(p.cancha)h+='<span class="mc-meta-sep">·</span><span>'+p.cancha+'</span>';
   h+='</div>';
   if(p.url_transmision)h+='<div style="margin-top:6px"><a href="'+p.url_transmision+'" target="_blank" class="mc-yt" style="justify-content:center">▶ Ver en vivo</a></div>';
-  // WhatsApp share para partidos no finalizados
+  // WhatsApp share
   if(!finalizado){
     var lN2=(p.local&&p.local.nombre)||local.nombre||'?';
     var vN2=(p.visita&&p.visita.nombre)||visita.nombre||'?';
-    var fechaWa=p.fecha?new Date(p.fecha+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long'}):'';
-    var horaWa=p.hora||'';
-    var canchaWa=p.cancha?'\nCancha: '+p.cancha:'';
-    var ligaUrl=window.location.origin+window.location.pathname+(TORNEO_ACTUAL?'?liga='+TORNEO_ACTUAL.id:'');
-    var txt=encodeURIComponent('🏀 '+lN2+' vs '+vN2+'\n📅 '+(fechaWa+(horaWa?' · '+horaWa:''))+canchaWa+'\n🔗 Sigue en vivo: '+ligaUrl);
-    h+='<div style="margin-top:6px"><a href="https://wa.me/?text='+txt+'" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;font-weight:700;color:#25d366;text-decoration:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.135.563 4.14 1.534 5.876L0 24l6.29-1.51A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.93 0-3.74-.51-5.3-1.395l-.38-.225-3.733.898.939-3.638-.248-.387A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>Compartir por WhatsApp</a></div>';
+    var waFecha=p.fecha?new Date(p.fecha+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long'}):'';
+    var waHora=p.hora?(' · '+p.hora):'';
+    var waCancha=p.cancha?(' · '+p.cancha):'';
+    var waBase=window.location.origin+window.location.pathname;
+    var waLiga=TORNEO_ACTUAL?(waBase+'?liga='+TORNEO_ACTUAL.id):waBase;
+    var waMsg='Partido: '+lN2+' vs '+vN2
+      +'\nFecha: '+(waFecha+waHora+waCancha)
+      +'\nSigue en vivo: '+waLiga;
+    h+='<div style="margin-top:6px;text-align:center">'
+      +'<a href="https://wa.me/?text='+encodeURIComponent(waMsg)+'" target="_blank" '
+      +'style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#25d366;text-decoration:none;padding:5px 12px;background:rgba(37,211,102,.1);border-radius:20px;border:1px solid rgba(37,211,102,.25)">'
+      +'&#9742; Compartir por WhatsApp</a></div>';
   }
   h+='</div></div>';
   return h;
@@ -741,7 +748,8 @@ function showPanel(panelId,btn){
   switch(panelId){
     case'p-solicitudes':renderSolicitudes();break;case'p-torneos':renderTorneosAdmin();break;
     case'p-organizadores':renderOrganizadores();break;case'p-metricas':renderMetricas();break;
-    case'p-dashboard':renderDashboard();break;case'p-categorias':renderCategorias();break;
+    case'p-dashboard':if(SESSION&&SESSION.rol==='admin'){renderAdminHome();}else{renderDashboard();}break;
+    case'p-categorias':renderCategorias();break;
     case'p-equipos':renderEquipos();break;case'p-fixture':renderFixturePanel();break;
     case'p-resultados':renderResultadosPanel();break;case'p-noticias':renderNoticiasPanel();break;
     case'p-sanciones':renderSancionesPanel();break;
@@ -802,6 +810,29 @@ async function renderOrganizadores(){
 async function toggleOrg(org_id,activo,nombre){confirmAction((activo?'¿Activar':'¿Suspender')+' a '+nombre+'?',async function(){var r=await api('toggleOrganizador',{org_id:org_id,activo:activo});if(r.success){toast(r.message,'ok');renderOrganizadores();}else toast(r.message,'err');});}
 async function resetearClave(org_id,nombre){confirmAction('¿Nueva clave para '+nombre+'?',async function(){var r=await api('resetPassword',{org_id:org_id});if(r.success){alert('Nueva clave para '+nombre+':\n\n'+r.clave_acceso+'\n\nGuárdala antes de cerrar.');toast('Clave regenerada','ok');}else toast(r.message,'err');});}
 
+/* ── ADMIN: HOME (mobile grid) ── */
+function renderAdminHome(){
+  setMain('<div class="panel-content"><div class="panel-title">Gestion</div><div class="panel-sub">Selecciona una seccion</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px">'
+    +'<button class="p-card" onclick="showPanel(\'p-solicitudes\',null)" style="cursor:pointer;text-align:center;padding:24px 16px">'
+    +'<div style="font-size:32px;margin-bottom:8px">&#128203;</div>'
+    +'<div style="font-size:16px;font-weight:700;color:var(--text)">Solicitudes</div>'
+    +'<div style="font-size:11px;color:var(--text2);margin-top:4px">Revisar y aprobar</div></button>'
+    +'<button class="p-card" onclick="showPanel(\'p-torneos\',null)" style="cursor:pointer;text-align:center;padding:24px 16px">'
+    +'<div style="font-size:32px;margin-bottom:8px">&#127942;</div>'
+    +'<div style="font-size:16px;font-weight:700;color:var(--text)">Torneos</div>'
+    +'<div style="font-size:11px;color:var(--text2);margin-top:4px">Todos los torneos</div></button>'
+    +'<button class="p-card" onclick="showPanel(\'p-organizadores\',null)" style="cursor:pointer;text-align:center;padding:24px 16px">'
+    +'<div style="font-size:32px;margin-bottom:8px">&#128101;</div>'
+    +'<div style="font-size:16px;font-weight:700;color:var(--text)">Organizadores</div>'
+    +'<div style="font-size:11px;color:var(--text2);margin-top:4px">Gestionar cuentas</div></button>'
+    +'<button class="p-card" onclick="showPanel(\'p-metricas\',null)" style="cursor:pointer;text-align:center;padding:24px 16px">'
+    +'<div style="font-size:32px;margin-bottom:8px">&#128202;</div>'
+    +'<div style="font-size:16px;font-weight:700;color:var(--text)">Metricas</div>'
+    +'<div style="font-size:11px;color:var(--text2);margin-top:4px">Estado del sistema</div></button>'
+    +'</div></div>');
+}
+
 /* ── ADMIN: METRICAS ── */
 async function renderMetricas(){var r=await api('getMetricas');if(!r.success){setMain('<div class="panel-content"><div class="p-card" style="color:var(--red)">'+r.message+'</div></div>');return;}var d=r.data;setMain('<div class="panel-content"><div class="panel-title">Métricas</div><div class="panel-sub">Estado del sistema</div><div class="metrics-grid">'+metricCard(d.solicitudes,'Solicitudes')+metricCard(d.organizadores,'Organizadores')+metricCard(d.torneos,'Torneos')+metricCard(d.equipos,'Equipos')+'</div></div>');}
 
@@ -813,18 +844,18 @@ async function getCats(){if(_catsCache)return _catsCache;var tid=await getTorneo
 async function renderDashboard(){
   var r=await api('getMiTorneo');
   var h='<div class="panel-content"><div class="panel-title">Dashboard</div><div class="panel-sub">Bienvenido, '+(SESSION.nombre||'')+'</div>';
-  if(!r.success||!r.data){h+='<div class="p-card" style="text-align:center;padding:32px"><div style="font-size:40px;margin-bottom:16px">🏆</div><div style="font-family:\'Oswald\',sans-serif;font-size:20px;font-weight:900;color:var(--text);margin-bottom:8px">Aún no tienes un torneo</div><div style="font-size:13px;color:var(--text2);margin-bottom:20px">Crea tu torneo para comenzar.</div><button class="f-submit" style="max-width:260px;margin:0 auto" onclick="abrirCrearTorneo()">+ CREAR MI TORNEO</button></div>';}
+  if(!r.success||!r.data){h+='<div class="p-card" style="text-align:center;padding:32px"><div style="font-size:40px;margin-bottom:16px"></div><div style="font-family:\'Oswald\',sans-serif;font-size:20px;font-weight:900;color:var(--text);margin-bottom:8px">Aún no tienes un torneo</div><div style="font-size:13px;color:var(--text2);margin-bottom:20px">Crea tu torneo para comenzar.</div><button class="f-submit" style="max-width:260px;margin:0 auto" onclick="abrirCrearTorneo()">+ CREAR MI TORNEO</button></div>';}
   else{var t=r.data;
     h+='<div class="p-card"><div class="p-card-header"><div><div class="p-card-title">'+t.nombre+'</div><div class="p-card-sub">'+t.ciudad+(t.temporada?' · '+t.temporada:'')+'</div></div><div class="p-card-actions"><span class="badge '+(t.visible?'badge-active':'badge-draft')+'">'+(t.visible?'● Publicado':'○ Borrador')+'</span><button class="btn-sm btn-sm-primary" onclick="editarTorneo(\''+t.id+'\',\''+encodeURIComponent(JSON.stringify(t))+'\')">Editar</button></div></div>';
     if(t.descripcion)h+='<div style="font-size:13px;color:var(--text2);margin-top:8px">'+t.descripcion+'</div>';
     h+='<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;color:var(--text2)">'+(t.visible?'Visible al público':'Oculto al público')+'</span><button class="btn-sm '+(t.visible?'':'btn-sm-primary')+'" onclick="toggleVisible(\''+t.id+'\','+!t.visible+')">'+(t.visible?'Ocultar':'Publicar')+'</button></div></div>';
     h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">'
-      +quickAction('Categorías','🏅',"showPanel('p-categorias',null)")
-      +quickAction('Equipos','👥',"showPanel('p-equipos',null)")
-      +quickAction('Fixture','📅',"showPanel('p-fixture',null)")
-      +quickAction('Resultados','⚽',"showPanel('p-resultados',null)")
-      +quickAction('Noticias','📰',"showPanel('p-noticias',null)")
-      +quickAction('Sanciones','⚠️',"showPanel('p-sanciones',null)")
+      +quickAction('Categorías','',"showPanel('p-categorias',null)")
+      +quickAction('Equipos','',"showPanel('p-equipos',null)")
+      +quickAction('Fixture','',"showPanel('p-fixture',null)")
+      +quickAction('Resultados','',"showPanel('p-resultados',null)")
+      +quickAction('Noticias','',"showPanel('p-noticias',null)")
+      +quickAction('Sanciones','',"showPanel('p-sanciones',null)")
       +'</div>';
   }
   setMain(h+'</div>');
@@ -944,8 +975,8 @@ async function abrirCrearPartido(){
   var opts=eqs.map(function(e){return'<option value="'+e.id+'">'+e.nombre+'</option>';}).join('');
   var html='<div class="modal-title">Nuevo partido</div>'
     +'<div class="f-row">'
-    +'<div class="f-group"><label class="f-label">🏠 Local</label><select class="f-select" id="np-local">'+opts+'</select></div>'
-    +'<div class="f-group"><label class="f-label">✈️ Visita</label><select class="f-select" id="np-visita">'+opts+'</select></div>'
+    +'<div class="f-group"><label class="f-label">Local</label><select class="f-select" id="np-local">'+opts+'</select></div>'
+    +'<div class="f-group"><label class="f-label">✈ Visita</label><select class="f-select" id="np-visita">'+opts+'</select></div>'
     +'</div>'
     +'<div class="f-row">'
     +'<div class="f-group"><label class="f-label">Nro. fecha</label><input class="f-input" id="np-nfecha" type="number" value="1" min="1"></div>'
@@ -1028,7 +1059,19 @@ async function cargarResultadosPanel(catId){
     h+=(!fin?'<button class="btn-sm" onclick="marcarEnVivo(\''+p.id+'\')">En vivo</button>':'');h+='</div></div>';
   });el.innerHTML=h;
 }
-function abrirCargarResultado(id,lN,vN,ptsL,ptsV){openInlineModal('<div class="modal-title">Cargar resultado</div><div class="modal-sub">'+lN+' vs '+vN+'</div><div class="f-row"><div class="f-group"><label class="f-label">'+lN+'</label><input class="f-input" id="cr-local" type="number" min="0" value="'+(ptsL||0)+'" style="font-size:28px;font-weight:900;text-align:center"></div><div class="f-group"><label class="f-label">'+vN+'</label><input class="f-input" id="cr-visita" type="number" min="0" value="'+(ptsV||0)+'" style="font-size:28px;font-weight:900;text-align:center"></div></div><div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 8px;padding-bottom:8px;border-bottom:1px solid var(--border)">Parciales por cuarto (opcional)</div><div class="f-row"><div class="f-group"><label class="f-label">1er cuarto</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><input class="f-input" id="cr-q1l" type="number" min="0" placeholder="L"><input class="f-input" id="cr-q1v" type="number" min="0" placeholder="V"></div></div><div class="f-group"><label class="f-label">2do cuarto</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><input class="f-input" id="cr-q2l" type="number" min="0" placeholder="L"><input class="f-input" id="cr-q2v" type="number" min="0" placeholder="V"></div></div></div><div class="f-row"><div class="f-group"><label class="f-label">3er cuarto</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><input class="f-input" id="cr-q3l" type="number" min="0" placeholder="L"><input class="f-input" id="cr-q3v" type="number" min="0" placeholder="V"></div></div><div class="f-group"><label class="f-label">4to cuarto</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><input class="f-input" id="cr-q4l" type="number" min="0" placeholder="L"><input class="f-input" id="cr-q4v" type="number" min="0" placeholder="V"></div></div></div><button class="f-submit" onclick="guardarResultado(\''+id+'\')">CONFIRMAR RESULTADO</button>');}
+function abrirCargarResultado(id,lN,vN,ptsL,ptsV){
+  var html='<div class="modal-title">Cargar resultado</div>'
+    +'<div class="modal-sub" style="margin-bottom:20px">'+lN+' vs '+vN+'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin-bottom:24px">'
+    +'<div><div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;text-align:center"> '+lN+'</div>'
+    +'<input class="f-input" id="cr-local" type="number" min="0" value="'+(ptsL||0)+'" style="font-size:40px;font-weight:700;text-align:center;height:80px;border-radius:14px"></div>'
+    +'<div style="font-family:\'Oswald\',sans-serif;font-size:24px;font-weight:700;color:var(--text2);text-align:center">-</div>'
+    +'<div><div style="font-size:10px;font-weight:700;color:var(--orange);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;text-align:center">'+vN+'</div>'
+    +'<input class="f-input" id="cr-visita" type="number" min="0" value="'+(ptsV||0)+'" style="font-size:40px;font-weight:700;text-align:center;height:80px;border-radius:14px"></div>'
+    +'</div>'
+    +'<button class="f-submit" id="cr-submit" onclick="guardarResultado(\''+id+'\')">CONFIRMAR RESULTADO</button>';
+  openInlineModal(html);
+}
 async function guardarResultado(id){
   var btn=document.getElementById('cr-submit');if(btn){btn.disabled=true;btn.textContent='Guardando...';}
   var pl={id:id,pts_local:parseInt(document.getElementById('cr-local').value)||0,pts_visita:parseInt(document.getElementById('cr-visita').value)||0};
@@ -1138,12 +1181,12 @@ async function renderProgramacion(){
         var enVivo=p.estado==='en_vivo';
         h+='<div class="mc" style="margin-bottom:8px">';
         h+='<div class="mc-top" style="display:flex;align-items:center;justify-content:space-between">';
-        h+='<span class="mc-top-info">'+(p.hora||'Sin hora')+(p.cancha?' · 📍'+p.cancha:'')+'</span>';
+        h+='<span class="mc-top-info">'+(p.hora||'Sin hora')+(p.cancha?' · '+p.cancha:'')+'</span>';
         h+='<span style="font-size:10px;font-weight:700;color:var(--orange);letter-spacing:.5px;text-transform:uppercase">'+cat.nombre+'</span>';
         h+='</div>';
         h+='<div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:4px;margin-bottom:4px;padding:0 2px">';
-        h+='<div style="font-size:9px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase">🏠 Local</div><div></div>';
-        h+='<div style="font-size:9px;font-weight:700;color:var(--orange);letter-spacing:1px;text-transform:uppercase;text-align:right">Visita ✈️</div></div>';
+        h+='<div style="font-size:9px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase">Local</div><div></div>';
+        h+='<div style="font-size:9px;font-weight:700;color:var(--orange);letter-spacing:1px;text-transform:uppercase;text-align:right">Visita ✈</div></div>';
         h+='<div class="mc-teams"><div class="mc-team">'+lN+'</div>';
         if(enVivo)h+='<div class="mc-badge mc-badge-live" style="text-align:center">● EN VIVO</div>';
         else h+='<div class="mc-vs">VS</div>';
@@ -1166,12 +1209,12 @@ async function renderProgramacion(){
         var lWin=p.pts_local>p.pts_visita,vWin=p.pts_visita>p.pts_local;
         h+='<div class="mc" style="margin-bottom:8px">';
         h+='<div class="mc-top" style="display:flex;align-items:center;justify-content:space-between">';
-        h+='<span class="mc-top-info">'+(p.hora||'')+(p.cancha?' · 📍'+p.cancha:'')+'</span>';
+        h+='<span class="mc-top-info">'+(p.hora||'')+(p.cancha?' · '+p.cancha:'')+'</span>';
         h+='<span style="font-size:10px;font-weight:700;color:var(--orange);letter-spacing:.5px;text-transform:uppercase">'+cat.nombre+'</span>';
         h+='</div>';
         h+='<div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:4px;margin-bottom:4px;padding:0 2px">';
-        h+='<div style="font-size:9px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase">🏠 Local</div><div></div>';
-        h+='<div style="font-size:9px;font-weight:700;color:var(--orange);letter-spacing:1px;text-transform:uppercase;text-align:right">Visita ✈️</div></div>';
+        h+='<div style="font-size:9px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase">Local</div><div></div>';
+        h+='<div style="font-size:9px;font-weight:700;color:var(--orange);letter-spacing:1px;text-transform:uppercase;text-align:right">Visita ✈</div></div>';
         h+='<div class="mc-teams"><div class="mc-team'+(lWin?' win':'')+' ">'+lN+'</div>';
         h+='<div class="mc-score">'+p.pts_local+'–'+p.pts_visita+'</div>';
         h+='<div class="mc-team right'+(vWin?' win':'')+' ">'+vN+'</div></div>';
@@ -1187,7 +1230,7 @@ async function renderProgramacion(){
 function _pdfPrint(titulo,bodyHtml){
   var w=window.open('','_blank','width=900,height=700');
   w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+titulo+'</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#1b263b}h1{font-size:22px;margin-bottom:4px}p{color:#6c757d;font-size:13px;margin-bottom:20px}table{width:100%;border-collapse:collapse;font-size:13px}th{background:#1d3557;color:#fff;padding:8px;text-align:left}td{padding:8px;border-bottom:1px solid #dee2e6}.score{font-weight:900;font-size:16px}.section{font-weight:700;font-size:14px;color:#1d3557;margin:16px 0 8px;border-bottom:2px solid #e0e7f0;padding-bottom:4px}@media print{button{display:none}}</style></head><body>');
-  w.document.write('<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div><h1>'+titulo+'</h1><p>'+(TORNEO_ACTUAL?TORNEO_ACTUAL.nombre+' · '+TORNEO_ACTUAL.ciudad:'')+'</p></div><button onclick="window.print()">🖨️ Imprimir / Guardar PDF</button></div>');
+  w.document.write('<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div><h1>'+titulo+'</h1><p>'+(TORNEO_ACTUAL?TORNEO_ACTUAL.nombre+' · '+TORNEO_ACTUAL.ciudad:'')+'</p></div><button onclick="window.print()">Imprimir / Guardar PDF</button></div>');
   w.document.write(bodyHtml);
   w.document.write('</body></html>');
   w.document.close();
