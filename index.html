@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ACTIVA PLAY — Gestiona tu torneo deportivo</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;900&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -21,20 +21,16 @@
   --text:#0f172a;--text2:#475569;--text3:#94a3b8;
 }
 html{scroll-behavior:smooth}
-body{font-family:'Archivo',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;transition:background .3s,color .3s}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;transition:background .3s,color .3s}
 a{text-decoration:none;color:inherit}
 button,input,select,textarea{font-family:inherit}
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-thumb{background:var(--orange);border-radius:2px}
 
-/* ── NAV ── */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:60px;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 5vw;
-  background:rgba(8,8,8,.8);backdrop-filter:blur(16px);
-  border-bottom:1px solid var(--border);transition:background .3s}
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 5vw;background:rgba(8,8,8,.8);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);transition:background .3s}
 [data-theme="light"] nav{background:rgba(248,250,252,.9)}
-.logo{display:flex;align-items:center;font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;letter-spacing:1px;color:var(--text)}
+.logo{display:flex;align-items:center;font-family:'Oswald',sans-serif;font-size:24px;font-weight:700;letter-spacing:1.5px;color:var(--text)}
 .logo-dot{width:5px;height:5px;border-radius:50%;background:var(--blue);margin:0 5px;margin-bottom:2px;display:inline-block;flex-shrink:0}
 .logo-acc{color:var(--orange)}
 .nav-right{display:flex;align-items:center;gap:10px}
@@ -45,58 +41,64 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:60px;
 .nav-cta{padding:8px 18px;border-radius:100px;background:var(--orange);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.3px;transition:all .2s;box-shadow:0 4px 16px var(--orange-glow)}
 .nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 20px var(--orange-glow)}
 
-/* ── HERO ── */
+/* HERO */
 .hero{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 5vw 80px;position:relative;overflow:hidden}
-.hero-glow{position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(ellipse 70% 50% at 50% 0%, rgba(29,78,216,.2) 0%, transparent 60%),
-             radial-gradient(ellipse 40% 30% at 80% 90%, rgba(249,115,22,.1) 0%, transparent 50%)}
+.hero-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(29,78,216,.2) 0%,transparent 60%),radial-gradient(ellipse 40% 30% at 80% 90%,rgba(249,115,22,.1) 0%,transparent 50%)}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--blue-dim);border:1px solid var(--blue-glow);border-radius:100px;padding:6px 16px;font-size:11px;font-weight:700;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:28px}
 .badge-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.hero-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(52px,10vw,108px);line-height:.92;letter-spacing:-2px;color:var(--text);margin-bottom:16px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
+.hero-title{font-family:'Oswald',sans-serif;font-size:clamp(52px,10vw,108px);line-height:.92;letter-spacing:0px;color:var(--text);margin-bottom:16px}
 .hero-title .acc{color:var(--orange)}
 .hero-title .blu{color:var(--blue)}
 .hero-sub{font-size:clamp(15px,2vw,19px);color:var(--text2);max-width:540px;line-height:1.65;margin:0 auto 40px}
 .hero-actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
-.btn-primary{padding:15px 32px;border-radius:14px;background:var(--orange);border:none;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:.5px;cursor:pointer;box-shadow:0 8px 28px var(--orange-glow);transition:all .2s}
+.btn-primary{padding:15px 32px;border-radius:14px;background:var(--orange);border:none;color:#fff;font-family:'Oswald',sans-serif;font-size:18px;font-weight:700;letter-spacing:.5px;cursor:pointer;box-shadow:0 8px 28px var(--orange-glow);transition:all .2s}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 36px var(--orange-glow)}
-.btn-secondary{padding:15px 32px;border-radius:14px;background:transparent;border:1px solid var(--border2);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
-.btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
+
+/* BOTON LIGAS ACTIVAS — Opción C+A */
+.btn-ligas{display:inline-flex;align-items:center;gap:12px;padding:12px 24px;border-radius:14px;border:2px solid var(--blue);color:#fff;background:transparent;font-family:'Oswald',sans-serif;font-size:17px;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;text-decoration:none}
+.btn-ligas::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(29,78,216,.18),transparent);pointer-events:none;transition:opacity .3s}
+.btn-ligas:hover{border-color:#60a5fa;background:rgba(29,78,216,.12);transform:translateY(-2px);box-shadow:0 8px 24px var(--blue-glow)}
+.btn-ligas-live{display:flex;align-items:center;gap:5px;background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.3);padding:4px 10px;border-radius:20px;font-size:11px;color:var(--orange);font-weight:700;letter-spacing:.5px;flex-shrink:0}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--orange);animation:blink 1.2s infinite;display:inline-block}
+.btn-ligas-count{background:var(--orange);color:#fff;font-size:12px;font-weight:900;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+
 .hero-stats{display:flex;flex-wrap:wrap;gap:36px;justify-content:center;margin-top:72px;padding-top:48px;border-top:1px solid var(--border)}
-.stat-num{font-family:'Barlow Condensed',sans-serif;font-size:40px;font-weight:900;color:var(--text);letter-spacing:-1px;line-height:1}
+.stat-num{font-family:'Oswald',sans-serif;font-size:40px;font-weight:700;color:var(--text);letter-spacing:-1px;line-height:1}
 .stat-num span{color:var(--orange)}
 .stat-lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
 
-/* ── SECTION BASE ── */
+/* SECTION BASE */
 section{padding:96px 5vw}
 .sec-label{font-size:10px;font-weight:700;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
-.sec-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(32px,5vw,56px);line-height:1;letter-spacing:-1px;color:var(--text);margin-bottom:14px}
+.sec-title{font-family:'Oswald',sans-serif;font-size:clamp(32px,5vw,56px);line-height:1;letter-spacing:.5px;color:var(--text);margin-bottom:14px}
 .sec-sub{font-size:16px;color:var(--text2);max-width:520px;line-height:1.6}
 
-/* ── COMO FUNCIONA ── */
+/* COMO FUNCIONA */
 #como{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;margin-top:56px;border:1px solid var(--border);border-radius:20px;overflow:hidden}
 .step{background:var(--bg3);padding:32px 24px;transition:background .2s}
 .step:hover{background:var(--surface)}
-.step-n{font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:900;color:rgba(255,255,255,.06);line-height:1;margin-bottom:20px;transition:color .2s}
+.step-n{font-family:'Oswald',sans-serif;font-size:52px;font-weight:700;color:rgba(255,255,255,.06);line-height:1;margin-bottom:20px}
 .step:hover .step-n{color:var(--orange-glow)}
 .step-icon{width:44px;height:44px;border-radius:12px;background:var(--orange-dim);border:1px solid var(--orange-glow);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}
-.step-title{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:700;color:var(--text);margin-bottom:8px}
+.step-title{font-family:'Oswald',sans-serif;font-size:19px;font-weight:600;color:var(--text);margin-bottom:8px}
 .step-desc{font-size:13px;color:var(--text2);line-height:1.6}
 .step-tag{display:inline-block;margin-top:14px;font-size:10px;font-weight:700;color:var(--blue);letter-spacing:.5px;text-transform:uppercase;background:var(--blue-dim);border:1px solid var(--blue-glow);border-radius:100px;padding:3px 10px}
 
-/* ── ROLES ── */
+/* ROLES */
 .roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:56px}
 .role-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;position:relative;overflow:hidden;transition:all .2s}
 .role-card:hover{border-color:var(--blue-glow);transform:translateY(-4px)}
 .role-top{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--orange))}
 .role-emoji{font-size:32px;margin-bottom:16px;display:block}
-.role-name{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:6px}
+.role-name{font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px}
 .role-desc{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px}
 .perm{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--text2);margin-bottom:7px}
 .perm-dot{width:5px;height:5px;border-radius:50%;background:var(--orange);flex-shrink:0;margin-top:5px}
 
-/* ── ACCESO ── */
+/* ACCESO */
 #acceso{background:var(--bg);border-bottom:1px solid var(--border)}
 .access-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;max-width:620px;margin:48px auto 0}
 .access-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;text-align:center;transition:all .2s}
@@ -104,47 +106,47 @@ section{padding:96px 5vw}
 .access-card.org{border-top:3px solid var(--orange)}
 .access-card.adm{border-top:3px solid var(--blue)}
 .access-icon{font-size:40px;margin-bottom:14px;display:block}
-.access-name{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px}
+.access-name{font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:8px}
 .access-desc{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.5}
-.access-btn{display:block;padding:12px;border-radius:12px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.5px;transition:opacity .2s;border:none;cursor:pointer;width:100%}
+.access-btn{display:block;padding:12px;border-radius:12px;font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;letter-spacing:.5px;transition:opacity .2s;border:none;cursor:pointer;width:100%}
 .access-btn:hover{opacity:.85}
 .access-btn.org{background:var(--orange);color:#fff}
 .access-btn.adm{background:var(--blue);color:#fff}
 
-/* ── PRECIO ── */
+/* PRECIO */
 #precio{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .price-wrap{max-width:520px;margin:48px auto 0}
 .price-card{background:linear-gradient(135deg,var(--blue) 0%,#1e3a8a 100%);border-radius:24px;padding:40px;text-align:center;position:relative;overflow:hidden;box-shadow:0 24px 64px rgba(29,78,216,.3)}
 .price-card::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:rgba(249,115,22,.15)}
 .price-card::after{content:'';position:absolute;bottom:-40px;left:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.05)}
 .price-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;position:relative;z-index:1}
-.price-amount{font-family:'Barlow Condensed',sans-serif;font-size:72px;font-weight:900;color:#fff;letter-spacing:-3px;line-height:1;position:relative;z-index:1}
+.price-amount{font-family:'Oswald',sans-serif;font-size:72px;font-weight:700;color:#fff;letter-spacing:-3px;line-height:1;position:relative;z-index:1}
 .price-amount sup{font-size:28px;letter-spacing:0;vertical-align:super}
 .price-period{font-size:16px;color:rgba(255,255,255,.6);margin-bottom:24px;position:relative;z-index:1}
 .price-desc{font-size:15px;color:rgba(255,255,255,.8);line-height:1.7;margin-bottom:28px;position:relative;z-index:1}
 .price-features{text-align:left;margin-bottom:32px;position:relative;z-index:1}
 .price-feat{display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,.85);margin-bottom:10px}
 .price-check{color:var(--orange);font-size:16px;flex-shrink:0}
-.price-cta{width:100%;padding:15px;border-radius:14px;background:#fff;color:#000;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:.5px;border:none;cursor:pointer;position:relative;z-index:1;transition:opacity .2s}
+.price-cta{width:100%;padding:15px;border-radius:14px;background:#fff;color:#000;font-family:'Oswald',sans-serif;font-size:18px;font-weight:700;letter-spacing:.5px;border:none;cursor:pointer;position:relative;z-index:1;transition:opacity .2s}
 .price-cta:hover{opacity:.88}
 .price-note{text-align:center;margin-top:20px;font-size:13px;color:var(--text2)}
 .price-note strong{color:var(--orange)}
 
-/* ── FOOTER ── */
+/* FOOTER */
 footer{padding:40px 5vw;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between}
 .footer-copy{font-size:12px;color:var(--text3)}
 .footer-links{display:flex;gap:20px}
 .footer-link{font-size:12px;color:var(--text3);transition:color .2s}
 .footer-link:hover{color:var(--orange)}
 
-/* ── MODAL ── */
+/* MODAL */
 .overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .25s}
 .overlay.open{opacity:1;pointer-events:all}
 .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:22px;width:100%;max-width:440px;max-height:90svh;overflow-y:auto;padding:28px;transform:translateY(16px);transition:transform .25s;position:relative}
 .overlay.open .modal{transform:translateY(0)}
 .m-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:8px;background:var(--surface);border:1px solid var(--border);cursor:pointer;color:var(--text2);font-size:15px;display:flex;align-items:center;justify-content:center}
 .m-close:hover{border-color:var(--text3);color:var(--text)}
-.m-title{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:var(--text);margin-bottom:4px}
+.m-title{font-family:'Oswald',sans-serif;font-size:24px;font-weight:700;color:var(--text);margin-bottom:4px}
 .m-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
 .f-group{margin-bottom:12px}
 .f-label{display:block;font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px}
@@ -156,7 +158,7 @@ footer{padding:40px 5vw;border-top:1px solid var(--border);display:flex;flex-wra
 .f-sec{font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin:16px 0 10px;display:flex;align-items:center;gap:8px}
 .f-sec::after{content:'';flex:1;height:1px;background:var(--border)}
 .f-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:8px 12px;font-size:12px;color:#ef4444;margin-bottom:10px;display:none}
-.f-submit{width:100%;padding:13px;border-radius:12px;background:var(--orange);border:none;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:.5px;cursor:pointer;margin-top:8px;transition:opacity .2s}
+.f-submit{width:100%;padding:13px;border-radius:12px;background:var(--orange);border:none;color:#fff;font-family:'Oswald',sans-serif;font-size:17px;font-weight:700;letter-spacing:.5px;cursor:pointer;margin-top:8px;transition:opacity .2s}
 .f-submit:hover{opacity:.88}
 .f-submit:disabled{opacity:.5;cursor:not-allowed}
 .f-note{font-size:11px;color:var(--text3);text-align:center;margin-top:8px;line-height:1.5}
@@ -176,19 +178,17 @@ footer{padding:40px 5vw;border-top:1px solid var(--border);display:flex;flex-wra
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
   <a href="#" class="logo">ACTIVA<span class="logo-dot"></span><span class="logo-acc">PLAY</span></a>
   <div class="nav-right">
     <a href="#como" class="nav-link">Cómo funciona</a>
     <a href="#precio" class="nav-link">Precios</a>
-    <a href="./app.html" class="nav-link">Ver ligas activas →</a>
+    <a href="./app.html" class="nav-link">Ver ligas →</a>
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">☀️</button>
     <button class="nav-cta" onclick="openOverlay('modal-sol')">Inscribe tu liga</button>
   </div>
 </nav>
 
-<!-- HERO -->
 <div class="hero">
   <div class="hero-glow"></div>
   <div class="hero-badge"><div class="badge-dot"></div>Gestión deportiva · activaplay.cl</div>
@@ -197,12 +197,13 @@ footer{padding:40px 5vw;border-top:1px solid var(--border);display:flex;flex-wra
     para <span class="acc">todos</span>,<br>
     <span class="blu">en un solo lugar.</span>
   </h1>
-  <p class="hero-sub">Publica y gestiona tu liga, sigue los resultados en tiempo real desde el celular. Tablas automáticas, fixture ajustable y acceso para todos.</p>
+  <p class="hero-sub">Publica y gestiona tu liga, sigue los resultados en tiempo real desde el celular. Tablas automáticas, fixture ajustable y acceso para todos. Cada temporada tiene fecha de inicio y término — al finalizar, el organizador renueva para seguir publicando.</p>
   <div class="hero-actions">
     <button class="btn-primary" onclick="openOverlay('modal-sol')">🏀 Inscribe tu liga</button>
-    <a href="./app.html" class="btn-secondary">
+    <a href="./app.html" class="btn-ligas" id="btn-ligas">
+      <span class="btn-ligas-live"><span class="live-dot"></span>EN VIVO</span>
       Ver ligas activas
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <span class="btn-ligas-count" id="ligas-count">...</span>
     </a>
   </div>
   <div class="hero-stats">
@@ -225,7 +226,6 @@ footer{padding:40px 5vw;border-top:1px solid var(--border);display:flex;flex-wra
   </div>
 </div>
 
-<!-- COMO FUNCIONA -->
 <section id="como">
   <div class="sec-label">Cómo funciona</div>
   <h2 class="sec-title">De cero a cancha<br>en 4 pasos</h2>
@@ -260,8 +260,6 @@ footer{padding:40px 5vw;border-top:1px solid var(--border);display:flex;flex-wra
       <div class="step-tag">En vivo</div>
     </div>
   </div>
-
-  <!-- ROLES -->
   <div style="margin-top:80px">
     <div class="sec-label">Roles</div>
     <h2 class="sec-title">Cada uno en<br>su cancha</h2>
@@ -291,7 +289,6 @@ footer{padding:40px 5vw;border-top:1px solid var(--border);display:flex;flex-wra
   </div>
 </section>
 
-<!-- ACCESO -->
 <section id="acceso">
   <div style="text-align:center">
     <div class="sec-label" style="justify-content:center;display:flex">Acceso</div>
@@ -314,7 +311,6 @@ footer{padding:40px 5vw;border-top:1px solid var(--border);display:flex;flex-wra
   </div>
 </section>
 
-<!-- PRECIO -->
 <section id="precio">
   <div style="text-align:center">
     <div class="sec-label" style="justify-content:center;display:flex">Precio</div>
@@ -325,17 +321,17 @@ footer{padding:40px 5vw;border-top:1px solid var(--border);display:flex;flex-wra
     <div class="price-card">
       <div class="price-label">Temporada completa</div>
       <div class="price-amount"><sup>$</sup>9.990</div>
-      <div class="price-period">/temporada</div>
-      <div class="price-desc">Una temporada incluye todos los torneos y categorías que necesites. Al finalizar, renuevas para la siguiente.</div>
+      <div class="price-period">/temporada · con fecha de inicio y término</div>
+      <div class="price-desc">Una temporada incluye todos los torneos y categorías que necesites. Al finalizar la temporada, el organizador renueva el pago para seguir publicando su liga.</div>
       <div class="price-features">
         <div class="price-feat"><span class="price-check">✓</span>Torneos y categorías ilimitadas</div>
         <div class="price-feat"><span class="price-check">✓</span>Equipos ilimitados</div>
         <div class="price-feat"><span class="price-check">✓</span>Fixture manual ajustable</div>
         <div class="price-feat"><span class="price-check">✓</span>Tabla de posiciones automática</div>
-        <div class="price-feat"><span class="price-check">✓</span>Parciales por cuarto</div>
         <div class="price-feat"><span class="price-check">✓</span>Noticias, sanciones y reportes</div>
         <div class="price-feat"><span class="price-check">✓</span>Vista pública para hinchas</div>
         <div class="price-feat"><span class="price-check">✓</span>100% desde el celular</div>
+        <div class="price-feat"><span class="price-check">✓</span>Sin contratos ni cobros automáticos</div>
       </div>
       <button class="price-cta" onclick="openOverlay('modal-sol')">INSCRIBE TU LIGA →</button>
     </div>
@@ -343,7 +339,6 @@ footer{padding:40px 5vw;border-top:1px solid var(--border);display:flex;flex-wra
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer>
   <div>
     <div class="logo" style="font-size:20px">ACTIVA<span class="logo-dot"></span><span class="logo-acc">PLAY</span></div>
@@ -355,7 +350,6 @@ footer{padding:40px 5vw;border-top:1px solid var(--border);display:flex;flex-wra
   </div>
 </footer>
 
-<!-- MODAL SOLICITUD -->
 <div class="overlay" id="modal-sol" onclick="handleOverlay(event,'modal-sol')">
   <div class="modal">
     <button class="m-close" onclick="closeOverlay('modal-sol')">✕</button>
@@ -390,7 +384,7 @@ footer{padding:40px 5vw;border-top:1px solid var(--border);display:flex;flex-wra
     </div>
     <div class="success" id="sol-ok">
       <div style="font-size:52px;margin-bottom:16px">✅</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:var(--text);margin-bottom:8px">¡Solicitud enviada!</div>
+      <div style="font-family:'Oswald',sans-serif;font-size:24px;font-weight:700;color:var(--text);margin-bottom:8px">¡Solicitud enviada!</div>
       <div style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6">Te contactaremos a <strong id="sol-email-ok"></strong><br>para confirmar y darte acceso.</div>
       <button class="f-submit" onclick="closeOverlay('modal-sol')">Volver al inicio</button>
     </div>
@@ -398,78 +392,53 @@ footer{padding:40px 5vw;border-top:1px solid var(--border);display:flex;flex-wra
 </div>
 
 <script>
-const FN = '/.netlify/functions/admin';
+const SUPA_URL='https://bhnmdkfvfpvvddqalazl.supabase.co';
+const SUPA_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJobm1ka2Z2ZnB2dmRkcWFsYXpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NDQ0NDUsImV4cCI6MjA5NDQyMDQ0NX0.6KSs8JsZG2Dt70XePy2bOrTnWazju3Y--d7OXIZg9xw';
+const FN='/.netlify/functions/admin';
 
-// Tema
-function toggleTheme() {
-  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
-  document.getElementById('theme-btn').textContent = dark ? '🌙' : '☀️';
-  try { localStorage.setItem('ap_theme', dark ? 'light' : 'dark'); } catch(e){}
-}
-(function(){
-  try {
-    const t = localStorage.getItem('ap_theme');
-    if (t) {
-      document.documentElement.setAttribute('data-theme', t);
-      document.getElementById('theme-btn').textContent = t === 'dark' ? '☀️' : '🌙';
+// Cargar conteo de ligas activas
+(async function(){
+  try{
+    var r=await fetch(SUPA_URL+'/rest/v1/torneos?visible=eq.true&estado=neq.eliminado&select=id',
+      {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}});
+    var d=await r.json();
+    var el=document.getElementById('ligas-count');
+    if(el&&Array.isArray(d)){
+      el.textContent=d.length+(d.length===1?' activa':' activas');
     }
-  } catch(e){}
+  }catch(e){
+    var el=document.getElementById('ligas-count');
+    if(el)el.textContent='activas';
+  }
 })();
 
-// Modales
-function openOverlay(id) {
-  document.getElementById(id).classList.add('open');
-  document.body.style.overflow = 'hidden';
+function toggleTheme(){
+  var dark=document.documentElement.getAttribute('data-theme')=='dark';
+  document.documentElement.setAttribute('data-theme',dark?'light':'dark');
+  document.getElementById('theme-btn').textContent=dark?'🌙':'☀️';
+  try{localStorage.setItem('ap_theme',dark?'light':'dark');}catch(e){}
 }
-function closeOverlay(id) {
-  document.getElementById(id).classList.remove('open');
-  document.body.style.overflow = '';
-}
-function handleOverlay(e, id) {
-  if (e.target === document.getElementById(id)) closeOverlay(id);
-}
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.querySelectorAll('.overlay.open').forEach(m => m.classList.remove('open'));
-});
-
-// Solicitud
-async function enviarSolicitud(e) {
+(function(){
+  try{
+    var t=localStorage.getItem('ap_theme');
+    if(t){document.documentElement.setAttribute('data-theme',t);document.getElementById('theme-btn').textContent=t==='dark'?'☀️':'🌙';}
+  }catch(e){}
+})();
+function openOverlay(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
+function closeOverlay(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
+function handleOverlay(e,id){if(e.target===document.getElementById(id))closeOverlay(id);}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.overlay.open').forEach(function(m){m.classList.remove('open');});});
+async function enviarSolicitud(e){
   e.preventDefault();
-  const errEl = document.getElementById('sol-err');
-  const btn   = document.getElementById('sol-btn');
-  errEl.style.display = 'none';
-  btn.disabled = true; btn.textContent = 'Enviando...';
-  try {
-    const res = await fetch(FN, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action:          'crearSolicitud',
-        nombre:          document.getElementById('sol-nombre').value.trim(),
-        email:           document.getElementById('sol-email').value.trim(),
-        telefono:        document.getElementById('sol-tel').value.trim(),
-        ciudad:          document.getElementById('sol-ciudad').value.trim(),
-        deporte:         document.getElementById('sol-deporte').value.trim() || 'Básquetbol',
-        descripcion:     document.getElementById('sol-desc').value.trim(),
-        cant_categorias: parseInt(document.getElementById('sol-cats').value) || 1,
-      }),
-    });
-    const json = await res.json();
-    if (json.success) {
-      document.getElementById('sol-email-ok').textContent = document.getElementById('sol-email').value;
-      document.getElementById('sol-form').style.display = 'none';
-      document.getElementById('sol-ok').style.display = 'block';
-    } else {
-      errEl.textContent = json.message || 'Error al enviar. Intenta nuevamente.';
-      errEl.style.display = 'block';
-    }
-  } catch(err) {
-    errEl.textContent = 'Error de conexión. Intenta nuevamente.';
-    errEl.style.display = 'block';
-  } finally {
-    btn.disabled = false; btn.textContent = 'ENVIAR SOLICITUD';
-  }
+  var errEl=document.getElementById('sol-err'),btn=document.getElementById('sol-btn');
+  errEl.style.display='none';btn.disabled=true;btn.textContent='Enviando...';
+  try{
+    var res=await fetch(FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'crearSolicitud',nombre:document.getElementById('sol-nombre').value.trim(),email:document.getElementById('sol-email').value.trim(),telefono:document.getElementById('sol-tel').value.trim(),ciudad:document.getElementById('sol-ciudad').value.trim(),deporte:document.getElementById('sol-deporte').value.trim()||'Básquetbol',descripcion:document.getElementById('sol-desc').value.trim(),cant_categorias:parseInt(document.getElementById('sol-cats').value)||1})});
+    var json=await res.json();
+    if(json.success){document.getElementById('sol-email-ok').textContent=document.getElementById('sol-email').value;document.getElementById('sol-form').style.display='none';document.getElementById('sol-ok').style.display='block';}
+    else{errEl.textContent=json.message||'Error al enviar. Intenta nuevamente.';errEl.style.display='block';}
+  }catch(err){errEl.textContent='Error de conexión.';errEl.style.display='block';}
+  finally{btn.disabled=false;btn.textContent='ENVIAR SOLICITUD';}
 }
 </script>
 </body>
