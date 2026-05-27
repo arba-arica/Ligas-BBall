@@ -6,32 +6,23 @@
 <title>ACTIVA PLAY — Torneos deportivos</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;900&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ── TOKENS ─────────────────────────────────────────────────────────── */
 :root{
   --bg:#0a0a0a;--bg2:#111;--bg3:#161616;--surface:#1a1a1a;
   --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);
   --blue:#1d4ed8;--blue-dark:#1e3a8a;--blue-dim:rgba(29,78,216,.12);--blue-glow:rgba(29,78,216,.25);
   --orange:#f97316;--orange-dim:rgba(249,115,22,.1);
   --text:#f1f5f9;--text2:#94a3b8;--text3:#475569;
-  --green:#22c55e;--red:#ef4444;
-  --r:12px;
+  --green:#22c55e;--red:#ef4444;--r:12px;
 }
-[data-theme="light"]{
-  --bg:#f8fafc;--bg2:#fff;--bg3:#f1f5f9;--surface:#fff;
-  --border:rgba(0,0,0,.07);--border2:rgba(0,0,0,.12);
-  --text:#0f172a;--text2:#475569;--text3:#94a3b8;
-}
+[data-theme="light"]{--bg:#f8fafc;--bg2:#fff;--bg3:#f1f5f9;--surface:#fff;--border:rgba(0,0,0,.07);--border2:rgba(0,0,0,.12);--text:#0f172a;--text2:#475569;--text3:#94a3b8;}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Archivo',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;transition:background .25s,color .25s}
 button,input,select,textarea{font-family:inherit}
 a{text-decoration:none;color:inherit}
-
-/* ── LOGO ───────────────────────────────────────────────────────────── */
 .logo{display:flex;align-items:center;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;letter-spacing:1px;color:var(--text)}
 .logo-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--blue);margin:0 4px;margin-bottom:2px;flex-shrink:0}
 .logo-acc{color:var(--orange)}
-
-/* ── VISTA PÚBLICA ──────────────────────────────────────────────────── */
+/* PUB */
 #pub-view{min-height:100svh;display:none;flex-direction:column}
 .pub-nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(8px)}
 .pub-nav-btns{display:flex;gap:8px;align-items:center}
@@ -47,8 +38,6 @@ a{text-decoration:none;color:inherit}
 .pub-content{flex:1;padding:20px 16px 80px;max-width:640px;margin:0 auto;width:100%}
 .section-label{font-size:10px;font-weight:700;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .section-label::after{content:'';flex:1;height:1px;background:var(--border)}
-
-/* Torneo card público */
 .torneo-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px;cursor:pointer;transition:all .2s}
 .torneo-card:hover{border-color:var(--blue-glow);background:var(--bg3);transform:translateX(3px)}
 .torneo-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
@@ -57,33 +46,20 @@ a{text-decoration:none;color:inherit}
 .badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
 .badge-active{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)}
 .badge-draft{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(249,115,22,.2)}
-.torneo-cats{display:flex;flex-wrap:wrap;gap:6px}
-.cat-chip{font-size:11px;color:var(--text2);background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:3px 10px}
-
-/* Vista torneo */
-/* ── VISTA TORNEO (basado en diseño ARBA) ──────────────────── */
+/* TORNEO VIEW */
 #torneo-view{display:none;min-height:100svh;flex-direction:column;background:#0a0e1f}
-
-/* Hero header */
 .tv-hero{background:#1e3a8a;padding:28px 18px 22px;text-align:center;flex-shrink:0;position:relative}
 .tv-back{position:absolute;top:12px;left:12px;width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:16px}
 .tv-temporada-lbl{font-size:11px;font-weight:700;letter-spacing:2px;color:#f97316;text-transform:uppercase;margin-bottom:4px}
 .tv-torneo-nombre{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:#fff;letter-spacing:.5px;line-height:1.1;margin-bottom:16px}
 .tv-share-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:100px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:12px;font-weight:700;cursor:pointer}
-
-/* Selector de ligas */
 .tv-ligas-section{background:#1e3a8a;padding:0 18px 18px;flex-shrink:0}
 .tv-ligas-label{font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:10px}
 .tv-ligas-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .tv-liga-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:12px;cursor:pointer;text-align:left;transition:all .15s;width:100%}
 .tv-liga-btn.active{background:rgba(255,255,255,.18);border:1.5px solid #f97316}
 .tv-liga-btn-name{font-size:12px;font-weight:700;color:#fff;line-height:1.3}
-.tv-liga-btn-cat{font-size:10px;color:rgba(255,255,255,.4);margin-top:3px}
-
-/* Contenido */
 .tv-content{flex:1;padding:14px 16px 90px;overflow-y:auto}
-
-/* Navbar inferior */
 .tv-navbar{position:fixed;bottom:0;left:0;right:0;z-index:50;background:var(--surface);border-top:1px solid var(--border);display:none;justify-content:space-around;padding:8px 0 max(8px,env(safe-area-inset-bottom))}
 .tv-nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;cursor:pointer;color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;padding:4px 10px;min-width:52px;transition:color .2s}
 .tv-nav-btn.active{color:#1e3a8a}
@@ -92,12 +68,9 @@ a{text-decoration:none;color:inherit}
 .tv-nav-dot{width:4px;height:4px;border-radius:50%;background:#1e3a8a;margin-top:1px;opacity:0;transition:opacity .2s}
 [data-theme="dark"] .tv-nav-dot{background:#93c5fd}
 .tv-nav-btn.active .tv-nav-dot{opacity:1}
-
-/* Section labels */
 .tv-sec-label{font-family:'Archivo',sans-serif;font-weight:700;font-size:11px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;margin:16px 0 8px;display:flex;align-items:center;gap:8px}
 .tv-sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
-
-/* Partido card — estilo ARBA */
+/* PARTIDO CARD */
 .mc{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:8px}
 .mc-top{background:var(--blue-dim);border-radius:8px;padding:6px 10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .mc-top-info{font-size:11px;font-weight:700;color:var(--blue)}
@@ -119,8 +92,7 @@ a{text-decoration:none;color:inherit}
 .mc-meta{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .mc-meta-sep{color:var(--border2)}
 .mc-yt{font-size:11px;font-weight:700;color:#dc2626;display:flex;align-items:center;gap:4px;text-decoration:none}
-
-/* Tabla posiciones */
+/* TABLA */
 .st-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:16px}
 .st-table{width:100%;border-collapse:collapse;font-size:12px}
 .st-table th{background:var(--bg3);color:var(--text2);font-size:10px;font-weight:700;padding:8px 6px;text-align:center;letter-spacing:.8px;text-transform:uppercase;border-bottom:1px solid var(--border)}
@@ -133,114 +105,69 @@ a{text-decoration:none;color:inherit}
 .pts-cell{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;color:var(--blue)}
 [data-theme="dark"] .pts-cell{color:#93c5fd}
 .dif-pos{color:var(--green)}.dif-neg{color:var(--red)}
-.color-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle;flex-shrink:0}
-
-/* Botones PDF */
+.color-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
 .pdf-btn-dark{width:100%;display:flex;align-items:center;gap:10px;padding:13px 16px;border-radius:12px;background:#1e3a8a;border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:6px;text-align:left;transition:opacity .2s}
 .pdf-btn-dark:hover{opacity:.88}
 .pdf-btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2)}
 [data-theme="dark"] .pdf-btn-dark{background:var(--blue)}
-
-/* Sanción card */
-.san-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:0 14px 14px 0;padding:12px 14px;margin-bottom:8px;cursor:pointer}
+.san-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:0 14px 14px 0;padding:12px 14px;margin-bottom:8px}
 .san-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
 .san-type{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--red);background:rgba(239,68,68,.1);padding:2px 8px;border-radius:100px;border:1px solid rgba(239,68,68,.2)}
 .san-player{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:3px}
 .san-detail{font-size:12px;color:var(--text2);line-height:1.5}
-
-/* Club card */
 .club-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:6px}
 .club-color{width:36px;height:36px;border-radius:50%;flex-shrink:0}
 .club-name{font-weight:700;font-size:14px;color:var(--text)}
-
-/* Noticia card */
-.news-card-tv{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;cursor:pointer}
+.news-card-tv{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden}
 .news-card-body{padding:12px 14px}
 .news-date-tv{font-size:10px;font-weight:700;color:var(--orange);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
 .news-title-tv{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:900;color:var(--text);line-height:1.3;margin-bottom:4px}
 .news-desc-tv{font-size:13px;color:var(--text2);line-height:1.6}
-
-/* Acceso admin btn */
 .tv-admin-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:transparent;border:1px solid var(--border);border-radius:100px;cursor:pointer;font-size:12px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin-top:8px}
 .tv-admin-btn:hover{border-color:var(--border2);color:var(--text)}
-
-/* ── PANEL ADMIN / ORGANIZADOR ──────────────────────────────────────── */
+/* PANEL */
 #panel-view{display:none;min-height:100svh;flex-direction:column}
 .panel-nav{background:#0a0f1e;border-bottom:1px solid rgba(29,78,216,.2);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .panel-body{display:flex;flex:1;overflow:hidden;height:calc(100svh - 52px)}
 .panel-sidebar{width:200px;background:#060d1a;display:flex;flex-direction:column;padding:8px;flex-shrink:0;overflow-y:auto;border-right:1px solid rgba(255,255,255,.05)}
 .panel-main{flex:1;overflow-y:auto;background:var(--bg)}
-
-/* Sidebar items */
 .sb-section{font-size:9px;font-weight:700;color:rgba(255,255,255,.2);letter-spacing:2px;text-transform:uppercase;padding:10px 8px 4px}
 .sb-btn{width:100%;padding:9px 10px;border-radius:8px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.45);font-size:13px;font-family:inherit;text-align:left;transition:all .15s}
 .sb-btn:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.8)}
 .sb-btn.active{background:rgba(29,78,216,.2);color:#fff;font-weight:600}
 .sb-btn svg{width:15px;height:15px;flex-shrink:0}
 .sb-badge{background:var(--orange);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:100px;margin-left:auto}
-
-/* Panel content */
 .panel-content{padding:20px;max-width:800px}
 .panel-title{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:var(--text);letter-spacing:-.3px;margin-bottom:4px}
 .panel-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
-
-/* Cards en panel */
 .p-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px}
 .p-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
 .p-card-title{font-weight:700;font-size:14px;color:var(--text)}
 .p-card-sub{font-size:12px;color:var(--text2);margin-top:2px}
-.p-card-actions{display:flex;gap:6px;flex-shrink:0}
+.p-card-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}
 .btn-sm{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:700;border:1px solid var(--border2);background:var(--surface);color:var(--text2);cursor:pointer;transition:all .15s;letter-spacing:.3px}
 .btn-sm:hover{border-color:var(--blue);color:var(--blue)}
-.btn-sm-danger:hover{border-color:var(--red);color:var(--red)}
+.btn-sm-danger:hover{border-color:var(--red)!important;color:var(--red)!important}
 .btn-sm-primary{background:var(--blue);border-color:var(--blue);color:#fff}
-.btn-sm-primary:hover{opacity:.85;color:#fff}
-
-/* Grid métricas */
+.btn-sm-primary:hover{opacity:.85;color:#fff;border-color:var(--blue)}
 .metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px}
 .metric-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center}
 .metric-num{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;color:var(--orange)}
 .metric-lbl{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
-
-/* Solicitud card */
 .sol-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--orange);border-radius:var(--r);padding:14px;margin-bottom:10px}
-.sol-card.aprobada{border-left-color:var(--green)}
-.sol-card.rechazada{border-left-color:var(--red);opacity:.6}
 .sol-info{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 .sol-info-item{background:var(--bg3);border-radius:8px;padding:8px 10px}
 .sol-info-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
 .sol-info-val{font-size:13px;font-weight:600;color:var(--text)}
-
-/* Org ID display */
 .org-id-display{background:var(--blue-dim);border:1px solid var(--blue-glow);border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin:10px 0}
 .org-id-val{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:var(--blue);letter-spacing:3px}
 .org-clave{font-size:16px;font-weight:700;color:var(--orange);letter-spacing:2px}
-
-/* Toast */
+/* TOAST */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;border:1px solid var(--border2);color:var(--text);padding:10px 20px;border-radius:100px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
 .toast.ok{border-color:rgba(34,197,94,.4);color:var(--green)}
 .toast.err{border-color:rgba(239,68,68,.4);color:var(--red)}
-
-/* Responsive */
-@media(max-width:600px){
-  .panel-sidebar{width:160px}
-  .panel-content{padding:14px}
-  .f-row{grid-template-columns:1fr}
-}
-@media(max-width:440px){
-  .panel-sidebar{display:none}
-  .panel-body{flex-direction:column}
-}
-
-/* Theme */
-[data-theme="light"] .panel-nav{background:#1e3a8a}
-[data-theme="light"] .panel-sidebar{background:#1d4ed8}
-[data-theme="light"] .sb-btn{color:rgba(255,255,255,.7)}
-[data-theme="light"] .sb-btn.active{background:rgba(255,255,255,.2);color:#fff}
-[data-theme="light"] .sb-section{color:rgba(255,255,255,.4)}
-
-/* ── MODALES ────────────────────────────────────────────────────────── */
+/* MODAL */
 .modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .25s}
 .modal-overlay.open{opacity:1;pointer-events:all}
 .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:420px;max-height:90svh;overflow-y:auto;padding:24px;transform:translateY(16px);transition:transform .25s;position:relative}
@@ -249,8 +176,7 @@ a{text-decoration:none;color:inherit}
 .modal-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
 .modal-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:8px;background:var(--surface);border:1px solid var(--border);cursor:pointer;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center}
 .modal-close:hover{border-color:var(--red);color:var(--red)}
-
-/* ── FORMULARIOS ────────────────────────────────────────────────────── */
+/* FORMS */
 .f-group{margin-bottom:12px}
 .f-label{display:block;font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px}
 .f-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text);outline:none;transition:border-color .2s;font-family:'Archivo',sans-serif}
@@ -268,16 +194,18 @@ textarea.f-input{resize:none}
 .f-submit:disabled{opacity:.5;cursor:not-allowed}
 .f-submit.btn-orange-submit{background:var(--orange)}
 .f-note{font-size:11px;color:var(--text3);text-align:center;margin-top:8px;line-height:1.5}
+@media(max-width:600px){.panel-sidebar{width:160px}.panel-content{padding:14px}.f-row{grid-template-columns:1fr}}
+@media(max-width:440px){.panel-sidebar{display:none}.panel-body{flex-direction:column}}
+[data-theme="light"] .panel-nav{background:#1e3a8a}
+[data-theme="light"] .panel-sidebar{background:#1d4ed8}
+[data-theme="light"] .sb-btn{color:rgba(255,255,255,.7)}
+[data-theme="light"] .sb-btn.active{background:rgba(255,255,255,.2);color:#fff}
+[data-theme="light"] .sb-section{color:rgba(255,255,255,.4)}
 </style>
 </head>
 <body>
-
-<!-- ── TOAST ──────────────────────────────────────────────────────────── -->
 <div id="toast" class="toast"></div>
-
-<!-- ════════════════════════════════════════════════════════════════════
-     VISTA PÚBLICA
-════════════════════════════════════════════════════════════════════ -->
+<!-- ════ VISTA PÚBLICA ════ -->
 <div id="pub-view">
   <nav class="pub-nav">
     <a href="./index.html" class="logo">ACTIVA<span class="logo-dot"></span><span class="logo-acc">PLAY</span></a>
@@ -287,28 +215,18 @@ textarea.f-input{resize:none}
       <button class="btn-solid btn-orange" onclick="openModal('modal-solicitud')">Publicar liga</button>
     </div>
   </nav>
-
   <div class="pub-hero">
     <div class="pub-hero-title">Torneos activos <span>en vivo</span></div>
     <div class="pub-hero-sub">Selecciona un torneo para ver tabla, fixture y resultados</div>
   </div>
-
   <div class="pub-content">
     <div class="section-label">En curso ahora</div>
-    <div id="torneos-list">
-      <div style="text-align:center;padding:48px 20px;color:var(--text2)">
-        <div style="font-size:36px;margin-bottom:12px;opacity:.3">🏀</div>
-        <div style="font-size:13px">Cargando torneos...</div>
-      </div>
-    </div>
+    <div id="torneos-list"><div style="text-align:center;padding:48px 20px;color:var(--text2)"><div style="font-size:36px;margin-bottom:12px;opacity:.3">🏀</div><div style="font-size:13px">Cargando torneos...</div></div></div>
   </div>
 </div>
 
-<!-- ════════════════════════════════════════════════════════════════════
-     VISTA TORNEO (público)
-════════════════════════════════════════════════════════════════════ -->
+<!-- ════ VISTA TORNEO ════ -->
 <div id="torneo-view">
-  <!-- HERO con selector de ligas -->
   <div class="tv-hero">
     <button class="tv-back" onclick="volverPublico()">←</button>
     <div id="tv-temporada-lbl" class="tv-temporada-lbl"></div>
@@ -322,7 +240,6 @@ textarea.f-input{resize:none}
     <div class="tv-ligas-label">Selecciona una liga</div>
     <div class="tv-ligas-grid" id="tv-ligas-grid"></div>
   </div>
-  <!-- Contenido tabs -->
   <div class="tv-content">
     <div id="tab-fixture"></div>
     <div id="tab-resultados" style="display:none"></div>
@@ -331,7 +248,6 @@ textarea.f-input{resize:none}
     <div id="tab-noticias" style="display:none"></div>
     <div id="tab-sanciones" style="display:none"></div>
   </div>
-  <!-- Navbar inferior -->
   <nav class="tv-navbar">
     <button class="tv-nav-btn active" id="tnav-fixture" onclick="showTab('tab-fixture',this)">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
@@ -360,9 +276,7 @@ textarea.f-input{resize:none}
   </nav>
 </div>
 
-<!-- ════════════════════════════════════════════════════════════════════
-     PANEL ADMIN / ORGANIZADOR
-════════════════════════════════════════════════════════════════════ -->
+<!-- ════ PANEL ════ -->
 <div id="panel-view">
   <nav class="panel-nav">
     <a href="./index.html" class="logo" style="color:#fff">ACTIVA<span class="logo-dot"></span><span class="logo-acc">PLAY</span></a>
@@ -378,8 +292,7 @@ textarea.f-input{resize:none}
       <div class="sb-section">Gestión</div>
       <button class="sb-btn active" onclick="showPanel('p-solicitudes',this)">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        Solicitudes
-        <span class="sb-badge" id="sb-badge-sol" style="display:none">0</span>
+        Solicitudes<span class="sb-badge" id="sb-badge-sol" style="display:none">0</span>
       </button>
       <button class="sb-btn" onclick="showPanel('p-torneos',this)">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/></svg>
@@ -395,8 +308,7 @@ textarea.f-input{resize:none}
         Métricas
       </button>
     </div>
-
-    <!-- SIDEBAR ORGANIZADOR -->
+    <!-- SIDEBAR ORG -->
     <div class="panel-sidebar" id="sidebar-org" style="display:none">
       <div class="sb-section">Mi torneo</div>
       <button class="sb-btn active" onclick="showPanel('p-dashboard',this)">
@@ -429,21 +341,13 @@ textarea.f-input{resize:none}
         Sanciones
       </button>
     </div>
-
-    <!-- MAIN CONTENT -->
-    <div class="panel-main" id="panel-main">
-      <!-- Los paneles se renderizan aquí dinámicamente -->
-    </div>
+    <div class="panel-main" id="panel-main"></div>
   </div>
 </div>
 
-<!-- ════════════════════════════════════════════════════════════════════
-     MODALES
-════════════════════════════════════════════════════════════════════ -->
-
-<!-- Modal Solicitud -->
+<!-- MODAL SOLICITUD -->
 <div class="modal-overlay" id="modal-solicitud" onclick="handleOverlay(event,'modal-solicitud')">
-  <div class="modal" style="position:relative">
+  <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-solicitud')">✕</button>
     <div id="sol-form-wrap">
       <div class="modal-title">Publica tu liga</div>
@@ -459,14 +363,11 @@ textarea.f-input{resize:none}
         <div class="f-section">Tu torneo</div>
         <div class="f-row">
           <div class="f-group"><label class="f-label">Ciudad</label><input class="f-input" id="sol-ciudad" type="text" placeholder="Tu ciudad" required></div>
-          <div class="f-group"><label class="f-label">Deporte</label><input class="f-input" id="sol-deporte" type="text" placeholder="Básquetbol" value="Básquetbol"></div>
+          <div class="f-group"><label class="f-label">Deporte</label><input class="f-input" id="sol-deporte" type="text" value="Básquetbol"></div>
         </div>
-        <div class="f-group"><label class="f-label">Descripción del torneo</label><textarea class="f-input" id="sol-desc" rows="2" placeholder="Cuéntanos sobre tu torneo..." style="resize:none"></textarea></div>
+        <div class="f-group"><label class="f-label">Descripción del torneo</label><textarea class="f-input" id="sol-desc" rows="2" placeholder="Cuéntanos sobre tu torneo..."></textarea></div>
         <div class="f-group"><label class="f-label">¿Cuántas categorías tendrá?</label>
-          <select class="f-select" id="sol-cats">
-            <option value="1">1 categoría</option><option value="2">2 categorías</option>
-            <option value="3">3 categorías</option><option value="4">4 o más</option>
-          </select>
+          <select class="f-select" id="sol-cats"><option value="1">1 categoría</option><option value="2">2 categorías</option><option value="3">3 categorías</option><option value="4">4 o más</option></select>
         </div>
         <button type="submit" class="f-submit" id="sol-btn">ENVIAR SOLICITUD</button>
         <div class="f-note">$9.990/mes por temporada · El admin te contactará para confirmar</div>
@@ -481,24 +382,24 @@ textarea.f-input{resize:none}
   </div>
 </div>
 
-<!-- Modal Login Admin -->
+<!-- MODAL LOGIN ADMIN -->
 <div class="modal-overlay" id="modal-login-admin" onclick="handleOverlay(event,'modal-login-admin')">
-  <div class="modal" style="position:relative">
+  <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-login-admin')">✕</button>
     <div class="modal-title">Acceso Admin</div>
     <div class="modal-sub">Panel de administración</div>
     <div class="f-error" id="admin-error"></div>
     <form onsubmit="loginAdmin(event)">
-      <div class="f-group"><label class="f-label">Email</label><input class="f-input" id="admin-email" type="email" placeholder="n.moraganavarro@gmail.com" autocomplete="email"></div>
+      <div class="f-group"><label class="f-label">Email</label><input class="f-input" id="admin-email" type="email" placeholder="admin@email.com" autocomplete="email"></div>
       <div class="f-group"><label class="f-label">Contraseña</label><input class="f-input" id="admin-pass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
       <button type="submit" class="f-submit" id="admin-btn">INGRESAR</button>
     </form>
   </div>
 </div>
 
-<!-- Modal Login Organizador -->
+<!-- MODAL LOGIN ORG -->
 <div class="modal-overlay" id="modal-login-org" onclick="handleOverlay(event,'modal-login-org')">
-  <div class="modal" style="position:relative">
+  <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-login-org')">✕</button>
     <div class="modal-title">Acceso Organizador</div>
     <div class="modal-sub">Gestiona tu torneo</div>
@@ -506,1112 +407,454 @@ textarea.f-input{resize:none}
     <form onsubmit="loginOrg(event)">
       <div class="f-group"><label class="f-label">Email</label><input class="f-input" id="org-email" type="email" placeholder="tu@email.com" autocomplete="email"></div>
       <div class="f-group"><label class="f-label">Clave de acceso</label><input class="f-input" id="org-pass" type="password" placeholder="Tu clave asignada" autocomplete="current-password"></div>
-      <button type="submit" class="f-submit btn-orange" id="org-btn">INGRESAR</button>
+      <button type="submit" class="f-submit btn-orange-submit" id="org-btn">INGRESAR</button>
     </form>
   </div>
 </div>
-
 <script>
-// ── CONFIG ────────────────────────────────────────────────────────────────────
-const SUPA_URL  = 'https://bhnmdkfvfpvvddqalazl.supabase.co';
-const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJobm1ka2Z2ZnB2dmRkcWFsYXpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NDQ0NDUsImV4cCI6MjA5NDQyMDQ0NX0.6KSs8JsZG2Dt70XePy2bOrTnWazju3Y--d7OXIZg9xw';
-const FN = '/.netlify/functions/admin';
+const SUPA_URL='https://bhnmdkfvfpvvddqalazl.supabase.co';
+const SUPA_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJobm1ka2Z2ZnB2dmRkcWFsYXpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NDQ0NDUsImV4cCI6MjA5NDQyMDQ0NX0.6KSs8JsZG2Dt70XePy2bOrTnWazju3Y--d7OXIZg9xw';
+const FN='/.netlify/functions/admin';
+let SESSION=null,TORNEO_ACTUAL=null,CATEGORIAS=[],EQUIPOS={};
+var CAT_ACTUAL=null,_torneoId=null,_catsCache=null;
 
-// Estado de sesión
-let SESSION = null; // { rol, token, nombre, org_id, ciudad }
-let TORNEO_ACTUAL = null;
-let CATEGORIAS = [];
-let EQUIPOS = {};
+async function supa(t,p){p=p||'';const r=await fetch(SUPA_URL+'/rest/v1/'+t+p,{headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}});return r.json();}
+async function api(action,data){data=data||{};const body=Object.assign({action},data);if(SESSION&&SESSION.token)body.token=SESSION.token;const r=await fetch(FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return r.json();}
+function toast(msg,type){type=type||'';var el=document.getElementById('toast');el.textContent=msg;el.className='toast show '+type;setTimeout(function(){el.classList.remove('show');},3200);}
+function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
+function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
+function handleOverlay(e,id){if(e.target===document.getElementById(id))closeModal(id);}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.modal-overlay.open').forEach(function(m){m.classList.remove('open');});});
+function openInlineModal(html){var o=document.getElementById('inline-modal-overlay');if(!o){o=document.createElement('div');o.id='inline-modal-overlay';o.className='modal-overlay';o.onclick=function(e){if(e.target===o)closeInlineModal();};document.body.appendChild(o);}o.innerHTML='<div class="modal" style="position:relative"><button class="modal-close" onclick="closeInlineModal()">✕</button>'+html+'</div>';o.classList.add('open');document.body.style.overflow='hidden';}
+function closeInlineModal(){var o=document.getElementById('inline-modal-overlay');if(o){o.classList.remove('open');document.body.style.overflow='';}}
+function showView(id){document.getElementById('pub-view').style.display=id==='pub-view'?'flex':'none';document.getElementById('torneo-view').style.display=id==='torneo-view'?'flex':'none';document.getElementById('panel-view').style.display=id==='panel-view'?'flex':'none';}
+function esc(s){return(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
+function confirmAction(msg,cb){if(confirm(msg))cb();}
+function setMain(html){document.getElementById('panel-main').innerHTML=html;}
+function metricCard(num,lbl){return'<div class="metric-card"><div class="metric-num">'+num+'</div><div class="metric-lbl">'+lbl+'</div></div>';}
+function quickAction(label,icon,onclick){return'<button class="p-card" onclick="'+onclick+'" style="cursor:pointer;text-align:center"><div style="font-size:28px;margin-bottom:8px">'+icon+'</div><div style="font-size:13px;font-weight:700;color:var(--text)">'+label+'</div></button>';}
 
-// **NUEVO**: Array para almacenar solicitudes pendientes (simulado en frontend)
-let PENDING_SOLICITUDES = [];
-
-// **NUEVO**: Credenciales de prueba para simular login
-const MOCK_ADMIN_CREDENTIALS = {
-  email: 'admin@example.com',
-  password: 'adminpassword',
-  name: 'Admin General'
-};
-
-const MOCK_ORGANIZER_CREDENTIALS = {
-  email: 'organizador@example.com',
-  password: 'orgpassword',
-  name: 'Organizador Demo',
-  org_id: 'ORG-DEMO',
-  city: 'Ciudad Demo'
-};
-
-
-// ── SUPABASE FETCH ────────────────────────────────────────────────────────────
-async function supa(table, params = '') {
-  // En un entorno real, esto haría una llamada a Supabase.
-  // Para esta simulación, siempre devolveremos un array vacío o datos mock si es necesario.
-  console.log(`Simulando fetch de Supabase para: ${table}${params}`);
-  return []; // Devolver un array vacío para evitar errores en la UI pública
+/* ── PÚBLICA ── */
+async function loadTorneos(){
+  var list=document.getElementById('torneos-list');
+  try{
+    var torneos=await supa('torneos','?select=id,nombre,ciudad,deporte,temporada,descripcion,visible&visible=eq.true&estado=neq.eliminado&order=created_at.desc');
+    if(!torneos||torneos.error||!torneos.length){list.innerHTML='<div style="text-align:center;padding:48px 20px"><div style="font-size:48px;margin-bottom:16px;opacity:.2">🏀</div><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px">Sin torneos activos aún</div><div style="font-size:13px;color:var(--text2);margin-bottom:20px">Sé el primero en publicar tu torneo</div><button class="btn-solid btn-orange" onclick="openModal(\'modal-solicitud\')" style="padding:12px 28px;font-size:14px;border-radius:12px">PUBLICAR MI LIGA →</button></div>';return;}
+    list.innerHTML=torneos.map(function(t){return'<div class="torneo-card" onclick="abrirTorneo(\''+t.id+'\',\''+esc(t.nombre)+'\',\''+esc(t.ciudad)+'\',\''+esc(t.temporada||'')+'\')"><div class="torneo-card-header"><div><div class="torneo-nombre">'+t.nombre+'</div><div class="torneo-ciudad">📍 '+t.ciudad+(t.temporada?' · '+t.temporada:'')+'</div></div><span class="badge badge-active">● Activo</span></div>'+(t.descripcion?'<div style="font-size:13px;color:var(--text2);margin-bottom:10px">'+t.descripcion+'</div>':'')+'<div style="font-size:11px;color:var(--text3)">'+(t.deporte||'Básquetbol')+' · Toca para ver tabla y fixture →</div></div>';}).join('');
+  }catch(e){list.innerHTML='<div style="text-align:center;padding:32px;color:var(--text2);font-size:13px">Error al cargar torneos</div>';}
 }
 
-// ── API CALL ──────────────────────────────────────────────────────────────────
-async function api(action, data = {}) {
-  // Esta función ahora simulará las respuestas del backend para el login.
-  console.log(`Simulando llamada a API: ${action}`, data);
-  await new Promise(resolve => setTimeout(resolve, 500)); // Simular latencia de red
-
-  if (action === 'checkLogin') {
-    if (data.email === MOCK_ADMIN_CREDENTIALS.email && data.password === MOCK_ADMIN_CREDENTIALS.password) {
-      return { success: true, token: 'mock-admin-token', nombre: MOCK_ADMIN_CREDENTIALS.name, rol: 'admin', email: MOCK_ADMIN_CREDENTIALS.email };
-    }
-    if (data.email === MOCK_ORGANIZER_CREDENTIALS.email && data.password === MOCK_ORGANIZER_CREDENTIALS.password) {
-      return { success: true, token: 'mock-org-token', nombre: MOCK_ORGANIZER_CREDENTIALS.name, rol: 'organizador', org_id: MOCK_ORGANIZER_CREDENTIALS.org_id, ciudad: MOCK_ORGANIZER_CREDENTIALS.city };
-    }
-    return { success: false, message: 'Email o contraseña/clave incorrectos.' };
-  }
-  // Para otras acciones, simplemente simular éxito
-  return { success: true, message: 'Acción simulada con éxito.' };
-}
-
-// ── TOAST ─────────────────────────────────────────────────────────────────────
-function toast(msg, type = '') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'toast show ' + type;
-  setTimeout(() => el.classList.remove('show'), 3000);
-}
-
-// ── MODALES ───────────────────────────────────────────────────────────────────
-function openModal(id) {
-  document.getElementById(id).classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-  document.body.style.overflow = '';
-}
-function handleOverlay(e, id) {
-  if (e.target === document.getElementById(id)) closeModal(id);
-}
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
-});
-
-// ── TEMA ──────────────────────────────────────────────────────────────────────
-function toggleTheme() {
-  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
-  try { localStorage.setItem('ap_theme', dark ? 'light' : 'dark'); } catch(e) {}
-}
-(function() {
-  try { const t = localStorage.getItem('ap_theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch(e) {}
-})();
-
-// ── VISTAS ────────────────────────────────────────────────────────────────────
-function showView(id) {
-  document.getElementById('pub-view').style.display   = id === 'pub-view'    ? 'flex'  : 'none';
-  document.getElementById('torneo-view').style.display = id === 'torneo-view' ? 'flex'  : 'none';
-  document.getElementById('panel-view').style.display  = id === 'panel-view'  ? 'flex'  : 'none';
-}
-
-// ── VISTA PÚBLICA — TORNEOS ───────────────────────────────────────────────────
-async function loadTorneos() {
-  const list = document.getElementById('torneos-list');
-  try {
-    // Simulamos que no hay torneos activos para que el botón de "Publicar liga" sea más visible
-    // En un caso real, esto llamaría a supa('torneos', ...)
-    const torneos = []; // await supa('torneos', '?select=id,nombre,ciudad,deporte,temporada,descripcion,visible&visible=eq.true&estado=neq.eliminado&order=created_at.desc');
-    if (!torneos || torneos.error || !torneos.length) {
-      list.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--text2)">
-        <div style="font-size:48px;margin-bottom:16px;opacity:.2">🏀</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px">Sin torneos activos aún</div>
-        <div style="font-size:13px;color:var(--text2);margin-bottom:20px">Sé el primero en publicar tu torneo</div>
-        <button class="btn-solid btn-orange" onclick="openModal('modal-solicitud')" style="padding:12px 28px;font-size:14px;border-radius:12px">PUBLICAR MI LIGA →</button>
-      </div>`;
-      return;
-    }
-    list.innerHTML = torneos.map(t => `
-      <div class="torneo-card" onclick="abrirTorneo('${t.id}','${esc(t.nombre)}','${esc(t.ciudad)}','${esc(t.temporada||'')}')">
-        <div class="torneo-card-header">
-          <div>
-            <div class="torneo-nombre">${t.nombre}</div>
-            <div class="torneo-ciudad">📍 ${t.ciudad} ${t.temporada ? '· ' + t.temporada : ''}</div>
-          </div>
-          <span class="badge badge-active">● Activo</span>
-        </div>
-        ${t.descripcion ? `<div style="font-size:13px;color:var(--text2);margin-bottom:10px">${t.descripcion}</div>` : ''}
-        <div style="font-size:11px;color:var(--text3)">${t.deporte || 'Básquetbol'} · Toca para ver tabla y fixture →</div>
-      </div>
-    `).join('');
-  } catch(e) {
-    list.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text2);font-size:13px">Error al cargar torneos</div>';
-  }
-}
-
-function esc(str) { return (str||'').replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
-
-// ── VISTA TORNEO ──────────────────────────────────────────────────────────────
-async function abrirTorneo(id, nombre, ciudad, temporada) {
-  TORNEO_ACTUAL = { id, nombre, ciudad, temporada };
-  document.getElementById('tv-nombre').textContent = nombre;
-  document.getElementById('tv-temporada-lbl').textContent = (temporada ? temporada.toUpperCase() : '') + (ciudad ? ' · ' + ciudad.toUpperCase() : '');
+async function abrirTorneo(id,nombre,ciudad,temporada){
+  TORNEO_ACTUAL={id:id,nombre:nombre,ciudad:ciudad,temporada:temporada};
+  document.getElementById('tv-nombre').textContent=nombre;
+  document.getElementById('tv-temporada-lbl').textContent=(temporada?temporada.toUpperCase():'')+(ciudad?' · '+ciudad.toUpperCase():'');
   showView('torneo-view');
-  document.querySelector('.tv-navbar').style.display = 'flex';
-  // Reset
-  document.querySelectorAll('.tv-nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.tv-navbar').style.display='flex';
+  document.querySelectorAll('.tv-nav-btn').forEach(function(b){b.classList.remove('active');});
   document.getElementById('tnav-fixture').classList.add('active');
-  ['tab-fixture','tab-resultados','tab-posiciones','tab-clubes','tab-noticias','tab-sanciones'].forEach(t => {
-    const el = document.getElementById(t);
-    if (el) { el.style.display = t === 'tab-fixture' ? 'block' : 'none'; el.innerHTML = ''; }
-  });
-  CAT_ACTUAL = null;
+  ['tab-fixture','tab-resultados','tab-posiciones','tab-clubes','tab-noticias','tab-sanciones'].forEach(function(t){var el=document.getElementById(t);if(el){el.style.display=t==='tab-fixture'?'block':'none';el.innerHTML='';}});
+  CAT_ACTUAL=null;
   await loadCategorias(id);
 }
 
-function volverPublico() {
-  TORNEO_ACTUAL = null;
-  document.querySelector('.tv-navbar').style.display = 'none';
-  showView('pub-view');
-  loadTorneos();
+function volverPublico(){TORNEO_ACTUAL=null;document.querySelector('.tv-navbar').style.display='none';showView('pub-view');loadTorneos();}
+
+function showTab(tabId,btn){
+  document.querySelectorAll('.tv-nav-btn').forEach(function(b){b.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  ['tab-fixture','tab-resultados','tab-posiciones','tab-clubes','tab-noticias','tab-sanciones'].forEach(function(t){var el=document.getElementById(t);if(el)el.style.display=t===tabId?'block':'none';});
+  if(!TORNEO_ACTUAL)return;
+  var tab=tabId.replace('tab-','');
+  if(tab==='fixture')renderFixture();
+  if(tab==='resultados')renderResultados();
+  if(tab==='posiciones')renderPosiciones();
+  if(tab==='clubes')renderClubes();
+  if(tab==='noticias')renderNoticias();
+  if(tab==='sanciones')renderSanciones();
 }
 
-function showTab(tabId, btn) {
-  document.querySelectorAll('.tv-nav-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  ['tab-fixture','tab-resultados','tab-posiciones','tab-clubes','tab-noticias','tab-sanciones'].forEach(t => {
-    const el = document.getElementById(t);
-    if (el) el.style.display = t === tabId ? 'block' : 'none';
-  });
-  if (!TORNEO_ACTUAL) return;
-  const tab = tabId.replace('tab-','');
-  if (tab === 'fixture')    renderFixture();
-  if (tab === 'resultados') renderResultados();
-  if (tab === 'posiciones') renderPosiciones();
-  if (tab === 'clubes')     renderClubes();
-  if (tab === 'noticias')   renderNoticias();
-  if (tab === 'sanciones')  renderSanciones();
-}
-
-var CAT_ACTUAL = null;
-
-async function loadCategorias(torneo_id) {
-  CATEGORIAS = [];
-  EQUIPOS    = {};
-  // Simulamos que no hay categorías para el torneo público
-  const cats = []; // await supa('categorias', '?torneo_id=eq.' + torneo_id + '&activo=eq.true&order=orden');
-  CATEGORIAS = cats || [];
-  // Renderizar grid de ligas
-  const grid = document.getElementById('tv-ligas-grid');
-  if (!grid) return;
-  if (!CATEGORIAS.length) {
-    grid.innerHTML = '<div style="color:rgba(255,255,255,.4);font-size:12px;padding:8px">Sin categorías registradas.</div>';
-  } else {
-    grid.innerHTML = CATEGORIAS.map((c, i) =>
-      '<button class="tv-liga-btn' + (i===0?' active':'') + '" data-id="' + c.id + '" onclick="selCat(this,this.dataset.id)">'
-      + '<div class="tv-liga-btn-name">' + c.nombre + '</div>'
-      + '</button>'
-    ).join('');
-    CAT_ACTUAL = CATEGORIAS[0].id;
-    // Precargar equipos
-    const eqs = []; // await supa('equipos', '?categoria_id=eq.' + CATEGORIAS[0].id + '&activo=eq.true&order=nombre');
-    EQUIPOS[CATEGORIAS[0].id] = eqs || [];
+async function loadCategorias(torneo_id){
+  CATEGORIAS=[];EQUIPOS={};
+  var cats=await supa('categorias','?torneo_id=eq.'+torneo_id+'&activo=eq.true&order=orden');
+  CATEGORIAS=cats||[];
+  var grid=document.getElementById('tv-ligas-grid');
+  if(!grid)return;
+  if(!CATEGORIAS.length){grid.innerHTML='<div style="color:rgba(255,255,255,.4);font-size:12px;padding:8px">Sin categorías registradas.</div>';}
+  else{
+    grid.innerHTML=CATEGORIAS.map(function(c,i){return'<button class="tv-liga-btn'+(i===0?' active':'')+'" data-id="'+c.id+'" onclick="selCat(this,this.dataset.id)"><div class="tv-liga-btn-name">'+c.nombre+'</div></button>';}).join('');
+    CAT_ACTUAL=CATEGORIAS[0].id;
+    var eqs=await supa('equipos','?categoria_id=eq.'+CATEGORIAS[0].id+'&activo=eq.true&order=nombre');
+    EQUIPOS[CATEGORIAS[0].id]=eqs||[];
   }
   renderFixture();
 }
 
-function selCat(btn, catId) {
-  document.querySelectorAll('.tv-liga-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  CAT_ACTUAL = catId;
-  renderTabActual();
+function selCat(btn,catId){document.querySelectorAll('.tv-liga-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');CAT_ACTUAL=catId;renderTabActual();}
+function getCatActual(){if(CAT_ACTUAL)return CATEGORIAS.find(function(c){return c.id===CAT_ACTUAL;})||CATEGORIAS[0]||null;return CATEGORIAS[0]||null;}
+function renderTabActual(){var ab=document.querySelector('.tv-nav-btn.active');if(!ab){renderFixture();return;}var m=(ab.getAttribute('onclick')||'').match(/tab-(\w+)/);if(m)showTab('tab-'+m[1],null);else renderFixture();}
+
+function formatFecha(str,tipo){if(!str)return'';try{var d=new Date(str);if(isNaN(d))return str;if(tipo==='corto')return d.toLocaleDateString('es-CL',{day:'2-digit',month:'short'});if(tipo==='fecha')return d.toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'});return d.toLocaleDateString('es-CL',{weekday:'short',day:'2-digit',month:'short'});}catch(e){return str;}}
+
+function buildPartidoCard(p,finalizado){
+  var local=p.local||{nombre:'?'},visita=p.visita||{nombre:'?'};
+  var lWin=finalizado&&(p.pts_local>p.pts_visita),vWin=finalizado&&(p.pts_visita>p.pts_local),enVivo=p.estado==='en_vivo';
+  var fechaLbl=p.fecha?formatFecha(p.fecha):'',hora=p.hora?' · '+p.hora:'';
+  var h='<div class="mc"><div class="mc-top"><span class="mc-top-info">'+(fechaLbl+hora)+'</span>';
+  if(finalizado)h+='<span class="mc-badge mc-badge-final">Final</span>';
+  else if(enVivo)h+='<span class="mc-badge mc-badge-live">● En Vivo</span>';
+  else h+='<span class="mc-badge mc-badge-prox">Próximo</span>';
+  h+='</div><div class="mc-teams"><div class="mc-team'+(lWin?' win':'')+'">'+(local.nombre)+'</div>';
+  if(finalizado)h+='<div class="mc-score">'+(p.pts_local||0)+'–'+(p.pts_visita||0)+'</div>';
+  else h+='<div class="mc-vs">VS</div>';
+  h+='<div class="mc-team right'+(vWin?' win':'')+'">'+(visita.nombre)+'</div></div>';
+  h+='<div class="mc-footer"><div class="mc-meta"><span>N° '+(p.nro_fecha||'')+'</span>';
+  if(p.fase&&p.fase!=='Fase Regular')h+='<span class="mc-meta-sep">·</span><span style="color:var(--orange);font-weight:700">'+p.fase+'</span>';
+  if(p.cancha)h+='<span class="mc-meta-sep">·</span><span>'+p.cancha+'</span>';
+  h+='</div>';
+  if(p.url_transmision)h+='<a href="'+p.url_transmision+'" target="_blank" class="mc-yt">▶ Ver en vivo</a>';
+  h+='</div></div>';return h;
 }
 
-function getCatActual() {
-  if (CAT_ACTUAL) return CATEGORIAS.find(c => c.id === CAT_ACTUAL) || CATEGORIAS[0] || null;
-  return CATEGORIAS[0] || null;
+async function renderFixture(){
+  var el=document.getElementById('tab-fixture'),cat=getCatActual();
+  if(!cat){el.innerHTML='<div style="padding:20px;color:var(--text2);text-align:center">Sin categorías.</div>';return;}
+  el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
+  var p=await supa('partidos','?categoria_id=eq.'+cat.id+'&select=*,local:equipo_local(nombre),visita:equipo_visita(nombre)&estado=neq.finalizado&order=nro_fecha,fecha,hora');
+  if(!p||!p.length){el.innerHTML='<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin partidos programados en '+cat.nombre+'.</div>';return;}
+  var h='<div class="tv-sec-label">Próximos partidos</div>';
+  p.forEach(function(x){h+=buildPartidoCard(x,false);});el.innerHTML=h;
 }
 
-function renderTabActual() {
-  const activeBtn = document.querySelector('.tv-nav-btn.active');
-  if (!activeBtn) { renderFixture(); return; }
-  const onclick = activeBtn.getAttribute('onclick') || '';
-  const tab = onclick.match(/tab-(\w+)/);
-  if (tab) showTab('tab-' + tab[1], null);
-  else renderFixture();
+async function renderResultados(){
+  var el=document.getElementById('tab-resultados'),cat=getCatActual();
+  if(!cat){el.innerHTML='<div style="padding:20px;color:var(--text2)">Sin categorías.</div>';return;}
+  el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
+  var p=await supa('partidos','?categoria_id=eq.'+cat.id+'&select=*,local:equipo_local(nombre),visita:equipo_visita(nombre)&estado=eq.finalizado&order=nro_fecha.desc,fecha.desc');
+  if(!p||!p.length){el.innerHTML='<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin resultados en '+cat.nombre+'.</div>';return;}
+  var h='<div class="tv-sec-label">Resultados</div>';
+  p.forEach(function(x){h+=buildPartidoCard(x,true);});el.innerHTML=h;
 }
 
-// ── Partido Card ──────────────────────────────────────────────────────
-
-// ── FORMATO FECHA ─────────────────────────────────────────────────────────────
-function formatFecha(str, tipo) {
-  if (!str) return '';
-  try {
-    const d = new Date(str);
-    if (isNaN(d)) return str;
-    if (tipo === 'corto') return d.toLocaleDateString('es-CL', { day:'2-digit', month:'short' });
-    if (tipo === 'fecha') return d.toLocaleDateString('es-CL', { day:'2-digit', month:'short', year:'numeric' });
-    return d.toLocaleDateString('es-CL', { weekday:'short', day:'2-digit', month:'short' });
-  } catch(e) { return str; }
-}
-
-function buildPartidoCard(p, finalizado) {
-  const local  = p.local  || { nombre: '?' };
-  const visita = p.visita || { nombre: '?' };
-  const lWin = finalizado && (p.pts_local > p.pts_visita);
-  const vWin = finalizado && (p.pts_visita > p.pts_local);
-  const enVivo = p.estado === 'en_vivo';
-  const liga = getCatActual();
-  const fechaLbl = p.fecha ? formatFecha(p.fecha) : '';
-  const hora  = p.hora ? ' · ' + p.hora : '';
-  const cancha = p.cancha ? ' · ' + p.cancha : '';
-
-  let h = '<div class="mc">';
-  // Top bar
-  h += '<div class="mc-top">';
-  h += '<span class="mc-top-info">' + (fechaLbl + hora) + '</span>';
-  if (finalizado)   h += '<span class="mc-badge mc-badge-final">Final</span>';
-  else if (enVivo)  h += '<span class="mc-badge mc-badge-live"><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--red);margin-right:3px;animation:pulse 1s infinite;vertical-align:middle"></span>En Vivo</span>';
-  else              h += '<span class="mc-badge mc-badge-prox">Próximo</span>';
-  h += '</div>';
-  // Teams + score
-  h += '<div class="mc-teams">';
-  h += '<div class="mc-team' + (lWin?' win':'') + '">' + local.nombre + '</div>';
-  if (finalizado) {
-    h += '<div class="mc-score">' + (p.pts_local||0) + '–' + (p.pts_visita||0) + '</div>';
-  } else {
-    h += '<div class="mc-vs">VS</div>';
+async function renderPosiciones(){
+  var el=document.getElementById('tab-posiciones'),cat=getCatActual();
+  if(!cat){el.innerHTML='<div style="padding:20px;color:var(--text2)">Sin categorías.</div>';return;}
+  el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando tabla...</div>';
+  var rows=null;
+  try{var r=await supa('standings','?categoria_id=eq.'+cat.id+'&order=pts.desc');if(r&&!r.error&&r.length)rows=r;}catch(e){}
+  var h='<div class="tv-sec-label">Tabla de posiciones</div>';
+  if(!rows||!rows.length){h+='<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin partidos finalizados aún.</div>';}
+  else{
+    rows.sort(function(a,b){var da=Number(a.gf||0)-Number(a.gc||0),db=Number(b.gf||0)-Number(b.gc||0);return(Number(b.pts)||0)-(Number(a.pts)||0)||db-da||(Number(b.gf||0))-(Number(a.gf||0));});
+    h+='<div class="st-wrap"><table class="st-table"><thead><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>Dif</th><th>Pts</th></tr></thead><tbody>';
+    rows.forEach(function(r,i){var dg=Number(r.gf||0)-Number(r.gc||0),rc=i===0?'rk-1':i===1?'rk-2':i===2?'rk-3':'';h+='<tr><td><span class="rk '+rc+'">'+(i+1)+'</span></td><td><span class="color-dot" style="background:'+(r.color||'#475569')+'"></span>'+r.equipo_nombre+'</td><td>'+r.pj+'</td><td>'+r.pg+'</td><td>'+r.pe+'</td><td>'+r.pp+'</td><td>'+r.gf+'</td><td>'+r.gc+'</td><td class="'+(dg>0?'dif-pos':dg<0?'dif-neg':'')+'">'+(dg>0?'+':'')+dg+'</td><td><span class="pts-cell">'+r.pts+'</span></td></tr>';});
+    h+='</tbody></table></div>';
   }
-  h += '<div class="mc-team right' + (vWin?' win':'') + '">' + visita.nombre + '</div>';
-  h += '</div>';
-  // Footer
-  h += '<div class="mc-footer">';
-  h += '<div class="mc-meta">';
-  h += '<span>N° ' + (p.nro_fecha||'') + '</span>';
-  if (p.fase && p.fase !== 'Fase Regular') h += '<span class="mc-meta-sep">·</span><span style="color:var(--orange);font-weight:700">' + p.fase + '</span>';
-  if (cancha) h += '<span class="mc-meta-sep">·</span><span>' + p.cancha + '</span>';
-  h += '</div>';
-  if (p.url_transmision) {
-    h += '<a href="' + p.url_transmision + '" target="_blank" class="mc-yt">';
-    h += '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.25 8.25 0 004.83 1.56V6.81a4.85 4.85 0 01-1.06-.12z"/></svg>';
-    h += 'Ver en vivo</a>';
-  }
-  h += '</div></div>';
-  return h;
+  h+='<div class="tv-sec-label">Reportes</div>';
+  h+='<button class="pdf-btn-dark" onclick="pdfalert()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar fixture PDF</button>';
+  h+='<button class="pdf-btn-dark" onclick="pdfalert()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar tabla posiciones PDF</button>';
+  h+='<button class="pdf-btn-dark pdf-btn-ghost" onclick="pdfalert()">Ver reglamento</button>';
+  h+='<div style="text-align:center;padding:8px 0"><button class="tv-admin-btn" onclick="pdfopenAdmin()">⚙ Acceso administrador</button></div>';
+  el.innerHTML=h;
 }
 
-// ── FIXTURE ───────────────────────────────────────────────────────────
-async function renderFixture() {
-  const el = document.getElementById('tab-fixture');
-  const cat = getCatActual();
-  if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2);text-align:center">Sin categorías.</div>'; return; }
-  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
-  // Simulamos que no hay partidos
-  const partidos = []; // await supa('partidos',
-    // '?categoria_id=eq.' + cat.id
-    // + '&select=*,local:equipo_local(nombre),visita:equipo_visita(nombre)'
-    // + '&estado=neq.finalizado&order=nro_fecha,fecha,hora');
-  if (!partidos || !partidos.length) {
-    el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin partidos programados en ' + cat.nombre + '.</div>';
-    return;
-  }
-  let h = '<div class="tv-sec-label">Próximos partidos</div>';
-  partidos.forEach(function(p) { h += buildPartidoCard(p, false); });
-  el.innerHTML = h;
+async function renderClubes(){
+  var el=document.getElementById('tab-clubes'),cat=getCatActual();
+  if(!cat){el.innerHTML='<div style="padding:20px;color:var(--text2)">Sin categorías.</div>';return;}
+  var equipos=EQUIPOS[cat.id]||await supa('equipos','?categoria_id=eq.'+cat.id+'&activo=eq.true&order=nombre');
+  EQUIPOS[cat.id]=equipos||[];
+  var h='<div class="tv-sec-label">Clubes participantes</div>';
+  if(!equipos||!equipos.length){h+='<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin equipos en '+cat.nombre+'.</div>';}
+  else equipos.forEach(function(e){h+='<div class="club-card"><div class="club-color" style="background:'+(e.color_local||'#1d4ed8')+'"></div><div class="club-name">'+e.nombre+'</div></div>';});
+  el.innerHTML=h;
 }
 
-// ── RESULTADOS ────────────────────────────────────────────────────────
-async function renderResultados() {
-  const el = document.getElementById('tab-resultados');
-  const cat = getCatActual();
-  if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2)">Sin categorías.</div>'; return; }
-  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
-  // Simulamos que no hay resultados
-  const partidos = []; // await supa('partidos',
-    // '?categoria_id=eq.' + cat.id
-    // + '&select=*,local:equipo_local(nombre),visita:equipo_visita(nombre)'
-    // + '&estado=eq.finalizado&order=nro_fecha.desc,fecha.desc');
-  if (!partidos || !partidos.length) {
-    el.innerHTML = '<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin resultados en ' + cat.nombre + '.</div>';
-    return;
-  }
-  let h = '<div class="tv-sec-label">Resultados</div>';
-  partidos.forEach(function(p) { h += buildPartidoCard(p, true); });
-  el.innerHTML = h;
+async function renderNoticias(){
+  var el=document.getElementById('tab-noticias');
+  el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
+  var news=await supa('noticias','?torneo_id=eq.'+TORNEO_ACTUAL.id+'&publicado=eq.true&order=created_at.desc');
+  var h='<div class="tv-sec-label">Noticias</div>';
+  if(!news||!news.length){h+='<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin noticias publicadas.</div>';}
+  else news.forEach(function(n){h+='<div class="news-card-tv"><div class="news-card-body"><div class="news-date-tv">'+formatFecha(n.created_at,'fecha')+'</div><div class="news-title-tv">'+n.titulo+'</div>'+(n.contenido?'<div class="news-desc-tv">'+n.contenido+'</div>':'')+'</div></div>';});
+  el.innerHTML=h;
 }
 
-// ── POSICIONES ────────────────────────────────────────────────────────
-async function renderPosiciones() {
-  const el = document.getElementById('tab-posiciones');
-  const cat = getCatActual();
-  if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2)">Sin categorías.</div>'; return; }
-  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando tabla...</div>';
-  let rows = null;
-  try {
-    // Simulamos que no hay standings
-    const r = []; // await supa('standings', '?categoria_id=eq.' + cat.id + '&order=pts.desc');
-    if (r && !r.error && r.length) rows = r;
-  } catch(e) {}
-  let h = '<div class="tv-sec-label">Tabla de posiciones</div>';
-  if (!rows || !rows.length) {
-    h += '<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin partidos finalizados aún.</div>';
-  } else {
-    // Ordenar por pts desc, diferencia de goles desc
-    rows.sort(function(a,b) {
-      const dga = Number(a.gf||0) - Number(a.gc||0);
-      const dgb = Number(b.gf||0) - Number(b.gc||0);
-      return (Number(b.pts)||0) - (Number(a.pts)||0) || dgb - dga || (Number(b.gf)||0) - (Number(a.gf)||0);
-    });
-    h += '<div class="st-wrap"><table class="st-table"><thead><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>Dif</th><th>Pts</th></tr></thead><tbody>';
-    rows.forEach(function(r, i) {
-      const dg = Number(r.gf||0) - Number(r.gc||0);
-      const rkCls = i===0?'rk-1':i===1?'rk-2':i===2?'rk-3':'';
-      h += '<tr>'
-        + '<td><span class="rk ' + rkCls + '">' + (i+1) + '</span></td>'
-        + '<td><span class="color-dot" style="background:' + (r.color||'#475569') + '"></span>' + r.equipo_nombre + '</td>'
-        + '<td>' + r.pj + '</td><td>' + r.pg + '</td><td>' + r.pe + '</td><td>' + r.pp + '</td>'
-        + '<td>' + r.gf + '</td><td>' + r.gc + '</td>'
-        + '<td class="' + (dg>0?'dif-pos':dg<0?'dif-neg':'') + '">' + (dg>0?'+':'') + dg + '</td>'
-        + '<td><span class="pts-cell">' + r.pts + '</span></td></tr>';
-    });
-    h += '</tbody></table></div>';
-  }
-  // Reportes
-  h += '<div class="tv-sec-label">Reportes y documentos</div>';
-  h += '<button class="pdf-btn-dark" onclick="pdfalert()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar fixture PDF</button>';
-  h += '<button class="pdf-btn-dark" onclick="pdfalert()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar resultados PDF</button>';
-  h += '<button class="pdf-btn-dark" onclick="pdfalert()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar tabla de posiciones PDF</button>';
-  h += '<button class="pdf-btn-dark pdf-btn-ghost" onclick="pdfalert()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Ver reglamento del torneo</button>';
-  h += '<div style="text-align:center;padding:8px 0"><button class="tv-admin-btn" onclick="pdfopenAdmin()"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg>Acceso administrador</button></div>';
-  el.innerHTML = h;
+async function renderSanciones(){
+  var el=document.getElementById('tab-sanciones'),cat=getCatActual();
+  if(!cat){el.innerHTML='<div style="padding:20px;color:var(--text2)">Sin categorías.</div>';return;}
+  el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
+  var sancs=await supa('sanciones','?categoria_id=eq.'+cat.id+'&order=created_at.desc');
+  var h='<div class="tv-sec-label">Sanciones</div>';
+  if(!sancs||!sancs.length){h+='<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin sanciones en '+cat.nombre+'.</div>';}
+  else sancs.forEach(function(s,i){h+='<div class="san-card" onclick="toggleSanAcc('+i+')"><div class="san-header"><span class="san-type">'+(s.tipo||'Sanción')+'</span><span style="background:rgba(239,68,68,.12);color:var(--red);font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px">Sancionado</span></div><div class="san-player">'+(s.jugador_nombre||'Sin nombre')+'</div><div class="san-detail" id="san-body-'+i+'" style="display:none">'+(s.descripcion||'')+(s.fecha_fin?'<br><span style="color:var(--orange);font-size:11px">Hasta: '+formatFecha(s.fecha_fin,'corto')+'</span>':'')+'</div></div>';});
+  el.innerHTML=h;
+  window.toggleSanAcc=function(i){var b=document.getElementById('san-body-'+i);if(b)b.style.display=b.style.display==='none'?'block':'none';};
 }
 
-// ── CLUBES ────────────────────────────────────────────────────────────
-async function renderClubes() {
-  const el = document.getElementById('tab-clubes');
-  const cat = getCatActual();
-  if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2)">Sin categorías.</div>'; return; }
-  // Simulamos que no hay equipos
-  const equipos = []; // EQUIPOS[cat.id] || await supa('equipos', '?categoria_id=eq.' + cat.id + '&activo=eq.true&order=nombre');
-  EQUIPOS[cat.id] = equipos || [];
-  let h = '<div class="tv-sec-label">Clubes participantes</div>';
-  if (!equipos || !equipos.length) {
-    h += '<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin equipos en ' + cat.nombre + '.</div>';
-  } else {
-    equipos.forEach(function(e) {
-      h += '<div class="club-card">';
-      h += '<div class="club-color" style="background:' + (e.color_local||'#1d4ed8') + '"></div>';
-      h += '<div class="club-name">' + e.nombre + '</div>';
-      h += '</div>';
-    });
-  }
-  el.innerHTML = h;
+function compartirTorneo(){var u=window.location.href;if(navigator.share)navigator.share({title:TORNEO_ACTUAL?TORNEO_ACTUAL.nombre:'ACTIVA PLAY',url:u});else if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){toast('Link copiado','ok');});}
+function pdfalert(){toast('Próximamente disponible','');}
+function pdfopenAdmin(){openModal('modal-login-admin');}
+
+/* ── AUTH ── */
+async function loginAdmin(e){
+  e.preventDefault();var errEl=document.getElementById('admin-error'),btn=document.getElementById('admin-btn');
+  errEl.style.display='none';btn.disabled=true;btn.textContent='Ingresando...';
+  try{var json=await api('checkLogin',{email:document.getElementById('admin-email').value.trim(),password:document.getElementById('admin-pass').value});
+    if(json.success){SESSION={rol:'admin',token:json.token,nombre:json.nombre,email:json.email};closeModal('modal-login-admin');initPanel();}
+    else{errEl.textContent=json.message||'Email o contraseña incorrectos';errEl.style.display='block';}}
+  catch(err){errEl.textContent='Error de conexión';errEl.style.display='block';}
+  finally{btn.disabled=false;btn.textContent='INGRESAR';}
 }
 
-// ── NOTICIAS ──────────────────────────────────────────────────────────
-async function renderNoticias() {
-  const el = document.getElementById('tab-noticias');
-  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
-  // Simulamos que no hay noticias
-  const news = []; // await supa('noticias', '?torneo_id=eq.' + TORNEO_ACTUAL.id + '&publicado=eq.true&order=created_at.desc');
-  let h = '<div class="tv-sec-label">Noticias</div>';
-  if (!news || !news.length) {
-    h += '<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin noticias publicadas.</div>';
-  } else {
-    news.forEach(function(n) {
-      h += '<div class="news-card-tv"><div class="news-card-body">';
-      h += '<div class="news-date-tv">' + formatFecha(n.created_at,'fecha') + '</div>';
-      h += '<div class="news-title-tv">' + n.titulo + '</div>';
-      if (n.contenido) h += '<div class="news-desc-tv">' + n.contenido + '</div>';
-      h += '</div></div>';
-    });
-  }
-  el.innerHTML = h;
+async function loginOrg(e){
+  e.preventDefault();var errEl=document.getElementById('org-error'),btn=document.getElementById('org-btn');
+  errEl.style.display='none';btn.disabled=true;btn.textContent='Ingresando...';
+  try{var json=await api('checkLogin',{email:document.getElementById('org-email').value.trim(),password:document.getElementById('org-pass').value});
+    if(json.success){SESSION={rol:'organizador',token:json.token,nombre:json.nombre,org_id:json.org_id,ciudad:json.ciudad};closeModal('modal-login-org');initPanel();}
+    else{errEl.textContent=json.message||'Email o clave incorrectos';errEl.style.display='block';}}
+  catch(err){errEl.textContent='Error de conexión';errEl.style.display='block';}
+  finally{btn.disabled=false;btn.textContent='INGRESAR';}
 }
 
-// ── SANCIONES ─────────────────────────────────────────────────────────
-async function renderSanciones() {
-  const el = document.getElementById('tab-sanciones');
-  const cat = getCatActual();
-  if (!cat) { el.innerHTML = '<div style="padding:20px;color:var(--text2)">Sin categorías.</div>'; return; }
-  el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
-  // Simulamos que no hay sanciones
-  const sancs = []; // await supa('sanciones', '?categoria_id=eq.' + cat.id + '&order=created_at.desc');
-  let h = '<div class="tv-sec-label">Sanciones</div>';
-  if (!sancs || !sancs.length) {
-    h += '<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin sanciones en ' + cat.nombre + '.</div>';
-  } else {
-    sancs.forEach(function(s, i) {
-      h += '<div class="san-card" onclick="toggleSanAcc(' + i + ')">';
-      h += '<div class="san-header">';
-      h += '<span class="san-type">' + (s.tipo||'Sanción') + '</span>';
-      h += '<span style="background:rgba(239,68,68,.12);color:var(--red);font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px">Sancionado</span>';
-      h += '</div>';
-      h += '<div class="san-player">' + (s.jugador_nombre||'Sin nombre') + '</div>';
-      h += '<div class="san-detail" id="san-body-' + i + '" style="display:none">';
-      if (s.descripcion) h += s.descripcion + '<br>';
-      if (s.fecha_fin)   h += '<span style="color:var(--orange);font-size:11px">Hasta: ' + formatFecha(s.fecha_fin,'corto') + '</span>';
-      if (s.fecha_apelacion) h += '<br><span style="color:var(--blue);font-size:11px">Apelación: ' + formatFecha(s.fecha_apelacion,'corto') + '</span>';
-      h += '</div>';
-      h += '</div>';
-    });
-  }
-  el.innerHTML = h;
-  window.toggleSanAcc = function(i) {
-    const el2 = document.getElementById('san-body-' + i);
-    if (el2) el2.style.display = el2.style.display === 'none' ? 'block' : 'none';
-  };
+async function enviarSolicitud(e){
+  e.preventDefault();var errEl=document.getElementById('sol-error'),btn=document.getElementById('sol-btn');
+  errEl.style.display='none';btn.disabled=true;btn.textContent='Enviando...';
+  try{var json=await api('crearSolicitud',{nombre:document.getElementById('sol-nombre').value.trim(),email:document.getElementById('sol-email').value.trim(),telefono:document.getElementById('sol-tel').value.trim(),ciudad:document.getElementById('sol-ciudad').value.trim(),deporte:document.getElementById('sol-deporte').value.trim()||'Básquetbol',descripcion:document.getElementById('sol-desc').value.trim(),cant_categorias:parseInt(document.getElementById('sol-cats').value)||1});
+    if(json.success){document.getElementById('sol-email-confirm').textContent=document.getElementById('sol-email').value;document.getElementById('sol-form-wrap').style.display='none';document.getElementById('sol-success').style.display='block';}
+    else{errEl.textContent=json.message;errEl.style.display='block';}}
+  catch(err){errEl.textContent='Error de conexión';errEl.style.display='block';}
+  finally{btn.disabled=false;btn.textContent='ENVIAR SOLICITUD';}
 }
 
-function compartirTorneo() {
-  const url = window.location.href;
-  if (navigator.share) {
-    navigator.share({ title: TORNEO_ACTUAL ? TORNEO_ACTUAL.nombre : 'ACTIVA PLAY', url: url });
-  } else if (navigator.clipboard) {
-    navigator.clipboard.writeText(url).then(function() { toast('Link copiado', 'ok'); });
-  }
-}
-function pdfalert() { toast("Próximamente disponible", ""); }
+function logout(){SESSION=null;_torneoId=null;_catsCache=null;var nb=document.querySelector('.tv-navbar');if(nb)nb.style.display='none';showView('pub-view');loadTorneos();}
 
-
-// ── AUTH ──────────────────────────────────────────────────────────────────────
-async function loginAdmin(e) {
-  e.preventDefault();
-  const errEl = document.getElementById('admin-error');
-  const btn   = document.getElementById('admin-btn');
-  errEl.style.display = 'none';
-  btn.disabled = true; btn.textContent = 'Ingresando...';
-
-  const emailInput = document.getElementById('admin-email').value.trim();
-  const passwordInput = document.getElementById('admin-pass').value;
-
-  try {
-    // **MODIFICADO**: Usar credenciales mock directamente
-    if (emailInput === MOCK_ADMIN_CREDENTIALS.email && passwordInput === MOCK_ADMIN_CREDENTIALS.password) {
-      SESSION = {
-        rol: 'admin',
-        token: 'mock-admin-token-123', // Token simulado
-        nombre: MOCK_ADMIN_CREDENTIALS.name,
-        email: MOCK_ADMIN_CREDENTIALS.email
-      };
-      closeModal('modal-login-admin');
-      initPanel();
-      toast(`Bienvenido, ${SESSION.nombre} (Admin)`, 'ok');
-    } else {
-      errEl.textContent = 'Email o contraseña incorrectos para Admin.';
-      errEl.style.display = 'block';
-    }
-  } catch(err) {
-    errEl.textContent = 'Error de conexión simulado.';
-    errEl.style.display = 'block';
-  } finally {
-    btn.disabled = false; btn.textContent = 'INGRESAR';
-  }
-}
-
-async function loginOrg(e) {
-  e.preventDefault();
-  const errEl = document.getElementById('org-error');
-  const btn   = document.getElementById('org-btn');
-  errEl.style.display = 'none';
-  btn.disabled = true; btn.textContent = 'Ingresando...';
-
-  const emailInput = document.getElementById('org-email').value.trim();
-  const passwordInput = document.getElementById('org-pass').value;
-
-  try {
-    // **MODIFICADO**: Usar credenciales mock directamente
-    if (emailInput === MOCK_ORGANIZER_CREDENTIALS.email && passwordInput === MOCK_ORGANIZER_CREDENTIALS.password) {
-      SESSION = {
-        rol: 'organizador',
-        token: 'mock-org-token-456', // Token simulado
-        nombre: MOCK_ORGANIZER_CREDENTIALS.name,
-        org_id: MOCK_ORGANIZER_CREDENTIALS.org_id,
-        ciudad: MOCK_ORGANIZER_CREDENTIALS.city
-      };
-      closeModal('modal-login-org');
-      initPanel();
-      toast(`Bienvenido, ${SESSION.nombre} (Organizador)`, 'ok');
-    } else {
-      errEl.textContent = 'Email o clave incorrectos para Organizador.';
-      errEl.style.display = 'block';
-    }
-  } catch(err) {
-    errEl.textContent = 'Error de conexión simulado.';
-    errEl.style.display = 'block';
-  } finally {
-    btn.disabled = false; btn.textContent = 'INGRESAR';
-  }
-}
-
-function logout() {
-  SESSION = null;
-  var nb = document.querySelector('.tv-navbar');
-  if (nb) nb.style.display = 'none';
-  showView('pub-view');
-  loadTorneos();
-  toast('Sesión cerrada', '');
-}
-
-function initPanel() {
+function initPanel(){
   showView('panel-view');
-  document.getElementById('panel-user-name').textContent = SESSION.nombre;
-  var badge = document.getElementById('panel-role-badge');
-  if (SESSION.rol === 'admin') {
-    badge.textContent = 'Admin';
-    badge.style.cssText = 'background:rgba(29,78,216,.2);color:#93c5fd;border:1px solid rgba(29,78,216,.3);font-size:10px;padding:2px 8px;border-radius:100px';
-    document.getElementById('sidebar-admin').style.display = 'flex';
-    document.getElementById('sidebar-org').style.display = 'none';
-    showPanel('p-solicitudes', document.querySelector('#sidebar-admin .sb-btn'));
-  } else {
-    badge.textContent = 'Organizador ' + (SESSION.org_id||'');
-    badge.style.cssText = 'background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3);font-size:10px;padding:2px 8px;border-radius:100px';
-    document.getElementById('sidebar-admin').style.display = 'none';
-    document.getElementById('sidebar-org').style.display = 'flex';
-    showPanel('p-dashboard', document.querySelector('#sidebar-org .sb-btn'));
+  document.getElementById('panel-user-name').textContent=SESSION.nombre;
+  var badge=document.getElementById('panel-role-badge');
+  if(SESSION.rol==='admin'){badge.textContent='Admin';badge.style.cssText='background:rgba(29,78,216,.2);color:#93c5fd;border:1px solid rgba(29,78,216,.3);font-size:10px;padding:2px 8px;border-radius:100px';document.getElementById('sidebar-admin').style.display='flex';document.getElementById('sidebar-org').style.display='none';showPanel('p-solicitudes',document.querySelector('#sidebar-admin .sb-btn'));}
+  else{badge.textContent='Org '+(SESSION.org_id||'');badge.style.cssText='background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3);font-size:10px;padding:2px 8px;border-radius:100px';document.getElementById('sidebar-admin').style.display='none';document.getElementById('sidebar-org').style.display='flex';showPanel('p-dashboard',document.querySelector('#sidebar-org .sb-btn'));}
+}
+
+/* ── PANEL ROUTER ── */
+function showPanel(panelId,btn){
+  var sid=SESSION&&SESSION.rol==='admin'?'sidebar-admin':'sidebar-org';
+  var sb=document.getElementById(sid);if(sb)sb.querySelectorAll('.sb-btn').forEach(function(b){b.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  var main=document.getElementById('panel-main');main.innerHTML='<div style="padding:40px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
+  switch(panelId){
+    case'p-solicitudes':renderSolicitudes();break;case'p-torneos':renderTorneosAdmin();break;
+    case'p-organizadores':renderOrganizadores();break;case'p-metricas':renderMetricas();break;
+    case'p-dashboard':renderDashboard();break;case'p-categorias':renderCategorias();break;
+    case'p-equipos':renderEquipos();break;case'p-fixture':renderFixturePanel();break;
+    case'p-resultados':renderResultadosPanel();break;case'p-noticias':renderNoticiasPanel();break;
+    case'p-sanciones':renderSancionesPanel();break;
+    default:main.innerHTML='<div style="padding:40px;color:var(--text2)">Panel no encontrado</div>';
   }
 }
 
-// ── FUNCIONES DE PANEL (ADMIN/ORGANIZADOR) ────────────────────────────────────
+/* ── ADMIN: SOLICITUDES ── */
+async function renderSolicitudes(){
+  var r=await api('listarSolicitudes');
+  if(!r.success){setMain('<div class="panel-content"><div class="p-card" style="color:var(--red)">'+r.message+'</div></div>');return;}
+  var pend=r.data.filter(function(s){return s.estado==='pendiente';});
+  var badge=document.getElementById('sb-badge-sol');if(badge){badge.textContent=pend.length;badge.style.display=pend.length?'inline':'none';}
+  var h='<div class="panel-content"><div class="panel-title">Solicitudes</div><div class="panel-sub">'+pend.length+' pendiente(s)</div>';
+  if(!r.data.length){h+='<div class="p-card" style="text-align:center;padding:32px;color:var(--text2)">Sin solicitudes</div>';}
+  else r.data.forEach(function(s){
+    var ip=s.estado==='pendiente',bc=s.estado==='aprobada'?'var(--green)':s.estado==='rechazada'?'var(--red)':'var(--orange)';
+    h+='<div class="sol-card" style="border-left-color:'+bc+'"><div class="p-card-header"><div><div class="p-card-title">'+s.nombre+'</div><div class="p-card-sub">'+s.email+(s.telefono?' · '+s.telefono:'')+'</div></div>';
+    h+='<span class="badge'+(s.estado==='aprobada'?' badge-active':'')+(s.estado==='rechazada'?' badge-draft':'')+'" style="'+(s.estado==='pendiente'?'background:var(--orange-dim);color:var(--orange);border:1px solid rgba(249,115,22,.2)':'')+'">'+s.estado.toUpperCase()+'</span></div>';
+    h+='<div class="sol-info"><div class="sol-info-item"><div class="sol-info-lbl">Ciudad</div><div class="sol-info-val">'+s.ciudad+'</div></div><div class="sol-info-item"><div class="sol-info-lbl">Deporte</div><div class="sol-info-val">'+(s.deporte||'Básquetbol')+'</div></div><div class="sol-info-item"><div class="sol-info-lbl">Categorías</div><div class="sol-info-val">'+(s.cant_categorias||1)+'</div></div><div class="sol-info-item"><div class="sol-info-lbl">Fecha</div><div class="sol-info-val">'+new Date(s.created_at).toLocaleDateString('es-CL')+'</div></div></div>';
+    if(s.descripcion)h+='<div style="font-size:12px;color:var(--text2);margin-bottom:10px;padding:8px;background:var(--bg3);border-radius:8px">'+s.descripcion+'</div>';
+    if(s.org_id)h+='<div class="org-id-display"><div><div style="font-size:10px;color:var(--text2);margin-bottom:2px">ORG ID</div><div class="org-id-val">'+s.org_id+'</div></div><div><div style="font-size:10px;color:var(--text2);margin-bottom:2px">Clave</div><div class="org-clave">'+(s.clave_acceso||'—')+'</div></div></div>';
+    if(ip)h+='<div style="display:flex;gap:8px;margin-top:8px"><button class="btn-sm btn-sm-primary" style="flex:1;padding:8px" onclick="aprobarSolicitud(\''+s.id+'\',\''+s.nombre.replace(/'/g,"\\'")+'\')">✓ Aprobar</button><button class="btn-sm" style="flex:1;padding:8px" onclick="rechazarSolicitud(\''+s.id+'\')">✕ Rechazar</button></div>';
+    h+='</div>';
+  });
+  setMain(h+'</div>');
+}
+async function aprobarSolicitud(id,nombre){var n=prompt('Notas opcionales para '+nombre+':')||'';var r=await api('aprobarSolicitud',{id:id,notas:n});if(r.success){toast('✓ Aprobado — '+r.org_id+' / Clave: '+r.clave_acceso,'ok');renderSolicitudes();}else toast(r.message,'err');}
+async function rechazarSolicitud(id){confirmAction('¿Rechazar?',async function(){var r=await api('rechazarSolicitud',{id:id});if(r.success){toast('Rechazada','');renderSolicitudes();}else toast(r.message,'err');});}
 
-/**
- * Muestra el panel especificado y actualiza el botón activo en el sidebar.
- * @param {string} panelId El ID del panel a mostrar (ej. 'p-solicitudes').
- * @param {HTMLElement} btn El botón del sidebar que fue clickeado.
- */
-function showPanel(panelId, btn) {
-  // Remover la clase 'active' de todos los botones del sidebar
-  document.querySelectorAll('.panel-sidebar .sb-btn').forEach(b => b.classList.remove('active'));
-  // Añadir la clase 'active' al botón clickeado
-  if (btn) btn.classList.add('active');
+/* ── ADMIN: TORNEOS ── */
+async function renderTorneosAdmin(){
+  var r=await api('getTorneosAdmin');
+  if(!r.success){setMain('<div class="panel-content"><div class="p-card" style="color:var(--red)">'+r.message+'</div></div>');return;}
+  var h='<div class="panel-content"><div class="panel-title">Torneos</div><div class="panel-sub">'+r.data.length+' torneo(s)</div>';
+  if(!r.data.length)h+='<div class="p-card" style="text-align:center;padding:32px;color:var(--text2)">Sin torneos</div>';
+  else r.data.forEach(function(t){h+='<div class="p-card"><div class="p-card-header"><div><div class="p-card-title">'+t.nombre+'</div><div class="p-card-sub">'+t.ciudad+(t.temporada?' · '+t.temporada:'')+(t.org_id?' — org: '+t.org_id:'')+'</div></div><div class="p-card-actions"><span class="badge '+(t.visible?'badge-active':'badge-draft')+'">'+(t.visible?'Visible':'Oculto')+'</span><button class="btn-sm" onclick="eliminarTorneoAdmin(\''+t.id+'\',\''+t.nombre.replace(/'/g,"\\'")+'\')">Eliminar</button></div></div>'+(t.organizadores?'<div style="font-size:12px;color:var(--text2)">Org: '+t.organizadores.nombre+'</div>':'')+'</div>';});
+  setMain(h+'</div>');
+}
+async function eliminarTorneoAdmin(id,nombre){confirmAction('¿Eliminar "'+nombre+'"?',async function(){var r=await api('eliminarTorneo',{id:id});if(r.success){toast('Eliminado','');renderTorneosAdmin();}else toast(r.message,'err');});}
 
-  const panelMain = document.getElementById('panel-main');
-  panelMain.innerHTML = ''; // Limpiar contenido anterior
+/* ── ADMIN: ORGANIZADORES ── */
+async function renderOrganizadores(){
+  var r=await api('listarOrganizadores');
+  if(!r.success){setMain('<div class="panel-content"><div class="p-card" style="color:var(--red)">'+r.message+'</div></div>');return;}
+  var h='<div class="panel-content"><div class="panel-title">Organizadores</div><div class="panel-sub">'+r.data.length+' registrado(s)</div>';
+  if(!r.data.length)h+='<div class="p-card" style="text-align:center;padding:32px;color:var(--text2)">Sin organizadores</div>';
+  else r.data.forEach(function(o){
+    h+='<div class="p-card"><div class="p-card-header"><div><div class="p-card-title">'+o.nombre+' <span style="font-family:\'Barlow Condensed\',sans-serif;font-size:14px;color:var(--blue);letter-spacing:1px">'+o.org_id+'</span></div><div class="p-card-sub">'+o.email+' · '+o.ciudad+' · '+(o.torneos_count||0)+' torneo(s)</div></div>';
+    h+='<div class="p-card-actions"><span class="badge '+(o.activo?'badge-active':'')+'" style="'+(o.activo?'':'background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)')+'">'+( o.activo?'Activo':'Suspendido')+'</span>';
+    h+='<button class="btn-sm" onclick="toggleOrg(\''+o.org_id+'\','+!o.activo+',\''+o.nombre.replace(/'/g,"\\'")+'\')">'+( o.activo?'Suspender':'Activar')+'</button>';
+    h+='<button class="btn-sm" onclick="resetearClave(\''+o.org_id+'\',\''+o.nombre.replace(/'/g,"\\'")+'\')">Reset clave</button></div></div>';
+    if(o.suscripcion_inicio)h+='<div style="font-size:11px;color:var(--text3);margin-top:4px">Desde: '+new Date(o.suscripcion_inicio).toLocaleDateString('es-CL')+(o.suscripcion_fin?' · Hasta: '+new Date(o.suscripcion_fin).toLocaleDateString('es-CL'):'')+'</div>';
+    h+='</div>';
+  });
+  setMain(h+'</div>');
+}
+async function toggleOrg(org_id,activo,nombre){confirmAction((activo?'¿Activar':'¿Suspender')+' a '+nombre+'?',async function(){var r=await api('toggleOrganizador',{org_id:org_id,activo:activo});if(r.success){toast(r.message,'ok');renderOrganizadores();}else toast(r.message,'err');});}
+async function resetearClave(org_id,nombre){confirmAction('¿Nueva clave para '+nombre+'?',async function(){var r=await api('resetPassword',{org_id:org_id});if(r.success){alert('Nueva clave para '+nombre+':\n\n'+r.clave_acceso+'\n\nGuárdala antes de cerrar.');toast('Clave regenerada','ok');}else toast(r.message,'err');});}
 
-  // Renderizar el contenido del panel según el ID
-  switch (panelId) {
-    case 'p-solicitudes':
-      renderPanelSolicitudes();
-      break;
-    case 'p-torneos':
-      renderPanelTorneos();
-      break;
-    case 'p-organizadores':
-      renderPanelOrganizadores();
-      break;
-    case 'p-metricas':
-      renderPanelMetricas();
-      break;
-    case 'p-dashboard':
-      renderPanelDashboard();
-      break;
-    case 'p-categorias':
-      renderPanelCategorias();
-      break;
-    case 'p-equipos':
-      renderPanelEquipos();
-      break;
-    case 'p-fixture':
-      renderPanelFixture();
-      break;
-    case 'p-resultados':
-      renderPanelResultados();
-      break;
-    case 'p-noticias':
-      renderPanelNoticias();
-      break;
-    case 'p-sanciones':
-      renderPanelSanciones();
-      break;
-    default:
-      panelMain.innerHTML = '<div class="panel-content"><div class="panel-title">Panel no encontrado</div><div class="panel-sub">El panel solicitado no existe o no está implementado.</div></div>';
-      break;
+/* ── ADMIN: METRICAS ── */
+async function renderMetricas(){var r=await api('getMetricas');if(!r.success){setMain('<div class="panel-content"><div class="p-card" style="color:var(--red)">'+r.message+'</div></div>');return;}var d=r.data;setMain('<div class="panel-content"><div class="panel-title">Métricas</div><div class="panel-sub">Estado del sistema</div><div class="metrics-grid">'+metricCard(d.solicitudes,'Solicitudes')+metricCard(d.organizadores,'Organizadores')+metricCard(d.torneos,'Torneos')+metricCard(d.equipos,'Equipos')+'</div></div>');}
+
+/* ── ORG HELPERS ── */
+async function getTorneoId(){if(_torneoId)return _torneoId;var r=await api('getMiTorneo');if(r.success&&r.data){_torneoId=r.data.id;return _torneoId;}return null;}
+async function getCats(){if(_catsCache)return _catsCache;var tid=await getTorneoId();if(!tid)return[];var r=await api('getMisCategorias',{torneo_id:tid});_catsCache=(r.success&&r.data)?r.data.filter(function(c){return c.activo;}):[]; return _catsCache;}
+
+/* ── ORG: DASHBOARD ── */
+async function renderDashboard(){
+  var r=await api('getMiTorneo');
+  var h='<div class="panel-content"><div class="panel-title">Dashboard</div><div class="panel-sub">Bienvenido, '+(SESSION.nombre||'')+'</div>';
+  if(!r.success||!r.data){h+='<div class="p-card" style="text-align:center;padding:32px"><div style="font-size:40px;margin-bottom:16px">🏆</div><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:20px;font-weight:900;color:var(--text);margin-bottom:8px">Aún no tienes un torneo</div><div style="font-size:13px;color:var(--text2);margin-bottom:20px">Crea tu torneo para comenzar.</div><button class="f-submit" style="max-width:260px;margin:0 auto" onclick="abrirCrearTorneo()">+ CREAR MI TORNEO</button></div>';}
+  else{var t=r.data;
+    h+='<div class="p-card"><div class="p-card-header"><div><div class="p-card-title">'+t.nombre+'</div><div class="p-card-sub">'+t.ciudad+(t.temporada?' · '+t.temporada:'')+'</div></div><div class="p-card-actions"><span class="badge '+(t.visible?'badge-active':'badge-draft')+'">'+(t.visible?'● Publicado':'○ Borrador')+'</span><button class="btn-sm btn-sm-primary" onclick="editarTorneo(\''+t.id+'\',\''+encodeURIComponent(JSON.stringify(t))+'\')">Editar</button></div></div>';
+    if(t.descripcion)h+='<div style="font-size:13px;color:var(--text2);margin-top:8px">'+t.descripcion+'</div>';
+    h+='<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;color:var(--text2)">'+(t.visible?'Visible al público':'Oculto al público')+'</span><button class="btn-sm '+(t.visible?'':'btn-sm-primary')+'" onclick="toggleVisible(\''+t.id+'\','+!t.visible+')">'+(t.visible?'Ocultar':'Publicar')+'</button></div></div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">'+quickAction('Categorías','🏅',"showPanel('p-categorias',null)")+quickAction('Equipos','👥',"showPanel('p-equipos',null)")+quickAction('Fixture','📅',"showPanel('p-fixture',null)")+quickAction('Resultados','⚽',"showPanel('p-resultados',null)")+'</div>';
   }
+  setMain(h+'</div>');
 }
+async function toggleVisible(id,visible){var r=await api('publicarTorneo',{id:id,visible:visible});if(r.success){toast(r.message,'ok');_torneoId=null;renderDashboard();}else toast(r.message,'err');}
+function abrirCrearTorneo(){openInlineModal('<div class="modal-title">Crear torneo</div><div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="ct-nombre" placeholder="Liga Municipal 2026"></div><div class="f-row"><div class="f-group"><label class="f-label">Ciudad</label><input class="f-input" id="ct-ciudad" value="'+(SESSION.ciudad||'')+'"></div><div class="f-group"><label class="f-label">Temporada</label><input class="f-input" id="ct-temporada" placeholder="2026"></div></div><div class="f-group"><label class="f-label">Descripción (opcional)</label><textarea class="f-input" id="ct-desc" rows="2"></textarea></div><button class="f-submit" onclick="guardarNuevoTorneo()">CREAR TORNEO</button>');}
+async function guardarNuevoTorneo(){var nombre=document.getElementById('ct-nombre').value.trim(),ciudad=document.getElementById('ct-ciudad').value.trim();if(!nombre||!ciudad){toast('Nombre y ciudad son obligatorios','err');return;}var r=await api('crearTorneo',{nombre:nombre,ciudad:ciudad,temporada:document.getElementById('ct-temporada').value.trim(),descripcion:document.getElementById('ct-desc').value.trim()});if(r.success){toast('Torneo creado ✓','ok');closeInlineModal();_torneoId=null;renderDashboard();}else toast(r.message,'err');}
+function editarTorneo(id,encoded){var t=JSON.parse(decodeURIComponent(encoded));openInlineModal('<div class="modal-title">Editar torneo</div><div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="et-nombre" value="'+esc(t.nombre||'')+'"></div><div class="f-group"><label class="f-label">Temporada</label><input class="f-input" id="et-temporada" value="'+(t.temporada||'')+'"></div><div class="f-group"><label class="f-label">Descripción</label><textarea class="f-input" id="et-desc" rows="2">'+(t.descripcion||'')+'</textarea></div><div class="f-group"><label class="f-label">URL Reglamento</label><input class="f-input" id="et-reglamento" value="'+(t.reglamento_url||'')+'" placeholder="https://..."></div><button class="f-submit" onclick="guardarEdicionTorneo(\''+id+'\')">GUARDAR CAMBIOS</button>');}
+async function guardarEdicionTorneo(id){var r=await api('actualizarTorneo',{id:id,nombre:document.getElementById('et-nombre').value.trim(),temporada:document.getElementById('et-temporada').value.trim(),descripcion:document.getElementById('et-desc').value.trim(),reglamento_url:document.getElementById('et-reglamento').value.trim()});if(r.success){toast('Actualizado ✓','ok');closeInlineModal();_torneoId=null;renderDashboard();}else toast(r.message,'err');}
 
-// **MODIFICADO**: renderPanelSolicitudes para mostrar solicitudes dinámicamente
-function renderPanelSolicitudes() {
-  const panelMain = document.getElementById('panel-main');
-  let solicitudesHtml = '';
-
-  if (PENDING_SOLICITUDES.length === 0) {
-    solicitudesHtml = '<div style="text-align:center;padding:20px;color:var(--text2);font-size:13px">No hay solicitudes pendientes.</div>';
-  } else {
-    solicitudesHtml = PENDING_SOLICITUDES.map((sol, index) => `
-      <div class="p-card sol-card ${sol.estado === 'aprobada' ? 'aprobada' : sol.estado === 'rechazada' ? 'rechazada' : ''}">
-        <div class="p-card-header">
-          <div>
-            <div class="p-card-title">Solicitud de ${sol.nombre}</div>
-            <div class="p-card-sub">${sol.deporte} en ${sol.ciudad} · ${sol.categorias} categorías</div>
-          </div>
-          <div class="p-card-actions">
-            ${sol.estado === 'pendiente' ? `
-              <button class="btn-sm btn-sm-primary" onclick="aprobarSolicitud(${index})">Aprobar</button>
-              <button class="btn-sm btn-sm-danger" onclick="rechazarSolicitud(${index})">Rechazar</button>
-            ` : `<span class="badge ${sol.estado === 'aprobada' ? 'badge-active' : 'badge-draft'}" style="font-size:10px;padding:3px 10px;border-radius:100px;">${sol.estado === 'aprobada' ? 'Aprobada' : 'Rechazada'}</span>`}
-          </div>
-        </div>
-        <div class="sol-info">
-          <div class="sol-info-item"><div class="sol-info-lbl">Email</div><div class="sol-info-val">${sol.email}</div></div>
-          <div class="sol-info-item"><div class="sol-info-lbl">Teléfono</div><div class="sol-info-val">${sol.tel || 'N/A'}</div></div>
-          <div class="sol-info-item" style="grid-column:1/3;"><div class="sol-info-lbl">Descripción</div><div class="sol-info-val">${sol.desc || 'Sin descripción.'}</div></div>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  panelMain.innerHTML = `
-    <div class="panel-content">
-      <div class="panel-title">Solicitudes de Torneos</div>
-      <div class="panel-sub">Revisa y gestiona las solicitudes de nuevos torneos.</div>
-      ${solicitudesHtml}
-    </div>
-  `;
-  updateSolicitudesBadge();
+/* ── ORG: CATEGORIAS ── */
+async function renderCategorias(){
+  var tid=await getTorneoId();var h='<div class="panel-content"><div class="panel-title">Categorías</div>';
+  if(!tid){setMain(h+'<div class="panel-sub">Crea un torneo primero</div></div>');return;}
+  var r=await api('getMisCategorias',{torneo_id:tid});var cats=(r.success&&r.data)?r.data.filter(function(c){return c.activo;}):[]; 
+  h+='<div class="panel-sub">'+cats.length+' categoría(s)</div><button class="btn-sm btn-sm-primary" style="margin-bottom:16px" onclick="abrirCrearCategoria(\''+tid+'\')">+ Nueva categoría</button>';
+  if(!cats.length)h+='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin categorías aún.</div>';
+  else cats.forEach(function(c){h+='<div class="p-card"><div class="p-card-header"><div><div class="p-card-title">'+c.nombre+'</div><div class="p-card-sub">V:'+c.pts_victoria+' E:'+c.pts_empate+' D:'+c.pts_derrota+'</div></div><div class="p-card-actions"><button class="btn-sm" onclick="abrirEditarCategoria(\''+c.id+'\','+encodeURIComponent(JSON.stringify(c))+')">Editar</button><button class="btn-sm btn-sm-danger" onclick="eliminarCategoria(\''+c.id+'\',\''+c.nombre.replace(/'/g,"\\'")+'\')">Eliminar</button></div></div></div>';});
+  setMain(h+'</div>');
 }
+function abrirCrearCategoria(tid){openInlineModal('<div class="modal-title">Nueva categoría</div><div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="cc-nombre" placeholder="Senior, Sub-23..."></div><div class="f-row"><div class="f-group"><label class="f-label">Victoria</label><input class="f-input" id="cc-vic" type="number" value="2"></div><div class="f-group"><label class="f-label">Empate</label><input class="f-input" id="cc-emp" type="number" value="0"></div><div class="f-group"><label class="f-label">Derrota</label><input class="f-input" id="cc-der" type="number" value="1"></div></div><button class="f-submit" onclick="guardarCategoria(\''+tid+'\')">CREAR</button>');}
+async function guardarCategoria(tid){var n=document.getElementById('cc-nombre').value.trim();if(!n){toast('Nombre obligatorio','err');return;}var r=await api('crearCategoria',{torneo_id:tid,nombre:n,pts_victoria:parseInt(document.getElementById('cc-vic').value)||2,pts_empate:parseInt(document.getElementById('cc-emp').value)||0,pts_derrota:parseInt(document.getElementById('cc-der').value)||1});if(r.success){toast('Categoría creada ✓','ok');closeInlineModal();_catsCache=null;renderCategorias();}else toast(r.message,'err');}
+function abrirEditarCategoria(id,enc){var c=JSON.parse(decodeURIComponent(enc));openInlineModal('<div class="modal-title">Editar categoría</div><div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="ec-nombre" value="'+(c.nombre||'')+'"></div><div class="f-row"><div class="f-group"><label class="f-label">Victoria</label><input class="f-input" id="ec-vic" type="number" value="'+(c.pts_victoria||2)+'"></div><div class="f-group"><label class="f-label">Empate</label><input class="f-input" id="ec-emp" type="number" value="'+(c.pts_empate||0)+'"></div><div class="f-group"><label class="f-label">Derrota</label><input class="f-input" id="ec-der" type="number" value="'+(c.pts_derrota||1)+'"></div></div><button class="f-submit" onclick="guardarEditarCategoria(\''+id+'\')">GUARDAR</button>');}
+async function guardarEditarCategoria(id){var r=await api('actualizarCategoria',{id:id,nombre:document.getElementById('ec-nombre').value.trim(),pts_victoria:parseInt(document.getElementById('ec-vic').value)||2,pts_empate:parseInt(document.getElementById('ec-emp').value)||0,pts_derrota:parseInt(document.getElementById('ec-der').value)||1});if(r.success){toast('Actualizada ✓','ok');closeInlineModal();_catsCache=null;renderCategorias();}else toast(r.message,'err');}
+async function eliminarCategoria(id,nombre){confirmAction('¿Eliminar "'+nombre+'"?',async function(){var r=await api('eliminarCategoria',{id:id});if(r.success){toast('Eliminada','');_catsCache=null;renderCategorias();}else toast(r.message,'err');});}
 
-// **NUEVO**: Funciones para aprobar/rechazar solicitudes
-function aprobarSolicitud(index) {
-  if (PENDING_SOLICITUDES[index]) {
-    PENDING_SOLICITUDES[index].estado = 'aprobada';
-    toast(`Solicitud de ${PENDING_SOLICITUDES[index].nombre} aprobada`, 'ok');
-    renderPanelSolicitudes(); // Volver a renderizar para actualizar la UI
-  }
+/* ── ORG: EQUIPOS ── */
+async function renderEquipos(){
+  var cats=await getCats();var h='<div class="panel-content"><div class="panel-title">Equipos</div>';
+  if(!cats.length){setMain(h+'<div class="panel-sub">Crea categorías primero</div></div>');return;}
+  h+='<div class="f-group" style="margin-bottom:16px"><label class="f-label">Categoría</label><select class="f-select" id="eq-cat-sel" onchange="cargarEquiposCategoria(this.value)" style="max-width:220px">';
+  cats.forEach(function(c){h+='<option value="'+c.id+'">'+c.nombre+'</option>';});
+  h+='</select></div><button class="btn-sm btn-sm-primary" style="margin-bottom:16px" onclick="abrirCrearEquipo()">+ Nuevo equipo</button><div id="equipos-list"></div></div>';
+  setMain(h);cargarEquiposCategoria(cats[0].id);
 }
-
-function rechazarSolicitud(index) {
-  if (PENDING_SOLICITUDES[index]) {
-    PENDING_SOLICITUDES[index].estado = 'rechazada';
-    toast(`Solicitud de ${PENDING_SOLICITUDES[index].nombre} rechazada`, 'err');
-    renderPanelSolicitudes(); // Volver a renderizar para actualizar la UI
-  }
+async function cargarEquiposCategoria(catId){
+  var el=document.getElementById('equipos-list');if(!el)return;
+  el.innerHTML='<div style="color:var(--text2);font-size:13px;padding:12px">Cargando...</div>';
+  var r=await api('getEquiposCategoria',{categoria_id:catId});
+  if(!r.success||!r.data.length){el.innerHTML='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin equipos.</div>';return;}
+  var h='';r.data.forEach(function(e){h+='<div class="p-card"><div class="p-card-header"><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:'+(e.color_local||'#1d4ed8')+';border:2px solid var(--border2);flex-shrink:0"></div><div><div class="p-card-title">'+e.nombre+'</div></div></div><div class="p-card-actions"><button class="btn-sm" onclick="abrirEditarEquipo(\''+e.id+'\','+encodeURIComponent(JSON.stringify(e))+')">Editar</button><button class="btn-sm btn-sm-danger" onclick="eliminarEquipo(\''+e.id+'\',\''+e.nombre.replace(/'/g,"\\'")+'\')">Eliminar</button></div></div></div>';});
+  el.innerHTML=h;
 }
+function abrirCrearEquipo(){var sel=document.getElementById('eq-cat-sel'),catId=sel?sel.value:'';openInlineModal('<div class="modal-title">Nuevo equipo</div><div class="f-group"><label class="f-label">Nombre del equipo</label><input class="f-input" id="ne-nombre" placeholder="Club Atlético..."></div><div class="f-row"><div class="f-group"><label class="f-label">Color local</label><input class="f-input" id="ne-local" type="color" value="#1d4ed8" style="height:42px;padding:4px"></div><div class="f-group"><label class="f-label">Color visita</label><input class="f-input" id="ne-visita" type="color" value="#ffffff" style="height:42px;padding:4px"></div></div><button class="f-submit" onclick="guardarNuevoEquipo(\''+catId+'\')">CREAR EQUIPO</button>');}
+async function guardarNuevoEquipo(catId){var n=document.getElementById('ne-nombre').value.trim();if(!n){toast('Nombre obligatorio','err');return;}var r=await api('crearEquipo',{categoria_id:catId,nombre:n,color_local:document.getElementById('ne-local').value,color_visita:document.getElementById('ne-visita').value});if(r.success){toast('Creado ✓','ok');closeInlineModal();cargarEquiposCategoria(catId);}else toast(r.message,'err');}
+function abrirEditarEquipo(id,enc){var e=JSON.parse(decodeURIComponent(enc));openInlineModal('<div class="modal-title">Editar equipo</div><div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="ee-nombre" value="'+esc(e.nombre||'')+'"></div><div class="f-row"><div class="f-group"><label class="f-label">Color local</label><input class="f-input" id="ee-local" type="color" value="'+(e.color_local||'#1d4ed8')+'" style="height:42px;padding:4px"></div><div class="f-group"><label class="f-label">Color visita</label><input class="f-input" id="ee-visita" type="color" value="'+(e.color_visita||'#ffffff')+'" style="height:42px;padding:4px"></div></div><button class="f-submit" onclick="guardarEditarEquipo(\''+id+'\',\''+(e.categoria_id||'\')+'\')">GUARDAR</button>');}
+async function guardarEditarEquipo(id,catId){var r=await api('actualizarEquipo',{id:id,nombre:document.getElementById('ee-nombre').value.trim(),color_local:document.getElementById('ee-local').value,color_visita:document.getElementById('ee-visita').value});if(r.success){toast('Actualizado ✓','ok');closeInlineModal();cargarEquiposCategoria(catId);}else toast(r.message,'err');}
+async function eliminarEquipo(id,nombre){var sel=document.getElementById('eq-cat-sel'),catId=sel?sel.value:'';confirmAction('¿Eliminar "'+nombre+'"?',async function(){var r=await api('eliminarEquipo',{id:id});if(r.success){toast('Eliminado','');cargarEquiposCategoria(catId);}else toast(r.message,'err');});}
 
-// **NUEVO**: Función para actualizar el badge de solicitudes
-function updateSolicitudesBadge() {
-  const badge = document.getElementById('sb-badge-sol');
-  const pendingCount = PENDING_SOLICITUDES.filter(sol => sol.estado === 'pendiente').length;
-  if (badge) {
-    badge.textContent = pendingCount;
-    badge.style.display = pendingCount > 0 ? 'inline-block' : 'none';
-  }
+/* ── ORG: FIXTURE ── */
+async function renderFixturePanel(){
+  var cats=await getCats();var h='<div class="panel-content"><div class="panel-title">Fixture</div>';
+  if(!cats.length){setMain(h+'<div class="panel-sub">Crea categorías primero</div></div>');return;}
+  h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap"><select class="f-select" id="fx-cat-sel" onchange="cargarFixturePanel(this.value)" style="max-width:220px">';
+  cats.forEach(function(c){h+='<option value="'+c.id+'">'+c.nombre+'</option>';});
+  h+='</select><button class="btn-sm btn-sm-primary" onclick="abrirCrearPartido()">+ Nuevo partido</button></div><div id="fixture-panel-list"></div></div>';
+  setMain(h);cargarFixturePanel(cats[0].id);
 }
-
-
-function renderPanelOrganizadores() {
-  const panelMain = document.getElementById('panel-main');
-  panelMain.innerHTML = `
-    <div class="panel-content">
-      <div class="panel-title">Gestión de Organizadores</div>
-      <div class="panel-sub">Administra las cuentas de los organizadores de torneos.</div>
-      <div class="p-card">
-        <div class="p-card-header">
-          <div>
-            <div class="p-card-title">Juan Pérez</div>
-            <div class="p-card-sub">juan.perez@email.com · ID: ORG-001</div>
-          </div>
-          <div class="p-card-actions">
-            <button class="btn-sm" onclick="toast('Editando organizador', '')">Editar</button>
-            <button class="btn-sm btn-sm-danger" onclick="toast('Organizador eliminado', 'err')">Eliminar</button>
-          </div>
-        </div>
-      </div>
-      <div class="p-card">
-        <div class="p-card-header">
-          <div>
-            <div class="p-card-title">María González</div>
-            <div class="p-card-sub">maria.gonzalez@email.com · ID: ORG-002</div>
-          </div>
-          <div class="p-card-actions">
-            <button class="btn-sm" onclick="toast('Editando organizador', '')">Editar</button>
-            <button class="btn-sm btn-sm-danger" onclick="toast('Organizador eliminado', 'err')">Eliminar</button>
-          </div>
-        </div>
-      </div>
-      <button class="f-submit" style="max-width:200px;margin-top:20px;" onclick="toast('Abriendo formulario de nuevo organizador', '')">Agregar Organizador</button>
-    </div>
-  `;
+async function cargarFixturePanel(catId){
+  var el=document.getElementById('fixture-panel-list');if(!el)return;
+  el.innerHTML='<div style="color:var(--text2);font-size:13px;padding:12px">Cargando...</div>';
+  var r=await api('getPartidosCategoria',{categoria_id:catId});
+  if(!r.success||!r.data.length){el.innerHTML='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin partidos.</div>';return;}
+  var grupos={};r.data.forEach(function(p){var k='Fecha '+(p.nro_fecha||'—');if(!grupos[k])grupos[k]=[];grupos[k].push(p);});
+  var h='';Object.keys(grupos).forEach(function(g){h+='<div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 6px">'+g+'</div>';grupos[g].forEach(function(p){var lN=p.local?p.local.nombre:'?',vN=p.visita?p.visita.nombre:'?',fin=p.estado==='finalizado';h+='<div class="p-card" style="margin-bottom:6px"><div class="p-card-header"><div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--text)">'+lN+' vs '+vN+'</div><div class="p-card-sub">'+(p.fecha||'Sin fecha')+(p.hora?' · '+p.hora:'')+(p.cancha?' · '+p.cancha:'')+' · '+(p.fase||'')+'</div>'+(fin?'<div style="font-size:12px;color:var(--orange);font-weight:700;margin-top:2px">Resultado: '+p.pts_local+' – '+p.pts_visita+'</div>':'')+'</div><div class="p-card-actions">'+((!fin)?'<button class="btn-sm" onclick="abrirEditarPartido(\''+p.id+'\','+encodeURIComponent(JSON.stringify(p))+')">Editar</button>':'')+'<button class="btn-sm btn-sm-danger" onclick="eliminarPartido(\''+p.id+'\')">✕</button></div></div></div>';});});
+  el.innerHTML=h;
 }
-
-function renderPanelTorneos() {
-  const panelMain = document.getElementById('panel-main');
-  panelMain.innerHTML = `
-    <div class="panel-content">
-      <div class="panel-title">Gestión de Torneos</div>
-      <div class="panel-sub">Administra todos los torneos activos e inactivos.</div>
-      <div class="p-card">
-        <div class="p-card-header">
-          <div>
-            <div class="p-card-title">Liga de Verano Santiago</div>
-            <div class="p-card-sub">Organizador: Juan Pérez · Estado: Activo</div>
-          </div>
-          <div class="p-card-actions">
-            <button class="btn-sm" onclick="toast('Editando torneo', '')">Editar</button>
-            <button class="btn-sm btn-sm-danger" onclick="toast('Torneo despublicado', 'err')">Despublicar</button>
-          </div>
-        </div>
-      </div>
-      <div class="p-card">
-        <div class="p-card-header">
-          <div>
-            <div class="p-card-title">Copa Ciudad Valparaíso</div>
-            <div class="p-card-sub">Organizador: María González · Estado: Borrador</div>
-          </div>
-          <div class="p-card-actions">
-            <button class="btn-sm" onclick="toast('Editando torneo', '')">Editar</button>
-            <button class="btn-sm btn-primary" onclick="toast('Torneo publicado', 'ok')">Publicar</button>
-          </div>
-        </div>
-      </div>
-      <button class="f-submit" style="max-width:200px;margin-top:20px;" onclick="toast('Abriendo formulario de nuevo torneo', '')">Crear Torneo</button>
-    </div>
-  `;
+async function abrirCrearPartido(){
+  var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:'';
+  var re=await api('getEquiposCategoria',{categoria_id:catId});var eqs=(re.success&&re.data)?re.data:[];
+  if(eqs.length<2){toast('Necesitas al menos 2 equipos','err');return;}
+  var opts=eqs.map(function(e){return'<option value="'+e.id+'">'+e.nombre+'</option>';}).join('');
+  openInlineModal('<div class="modal-title">Nuevo partido</div><div class="f-row"><div class="f-group"><label class="f-label">Local</label><select class="f-select" id="np-local">'+opts+'</select></div><div class="f-group"><label class="f-label">Visita</label><select class="f-select" id="np-visita">'+opts+'</select></div></div><div class="f-row"><div class="f-group"><label class="f-label">Nro. fecha</label><input class="f-input" id="np-nfecha" type="number" value="1" min="1"></div><div class="f-group"><label class="f-label">Fase</label><select class="f-select" id="np-fase"><option>Fase Regular</option><option>Cuartos de Final</option><option>Semifinal</option><option>Final</option></select></div></div><div class="f-row"><div class="f-group"><label class="f-label">Fecha</label><input class="f-input" id="np-fecha" type="date"></div><div class="f-group"><label class="f-label">Hora</label><input class="f-input" id="np-hora" type="time"></div></div><div class="f-group"><label class="f-label">Cancha (opcional)</label><input class="f-input" id="np-cancha" placeholder="Gimnasio Municipal..."></div><div class="f-group"><label class="f-label">URL transmisión (opcional)</label><input class="f-input" id="np-url" placeholder="https://..."></div><button class="f-submit" onclick="guardarNuevoPartido(\''+catId+'\')">PROGRAMAR</button>');
 }
-
-function renderPanelMetricas() {
-  const panelMain = document.getElementById('panel-main');
-  panelMain.innerHTML = `
-    <div class="panel-content">
-      <div class="panel-title">Métricas del Sistema</div>
-      <div class="panel-sub">Estadísticas generales de la plataforma.</div>
-      <div class="metrics-grid">
-        <div class="metric-card">
-          <div class="metric-num">12</div>
-          <div class="metric-lbl">Torneos Activos</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-num">345</div>
-          <div class="metric-lbl">Equipos Registrados</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-num">890</div>
-          <div class="metric-lbl">Partidos Jugados</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-num">${PENDING_SOLICITUDES.filter(sol => sol.estado === 'pendiente').length}</div>
-          <div class="metric-lbl">Solicitudes Pendientes</div>
-        </div>
-      </div>
-      <div class="p-card">
-        <div class="p-card-title">Actividad Reciente</div>
-        <div class="p-card-sub">Últimas acciones en la plataforma.</div>
-        <ul style="list-style:none;padding:0;margin-top:10px;font-size:13px;color:var(--text2)">
-          <li style="margin-bottom:5px">Organizador ORG-001 actualizó fixture de Liga de Verano.</li>
-          <li style="margin-bottom:5px">Nueva solicitud de torneo de María P.</li>
-          <li style="margin-bottom:5px">Admin aprobó solicitud de Juan C.</li>
-        </ul>
-      </div>
-    </div>
-  `;
+async function guardarNuevoPartido(catId){var loc=document.getElementById('np-local').value,vis=document.getElementById('np-visita').value;if(loc===vis){toast('No pueden ser el mismo equipo','err');return;}var r=await api('crearPartido',{categoria_id:catId,equipo_local:loc,equipo_visita:vis,nro_fecha:parseInt(document.getElementById('np-nfecha').value)||1,fase:document.getElementById('np-fase').value,fecha:document.getElementById('np-fecha').value||null,hora:document.getElementById('np-hora').value||null,cancha:document.getElementById('np-cancha').value.trim()||null,url_transmision:document.getElementById('np-url').value.trim()||null});if(r.success){toast('Partido programado ✓','ok');closeInlineModal();cargarFixturePanel(catId);}else toast(r.message,'err');}
+async function abrirEditarPartido(id,enc){
+  var p=JSON.parse(decodeURIComponent(enc));var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:p.categoria_id;
+  var re=await api('getEquiposCategoria',{categoria_id:catId});var eqs=(re.success&&re.data)?re.data:[];
+  var opts=eqs.map(function(e){return'<option value="'+e.id+'"'+(e.id===p.equipo_local?' selected':'')+'>'+e.nombre+'</option>';}).join('');
+  var optsV=eqs.map(function(e){return'<option value="'+e.id+'"'+(e.id===p.equipo_visita?' selected':'')+'>'+e.nombre+'</option>';}).join('');
+  var fases=['Fase Regular','Cuartos de Final','Semifinal','Final'];
+  openInlineModal('<div class="modal-title">Editar partido</div><div class="f-row"><div class="f-group"><label class="f-label">Local</label><select class="f-select" id="ep-local">'+opts+'</select></div><div class="f-group"><label class="f-label">Visita</label><select class="f-select" id="ep-visita">'+optsV+'</select></div></div><div class="f-row"><div class="f-group"><label class="f-label">Nro. fecha</label><input class="f-input" id="ep-nfecha" type="number" value="'+(p.nro_fecha||1)+'" min="1"></div><div class="f-group"><label class="f-label">Fase</label><select class="f-select" id="ep-fase">'+fases.map(function(f){return'<option'+(f===p.fase?' selected':'')+'>'+f+'</option>';}).join('')+'</select></div></div><div class="f-row"><div class="f-group"><label class="f-label">Fecha</label><input class="f-input" id="ep-fecha" type="date" value="'+(p.fecha||'')+'"></div><div class="f-group"><label class="f-label">Hora</label><input class="f-input" id="ep-hora" type="time" value="'+(p.hora||'')+'"></div></div><div class="f-group"><label class="f-label">Cancha</label><input class="f-input" id="ep-cancha" value="'+(p.cancha||'')+'"></div><div class="f-group"><label class="f-label">URL transmisión</label><input class="f-input" id="ep-url" value="'+(p.url_transmision||'')+'"></div><button class="f-submit" onclick="guardarEditarPartido(\''+id+'\',\''+catId+'\')">GUARDAR</button>');
 }
+async function guardarEditarPartido(id,catId){var r=await api('actualizarPartido',{id:id,equipo_local:document.getElementById('ep-local').value,equipo_visita:document.getElementById('ep-visita').value,nro_fecha:parseInt(document.getElementById('ep-nfecha').value)||1,fase:document.getElementById('ep-fase').value,fecha:document.getElementById('ep-fecha').value||null,hora:document.getElementById('ep-hora').value||null,cancha:document.getElementById('ep-cancha').value.trim()||null,url_transmision:document.getElementById('ep-url').value.trim()||null});if(r.success){toast('Actualizado ✓','ok');closeInlineModal();cargarFixturePanel(catId);}else toast(r.message,'err');}
+async function eliminarPartido(id){var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:'';confirmAction('¿Eliminar este partido?',async function(){var r=await api('eliminarPartido',{id:id});if(r.success){toast('Eliminado','');if(catId)cargarFixturePanel(catId);}else toast(r.message,'err');});}
 
-function renderPanelDashboard() {
-  const panelMain = document.getElementById('panel-main');
-  panelMain.innerHTML = `
-    <div class="panel-content">
-      <div class="panel-title">Dashboard de Organizador</div>
-      <div class="panel-sub">Resumen y acceso rápido a la gestión de tu torneo.</div>
-      <div class="org-id-display">
-        <div>
-          <div style="font-size:10px;color:var(--blue);font-weight:700;letter-spacing:1px;text-transform:uppercase">Tu ID de Organizador</div>
-          <div class="org-id-val">${SESSION.org_id || 'N/A'}</div>
-        </div>
-        <div>
-          <div style="font-size:10px;color:var(--orange);font-weight:700;letter-spacing:1px;text-transform:uppercase">Clave de Acceso</div>
-          <div class="org-clave">••••••••</div>
-        </div>
-      </div>
-      <div class="metrics-grid">
-        <div class="metric-card">
-          <div class="metric-num">3</div>
-          <div class="metric-lbl">Categorías</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-num">24</div>
-          <div class="metric-lbl">Equipos</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-num">18</div>
-          <div class="metric-lbl">Partidos Pendientes</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-num">2</div>
-          <div class="metric-lbl">Noticias Publicadas</div>
-        </div>
-      </div>
-      <div class="p-card">
-        <div class="p-card-title">Próximos Partidos</div>
-        <div class="p-card-sub">Partidos de tu torneo en los próximos días.</div>
-        <ul style="list-style:none;padding:0;margin-top:10px;font-size:13px;color:var(--text2)">
-          <li style="margin-bottom:5px">Cat. A: Equipo 1 vs Equipo 2 (Mañana 18:00)</li>
-          <li style="margin-bottom:5px">Cat. B: Equipo 3 vs Equipo 4 (Jueves 20:00)</li>
-        </ul>
-      </div>
-    </div>
-  `;
+/* ── ORG: RESULTADOS ── */
+async function renderResultadosPanel(){
+  var cats=await getCats();var h='<div class="panel-content"><div class="panel-title">Resultados</div>';
+  if(!cats.length){setMain(h+'</div>');return;}
+  h+='<div style="margin-bottom:16px"><select class="f-select" id="res-cat-sel" onchange="cargarResultadosPanel(this.value)" style="max-width:220px">';
+  cats.forEach(function(c){h+='<option value="'+c.id+'">'+c.nombre+'</option>';});
+  h+='</select></div><div id="resultados-panel-list"></div></div>';setMain(h);cargarResultadosPanel(cats[0].id);
 }
-
-function renderPanelCategorias() {
-  const panelMain = document.getElementById('panel-main');
-  panelMain.innerHTML = `
-    <div class="panel-content">
-      <div class="panel-title">Gestión de Categorías</div>
-      <div class="panel-sub">Administra las categorías de tu torneo.</div>
-      <div class="p-card">
-        <div class="p-card-header">
-          <div>
-            <div class="p-card-title">Categoría Masculina A</div>
-            <div class="p-card-sub">10 equipos · Activa</div>
-          </div>
-          <div class="p-card-actions">
-            <button class="btn-sm" onclick="toast('Editando categoría', '')">Editar</button>
-            <button class="btn-sm btn-sm-danger" onclick="toast('Categoría eliminada', 'err')">Eliminar</button>
-          </div>
-        </div>
-      </div>
-      <div class="p-card">
-        <div class="p-card-header">
-          <div>
-            <div class="p-card-title">Categoría Femenina</div>
-            <div class="p-card-sub">8 equipos · Activa</div>
-          </div>
-          <div class="p-card-actions">
-            <button class="btn-sm" onclick="toast('Editando categoría', '')">Editar</button>
-            <button class="btn-sm btn-sm-danger" onclick="toast('Categoría eliminada', 'err')">Eliminar</button>
-          </div>
-        </div>
-      </div>
-      <button class="f-submit" style="max-width:200px;margin-top:20px;" onclick="toast('Abriendo formulario de nueva categoría', '')">Agregar Categoría</button>
-    </div>
-  `;
+async function cargarResultadosPanel(catId){
+  var el=document.getElementById('resultados-panel-list');if(!el)return;
+  el.innerHTML='<div style="color:var(--text2);font-size:13px;padding:12px">Cargando...</div>';
+  var r=await api('getPartidosCategoria',{categoria_id:catId});
+  if(!r.success||!r.data.length){el.innerHTML='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin partidos.</div>';return;}
+  var h='';r.data.forEach(function(p){var lN=p.local?p.local.nombre:'?',vN=p.visita?p.visita.nombre:'?',fin=p.estado==='finalizado';
+    h+='<div class="p-card" style="margin-bottom:8px"><div style="font-size:11px;color:var(--text2);margin-bottom:8px">Fecha '+(p.nro_fecha||'—')+(p.fecha?' · '+p.fecha:'')+' · '+(p.fase||'')+'</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-bottom:12px"><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:15px;font-weight:700;color:var(--text)">'+lN+'</div>';
+    h+=(fin?'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:22px;font-weight:900;color:var(--orange);text-align:center">'+p.pts_local+'–'+p.pts_visita+'</div>':'<div style="font-size:12px;font-weight:700;color:var(--text2);text-align:center">VS</div>');
+    h+='<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:15px;font-weight:700;color:var(--text);text-align:right">'+vN+'</div></div>';
+    h+='<div style="display:flex;gap:6px;justify-content:flex-end"><button class="btn-sm btn-sm-primary" onclick="abrirCargarResultado(\''+p.id+'\',\''+lN.replace(/'/g,"\\'")+'\',\''+vN.replace(/'/g,"\\'")+'\','+(p.pts_local||0)+','+(p.pts_visita||0)+')">'+(fin?'Editar resultado':'Cargar resultado')+'</button>';
+    h+=(!fin?'<button class="btn-sm" onclick="marcarEnVivo(\''+p.id+'\')">En vivo</button>':'');h+='</div></div>';
+  });el.innerHTML=h;
 }
+function abrirCargarResultado(id,lN,vN,ptsL,ptsV){openInlineModal('<div class="modal-title">Cargar resultado</div><div class="modal-sub">'+lN+' vs '+vN+'</div><div class="f-row"><div class="f-group"><label class="f-label">'+lN+'</label><input class="f-input" id="cr-local" type="number" min="0" value="'+(ptsL||0)+'" style="font-size:28px;font-weight:900;text-align:center"></div><div class="f-group"><label class="f-label">'+vN+'</label><input class="f-input" id="cr-visita" type="number" min="0" value="'+(ptsV||0)+'" style="font-size:28px;font-weight:900;text-align:center"></div></div><div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 8px;padding-bottom:8px;border-bottom:1px solid var(--border)">Parciales por cuarto (opcional)</div><div class="f-row"><div class="f-group"><label class="f-label">1er cuarto</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><input class="f-input" id="cr-q1l" type="number" min="0" placeholder="L"><input class="f-input" id="cr-q1v" type="number" min="0" placeholder="V"></div></div><div class="f-group"><label class="f-label">2do cuarto</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><input class="f-input" id="cr-q2l" type="number" min="0" placeholder="L"><input class="f-input" id="cr-q2v" type="number" min="0" placeholder="V"></div></div></div><div class="f-row"><div class="f-group"><label class="f-label">3er cuarto</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><input class="f-input" id="cr-q3l" type="number" min="0" placeholder="L"><input class="f-input" id="cr-q3v" type="number" min="0" placeholder="V"></div></div><div class="f-group"><label class="f-label">4to cuarto</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><input class="f-input" id="cr-q4l" type="number" min="0" placeholder="L"><input class="f-input" id="cr-q4v" type="number" min="0" placeholder="V"></div></div></div><button class="f-submit" onclick="guardarResultado(\''+id+'\')">CONFIRMAR RESULTADO</button>');}
+async function guardarResultado(id){var pl={id:id,pts_local:parseInt(document.getElementById('cr-local').value)||0,pts_visita:parseInt(document.getElementById('cr-visita').value)||0};['q1','q2','q3','q4'].forEach(function(q){var v=document.getElementById('cr-'+q+'l').value;if(v!==''){pl[q+'_local']=parseInt(v)||0;pl[q+'_visita']=parseInt(document.getElementById('cr-'+q+'v').value)||0;}});var r=await api('actualizarResultado',pl);if(r.success){toast('Resultado guardado ✓','ok');closeInlineModal();var c=document.getElementById('res-cat-sel');if(c)cargarResultadosPanel(c.value);}else toast(r.message,'err');}
+async function marcarEnVivo(id){var r=await api('actualizarEstadoPartido',{id:id,estado:'en_vivo'});if(r.success){toast('En vivo ✓','ok');var c=document.getElementById('res-cat-sel');if(c)cargarResultadosPanel(c.value);}else toast(r.message,'err');}
 
-function renderPanelEquipos() {
-  const panelMain = document.getElementById('panel-main');
-  panelMain.innerHTML = `
-    <div class="panel-content">
-      <div class="panel-title">Gestión de Equipos</div>
-      <div class="panel-sub">Administra los equipos de tu torneo.</div>
-      <div class="p-card">
-        <div class="p-card-header">
-          <div>
-            <div class="p-card-title">Los Invencibles</div>
-            <div class="p-card-sub">Categoría Masculina A · Color: Azul</div>
-          </div>
-          <div class="p-card-actions">
-            <button class="btn-sm" onclick="toast('Editando equipo', '')">Editar</button>
-            <button class="btn-sm btn-sm-danger" onclick="toast('Equipo eliminado', 'err')">Eliminar</button>
-          </div>
-        </div>
-      </div>
-      <div class="p-card">
-        <div class="p-card-header">
-          <div>
-            <div class="p-card-title">Las Guerreras</div>
-            <div class="p-card-sub">Categoría Femenina · Color: Rojo</div>
-          </div>
-          <div class="p-card-actions">
-            <button class="btn-sm" onclick="toast('Editando equipo', '')">Editar</button>
-            <button class="btn-sm btn-sm-danger" onclick="toast('Equipo eliminado', 'err')">Eliminar</button>
-          </div>
-        </div>
-      </div>
-      <button class="f-submit" style="max-width:200px;margin-top:20px;" onclick="toast('Abriendo formulario de nuevo equipo', '')">Agregar Equipo</button>
-    </div>
-  `;
-}
+/* ── ORG: NOTICIAS ── */
+async function renderNoticiasPanel(){var tid=await getTorneoId();var h='<div class="panel-content"><div class="panel-title">Noticias</div>';if(!tid){setMain(h+'<div class="panel-sub">Crea un torneo primero</div></div>');return;}h+='<button class="btn-sm btn-sm-primary" style="margin-bottom:16px" onclick="abrirCrearNoticia(\''+tid+'\')">+ Nueva noticia</button><div id="noticias-panel-list"></div></div>';setMain(h);cargarNoticiasPanel(tid);}
+async function cargarNoticiasPanel(tid){var el=document.getElementById('noticias-panel-list');if(!el)return;var todas=await supa('noticias','?torneo_id=eq.'+tid+'&order=created_at.desc');if(!todas||!todas.length){el.innerHTML='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin noticias.</div>';return;}var h='';todas.forEach(function(n){h+='<div class="p-card"><div class="p-card-header"><div><div class="p-card-title">'+n.titulo+'</div><div class="p-card-sub">'+new Date(n.created_at).toLocaleDateString('es-CL')+'</div></div><div class="p-card-actions"><span class="badge '+(n.publicado?'badge-active':'badge-draft')+'">'+(n.publicado?'Publicado':'Borrador')+'</span><button class="btn-sm" onclick="abrirEditarNoticia(\''+n.id+'\','+encodeURIComponent(JSON.stringify(n))+')">Editar</button><button class="btn-sm btn-sm-danger" onclick="eliminarNoticia(\''+n.id+'\',\''+tid+'\')">✕</button></div></div>'+(n.contenido?'<div style="font-size:12px;color:var(--text2);margin-top:8px;line-height:1.5">'+n.contenido.substring(0,120)+(n.contenido.length>120?'...':'')+'</div>':'')+'</div>';});el.innerHTML=h;}
+function abrirCrearNoticia(tid){openInlineModal('<div class="modal-title">Nueva noticia</div><div class="f-group"><label class="f-label">Título</label><input class="f-input" id="nn-titulo" placeholder="Título de la noticia"></div><div class="f-group"><label class="f-label">Contenido</label><textarea class="f-input" id="nn-contenido" rows="4" placeholder="Escribe el contenido..."></textarea></div><div class="f-group"><label class="f-label">URL imagen (opcional)</label><input class="f-input" id="nn-img" placeholder="https://..."></div><div class="f-group" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="nn-pub" checked style="width:16px;height:16px"><label style="font-size:13px;color:var(--text)">Publicar inmediatamente</label></div><button class="f-submit" onclick="guardarNuevaNoticia(\''+tid+'\')">PUBLICAR</button>');}
+async function guardarNuevaNoticia(tid){var t=document.getElementById('nn-titulo').value.trim();if(!t){toast('Título obligatorio','err');return;}var r=await api('crearNoticia',{torneo_id:tid,titulo:t,contenido:document.getElementById('nn-contenido').value.trim()||null,imagen_url:document.getElementById('nn-img').value.trim()||null,publicado:document.getElementById('nn-pub').checked});if(r.success){toast('Noticia publicada ✓','ok');closeInlineModal();cargarNoticiasPanel(tid);}else toast(r.message,'err');}
+function abrirEditarNoticia(id,enc){var n=JSON.parse(decodeURIComponent(enc));openInlineModal('<div class="modal-title">Editar noticia</div><div class="f-group"><label class="f-label">Título</label><input class="f-input" id="en-titulo" value="'+esc(n.titulo||'')+'"></div><div class="f-group"><label class="f-label">Contenido</label><textarea class="f-input" id="en-contenido" rows="4">'+(n.contenido||'')+'</textarea></div><div class="f-group" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="en-pub" '+(n.publicado?'checked':'')+' style="width:16px;height:16px"><label style="font-size:13px;color:var(--text)">Publicado</label></div><button class="f-submit" onclick="guardarEditarNoticia(\''+id+'\',\''+(n.torneo_id||'')+'\')">GUARDAR</button>');}
+async function guardarEditarNoticia(id,tid){var r=await api('actualizarNoticia',{id:id,titulo:document.getElementById('en-titulo').value.trim(),contenido:document.getElementById('en-contenido').value.trim(),publicado:document.getElementById('en-pub').checked});if(r.success){toast('Actualizada ✓','ok');closeInlineModal();if(tid)cargarNoticiasPanel(tid);}else toast(r.message,'err');}
+async function eliminarNoticia(id,tid){confirmAction('¿Eliminar esta noticia?',async function(){var r=await api('eliminarNoticia',{id:id});if(r.success){toast('Eliminada','');cargarNoticiasPanel(tid);}else toast(r.message,'err');});}
 
-function renderPanelFixture() {
-  const panelMain = document.getElementById('panel-main');
-  panelMain.innerHTML = `
-    <div class="panel-content">
-      <div class="panel-title">Gestión de Fixture</div>
-      <div class="panel-sub">Programa y organiza los partidos de tu torneo.</div>
-      <div class="p-card">
-        <div class="p-card-header">
-          <div>
-            <div class="p-card-title">Partido N°1 - Cat. Masculina A</div>
-            <div class="p-card-sub">Los Invencibles vs Los Titanes · 15/07 20:00</div>
-          </div>
-          <div class="p-card-actions">
-            <button class="btn-sm" onclick="toast('Editando partido', '')">Editar</button>
-            <button class="btn-sm btn-sm-danger" onclick="toast('Partido eliminado', 'err')">Eliminar</button>
-          </div>
-        </div>
-      </div>
-      <div class="p-card">
-        <div class="p-card-header">
-          <div>
-            <div class="p-card-title">Partido N°2 - Cat. Femenina</div>
-            <div class="p-card-sub">Las Guerreras vs Las Fénix · 16/07 19:00</div>
-          </div>
-          <div class="p-card-actions">
-            <button class="btn-sm" onclick="toast('Editando partido', '')">Editar</button>
-            <button class="btn-sm btn-sm-danger" onclick="toast('Partido eliminado', 'err')">Eliminar</button>
-          </div>
-        </div>
-      </div>
-      <button class="f-submit" style="max-width:200px;margin-top:20px;" onclick="toast('Abriendo formulario de nuevo partido', '')">Agregar Partido</button>
-    </div>
-  `;
-}
+/* ── ORG: SANCIONES ── */
+async function renderSancionesPanel(){var cats=await getCats();var h='<div class="panel-content"><div class="panel-title">Sanciones</div>';if(!cats.length){setMain(h+'<div class="panel-sub">Crea categorías primero</div></div>');return;}h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap"><select class="f-select" id="san-cat-sel" onchange="cargarSancionesPanel(this.value)" style="max-width:220px">';cats.forEach(function(c){h+='<option value="'+c.id+'">'+c.nombre+'</option>';});h+='</select><button class="btn-sm btn-sm-primary" onclick="abrirCrearSancion()">+ Nueva sanción</button></div><div id="sanciones-panel-list"></div></div>';setMain(h);cargarSancionesPanel(cats[0].id);}
+async function cargarSancionesPanel(catId){var el=document.getElementById('sanciones-panel-list');if(!el)return;el.innerHTML='<div style="color:var(--text2);font-size:13px;padding:12px">Cargando...</div>';var r=await api('getSancionesCategoria',{categoria_id:catId});if(!r.success||!r.data.length){el.innerHTML='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin sanciones.</div>';return;}var h='';r.data.forEach(function(s){h+='<div class="san-card" style="cursor:default"><div class="san-header"><span class="san-type">'+(s.tipo||'Sanción')+'</span><div class="p-card-actions" style="margin:0"><button class="btn-sm" onclick="abrirEditarSancion(\''+s.id+'\','+encodeURIComponent(JSON.stringify(s))+')">Editar</button><button class="btn-sm btn-sm-danger" onclick="eliminarSancion(\''+s.id+'\')">✕</button></div></div><div class="san-player">'+(s.jugador_nombre||'Sin nombre')+'</div>'+(s.descripcion?'<div class="san-detail" style="display:block">'+s.descripcion+'</div>':'')+(s.fecha_fin?'<div style="font-size:11px;color:var(--orange);margin-top:4px">Hasta: '+s.fecha_fin+'</div>':'')+'</div>';});el.innerHTML=h;}
+async function abrirCrearSancion(){var catId=document.getElementById('san-cat-sel')?document.getElementById('san-cat-sel').value:'';var re=await api('getEquiposCategoria',{categoria_id:catId});var eqs=(re.success&&re.data)?re.data:[];var optsEq='<option value="">Sin equipo</option>'+eqs.map(function(e){return'<option value="'+e.id+'">'+e.nombre+'</option>';}).join('');openInlineModal('<div class="modal-title">Nueva sanción</div><div class="f-group"><label class="f-label">Jugador / Persona</label><input class="f-input" id="ns-jugador" placeholder="Nombre del sancionado"></div><div class="f-group"><label class="f-label">Equipo</label><select class="f-select" id="ns-equipo">'+optsEq+'</select></div><div class="f-group"><label class="f-label">Tipo</label><select class="f-select" id="ns-tipo"><option>Amonestación</option><option>Suspensión</option><option>Expulsión</option><option>Multa</option><option>Otra</option></select></div><div class="f-group"><label class="f-label">Descripción</label><textarea class="f-input" id="ns-desc" rows="2" placeholder="Detalle..."></textarea></div><div class="f-group"><label class="f-label">Fecha de término</label><input class="f-input" id="ns-fin" type="date"></div><button class="f-submit" onclick="guardarNuevaSancion(\''+catId+'\')">REGISTRAR</button>');}
+async function guardarNuevaSancion(catId){var j=document.getElementById('ns-jugador').value.trim();if(!j){toast('Nombre obligatorio','err');return;}var r=await api('crearSancion',{categoria_id:catId,jugador_nombre:j,equipo_id:document.getElementById('ns-equipo').value||null,tipo:document.getElementById('ns-tipo').value,descripcion:document.getElementById('ns-desc').value.trim()||null,fecha_fin:document.getElementById('ns-fin').value||null});if(r.success){toast('Sanción registrada ✓','ok');closeInlineModal();cargarSancionesPanel(catId);}else toast(r.message,'err');}
+function abrirEditarSancion(id,enc){var s=JSON.parse(decodeURIComponent(enc));var tipos=['Amonestación','Suspensión','Expulsión','Multa','Otra'];openInlineModal('<div class="modal-title">Editar sanción</div><div class="f-group"><label class="f-label">Jugador</label><input class="f-input" id="es-jugador" value="'+(s.jugador_nombre||'')+'"></div><div class="f-group"><label class="f-label">Tipo</label><select class="f-select" id="es-tipo">'+tipos.map(function(t){return'<option'+(t===s.tipo?' selected':'')+'>'+t+'</option>';}).join('')+'</select></div><div class="f-group"><label class="f-label">Descripción</label><textarea class="f-input" id="es-desc" rows="2">'+(s.descripcion||'')+'</textarea></div><div class="f-group"><label class="f-label">Fecha término</label><input class="f-input" id="es-fin" type="date" value="'+(s.fecha_fin||'')+'"></div><button class="f-submit" onclick="guardarEditarSancion(\''+id+'\')">GUARDAR</button>');}
+async function guardarEditarSancion(id){var catId=document.getElementById('san-cat-sel')?document.getElementById('san-cat-sel').value:'';var r=await api('actualizarSancion',{id:id,jugador_nombre:document.getElementById('es-jugador').value.trim(),tipo:document.getElementById('es-tipo').value,descripcion:document.getElementById('es-desc').value.trim()||null,fecha_fin:document.getElementById('es-fin').value||null});if(r.success){toast('Actualizada ✓','ok');closeInlineModal();if(catId)cargarSancionesPanel(catId);}else toast(r.message,'err');}
+async function eliminarSancion(id){var catId=document.getElementById('san-cat-sel')?document.getElementById('san-cat-sel').value:'';confirmAction('¿Eliminar esta sanción?',async function(){var r=await api('eliminarSancion',{id:id});if(r.success){toast('Eliminada','');if(catId)cargarSancionesPanel(catId);}else toast(r.message,'err');});}
 
-function renderPanelResultados() {
-  const panelMain = document.getElementById('panel-main');
-  panelMain.innerHTML = `
-    <div class="panel-content">
-      <div class="panel-title">Gestión de Resultados</div>
-      <div class="panel-sub">Registra y actualiza los resultados de los partidos.</div>
-      <div class="p-card">
-        <div class="p-card-header">
-          <div>
-            <div class="p-card-title">Partido N°1 - Cat. Masculina A</div>
-            <div class="p-card-sub">Los Invencibles (85) vs Los Titanes (72) · Finalizado</div>
-          </div>
-          <div class="p-card-actions">
-            <button class="btn-sm" onclick="toast('Editando resultado', '')">Editar</button>
-            <button class="btn-sm btn-sm-danger" onclick="toast('Resultado eliminado', 'err')">Eliminar</button>
-          </div>
-        </div>
-      </div>
-      <div class="p-card">
-        <div class="p-card-header">
-          <div>
-            <div class="p-card-title">Partido N°2 - Cat. Femenina</div>
-            <div class="p-card-sub">Las Guerreras (60) vs Las Fénix (62) · Finalizado</div>
-          </div>
-          <div class="p-card-actions">
-            <button class="btn-sm" onclick="toast('Editando resultado', '')">Editar</button>
-            <button class="btn-sm btn-sm-danger" onclick="toast('Resultado eliminado', 'err')">Eliminar</button>
-          </div>
-        </div>
-      </div>
-      <button class="f-submit" style="max-width:200px;margin-top:20px;" onclick="toast('Abriendo formulario de registro de resultado', '')">Registrar Resultado</button>
-    </div>
-  `;
-}
-
-function renderPanelNoticias() {
-  const panelMain = document.getElementById('panel-main');
-  panelMain.innerHTML = `
-    <div class="panel-content">
-      <div class="panel-title">Gestión de Noticias</div>
-      <div class="panel-sub">Publica y administra las noticias de tu torneo.</div>
-      <div class="p-card">
-        <div class="p-card-header">
-          <div>
-            <div class="p-card-title">¡Gran inicio de temporada!</div>
-            <div class="p-card-sub">Publicado el 14/07/2024</div>
-          </div>
-          <div class="p-card-actions">
-            <button class="btn-sm" onclick="toast('Editando noticia', '')">Editar</button>
-            <button class="btn-sm btn-sm-danger" onclick="toast('Noticia eliminada', 'err')">Eliminar</button>
-          </div>
-        </div>
-        <div style="font-size:13px;color:var(--text2);margin-top:10px">La Liga de Verano ha comenzado con partidos emocionantes...</div>
-      </div>
-      <button class="f-submit" style="max-width:200px;margin-top:20px;" onclick="toast('Abriendo formulario de nueva noticia', '')">Crear Noticia</button>
-    </div>
-  `;
-}
-
-function renderPanelSanciones() {
-  const panelMain = document.getElementById('panel-main');
-  panelMain.innerHTML = `
-    <div class="panel-content">
-      <div class="panel-title">Gestión de Sanciones</div>
-      <div class="panel-sub">Aplica y administra las sanciones en tu torneo.</div>
-      <div class="p-card">
-        <div class="p-card-header">
-          <div>
-            <div class="p-card-title">Tarjeta Roja - Jugador X</div>
-            <div class="p-card-sub">Equipo: Los Invencibles · Fecha: 14/07/2024</div>
-          </div>
-          <div class="p-card-actions">
-            <button class="btn-sm" onclick="toast('Editando sanción', '')">Editar</button>
-            <button class="btn-sm btn-sm-danger" onclick="toast('Sanción eliminada', 'err')">Eliminar</button>
-          </div>
-        </div>
-        <div style="font-size:13px;color:var(--text2);margin-top:10px">Motivo: Conducta antideportiva. Suspendido por 1 partido.</div>
-      </div>
-      <button class="f-submit" style="max-width:200px;margin-top:20px;" onclick="toast('Abriendo formulario de nueva sanción', '')">Aplicar Sanción</button>
-    </div>
-  `;
-}
-
-/**
- * Función llamada desde la vista pública para acceder al panel de administración.
- * Abre el modal de login de administrador.
- */
-function pdfopenAdmin() {
-  openModal('modal-login-admin');
-  toast("Inicia sesión como administrador para acceder", "");
-}
-
-/**
- * Maneja el envío del formulario de solicitud de publicación de liga.
- * @param {Event} e El evento de envío del formulario.
- */
-async function enviarSolicitud(e) {
-  e.preventDefault();
-  const errEl = document.getElementById('sol-error');
-  const btn   = document.getElementById('sol-btn');
-  errEl.style.display = 'none';
-  btn.disabled = true; btn.textContent = 'Enviando...';
-
-  const nombre = document.getElementById('sol-nombre').value.trim();
-  const email = document.getElementById('sol-email').value.trim();
-  const tel = document.getElementById('sol-tel').value.trim();
-  const ciudad = document.getElementById('sol-ciudad').value.trim();
-  const deporte = document.getElementById('sol-deporte').value.trim();
-  const desc = document.getElementById('sol-desc').value.trim();
-  const categorias = document.getElementById('sol-cats').value;
-
-  if (!nombre || !email || !ciudad || !deporte) {
-    errEl.textContent = 'Por favor, completa todos los campos requeridos.';
-    errEl.style.display = 'block';
-    btn.disabled = false; btn.textContent = 'ENVIAR SOLICITUD';
-    return;
-  }
-
-  try {
-    // **MODIFICADO**: Almacenar la solicitud en el array global
-    const nuevaSolicitud = {
-      id: PENDING_SOLICITUDES.length + 1, // ID simple para simulación
-      nombre,
-      email,
-      tel,
-      ciudad,
-      deporte,
-      desc,
-      categorias,
-      estado: 'pendiente', // Nuevo estado
-      created_at: new Date().toISOString()
-    };
-    PENDING_SOLICITUDES.push(nuevaSolicitud);
-
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simular retardo de red
-    document.getElementById('sol-form-wrap').style.display = 'none';
-    document.getElementById('sol-email-confirm').textContent = email;
-    document.getElementById('sol-success').style.display = 'block';
-    toast('Solicitud enviada con éxito', 'ok');
-
-    // Si el admin está logueado y en el panel de solicitudes, actualizarlo
-    if (SESSION && SESSION.rol === 'admin' && document.querySelector('.panel-sidebar #sidebar-admin .sb-btn.active')?.getAttribute('onclick').includes('p-solicitudes')) {
-      renderPanelSolicitudes();
-    } else {
-      updateSolicitudesBadge(); // Actualizar el badge si no está en el panel
-    }
-
-  } catch(err) {
-    errEl.textContent = 'Error al enviar la solicitud. Intenta de nuevo.';
-    errEl.style.display = 'block';
-  } finally {
-    btn.disabled = false; btn.textContent = 'ENVIAR SOLICITUD';
-  }
-}
-
-
-// ── INIT ──────────────────────────────────────────────────────────────────────
-// Iniciar mostrando vista pública
-document.getElementById('pub-view').style.display = 'flex';
-document.getElementById('torneo-view').style.display = 'none';
-document.getElementById('panel-view').style.display = 'none';
+/* ── INIT ── */
+document.getElementById('pub-view').style.display='flex';
+document.getElementById('torneo-view').style.display='none';
+document.getElementById('panel-view').style.display='none';
 loadTorneos();
 </script>
 </body>
