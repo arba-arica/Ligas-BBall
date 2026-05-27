@@ -195,7 +195,12 @@ textarea.f-input{resize:none}
 .f-submit.btn-orange-submit{background:var(--orange)}
 .f-note{font-size:11px;color:var(--text3);text-align:center;margin-top:8px;line-height:1.5}
 @media(max-width:600px){.panel-sidebar{width:160px}.panel-content{padding:14px}.f-row{grid-template-columns:1fr}}
-@media(max-width:440px){.panel-sidebar{display:none}.panel-body{flex-direction:column}}
+@media(max-width:700px){.panel-sidebar{display:none!important}.panel-body{flex-direction:column}.panel-bottom-nav{display:flex!important}}
+.panel-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;background:#060d1a;border-top:1px solid rgba(255,255,255,.08);justify-content:space-around;padding:6px 0 max(6px,env(safe-area-inset-bottom));flex-wrap:nowrap}
+.pbn-btn{display:flex;flex-direction:column;align-items:center;gap:2px;border:none;background:none;cursor:pointer;color:rgba(255,255,255,.35);font-size:8px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;padding:4px 8px;min-width:48px;transition:color .2s;white-space:nowrap}
+.pbn-btn.active{color:#93c5fd}
+.pbn-btn svg{width:18px;height:18px}
+.panel-main{padding-bottom:70px}
 [data-theme="light"] .panel-nav{background:#1e3a8a}
 [data-theme="light"] .panel-sidebar{background:#1d4ed8}
 [data-theme="light"] .sb-btn{color:rgba(255,255,255,.7)}
@@ -247,6 +252,7 @@ textarea.f-input{resize:none}
     <div id="tab-clubes" style="display:none"></div>
     <div id="tab-noticias" style="display:none"></div>
     <div id="tab-sanciones" style="display:none"></div>
+    <div id="tab-programacion" style="display:none"></div>
   </div>
   <nav class="tv-navbar">
     <button class="tv-nav-btn active" id="tnav-fixture" onclick="showTab('tab-fixture',this)">
@@ -272,6 +278,10 @@ textarea.f-input{resize:none}
     <button class="tv-nav-btn" onclick="showTab('tab-sanciones',this)">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
       Sanciones<div class="tv-nav-dot"></div>
+    </button>
+    <button class="tv-nav-btn" onclick="showTab('tab-programacion',this)">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="13" y2="18"/></svg>
+      Prog.<div class="tv-nav-dot"></div>
     </button>
   </nav>
 </div>
@@ -343,6 +353,48 @@ textarea.f-input{resize:none}
     </div>
     <div class="panel-main" id="panel-main"></div>
   </div>
+  <!-- Bottom nav para mobile (admin) -->
+  <nav class="panel-bottom-nav" id="pbn-admin" style="display:none">
+    <button class="pbn-btn active" id="pbn-sol" onclick="pbnClick('p-solicitudes',this,'pbn-admin')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Solicitudes
+    </button>
+    <button class="pbn-btn" onclick="pbnClick('p-torneos',this,'pbn-admin')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+      Torneos
+    </button>
+    <button class="pbn-btn" onclick="pbnClick('p-organizadores',this,'pbn-admin')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      Orgs
+    </button>
+    <button class="pbn-btn" onclick="pbnClick('p-metricas',this,'pbn-admin')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Métricas
+    </button>
+  </nav>
+  <!-- Bottom nav para mobile (organizador) -->
+  <nav class="panel-bottom-nav" id="pbn-org" style="display:none">
+    <button class="pbn-btn active" onclick="pbnClick('p-dashboard',this,'pbn-org')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Inicio
+    </button>
+    <button class="pbn-btn" onclick="pbnClick('p-fixture',this,'pbn-org')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Fixture
+    </button>
+    <button class="pbn-btn" onclick="pbnClick('p-resultados',this,'pbn-org')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Result.
+    </button>
+    <button class="pbn-btn" onclick="pbnClick('p-equipos',this,'pbn-org')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      Equipos
+    </button>
+    <button class="pbn-btn" onclick="pbnClick('p-mas',this,'pbn-org')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      Más
+    </button>
+  </nav>
 </div>
 
 <!-- MODAL SOLICITUD -->
@@ -431,6 +483,20 @@ function showView(id){document.getElementById('pub-view').style.display=id==='pu
 function esc(s){return(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
 function confirmAction(msg,cb){if(confirm(msg))cb();}
 function setMain(html){document.getElementById('panel-main').innerHTML=html;}
+function pbnClick(panelId,btn,navId){
+  document.querySelectorAll('#'+navId+' .pbn-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  if(panelId==='p-mas'){
+    openInlineModal('<div class="modal-title" style="margin-bottom:16px">Más opciones</div>'
+      +'<div style="display:grid;gap:8px">'
+      +'<button class="f-submit" style="margin:0" onclick="closeInlineModal();showPanel('p-categorias',null)">🏅 Categorías</button>'
+      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel('p-noticias',null)">📰 Noticias</button>'
+      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel('p-sanciones',null)">⚠️ Sanciones</button>'
+      +'</div>');
+    return;
+  }
+  showPanel(panelId,null);
+}
 function metricCard(num,lbl){return'<div class="metric-card"><div class="metric-num">'+num+'</div><div class="metric-lbl">'+lbl+'</div></div>';}
 function quickAction(label,icon,onclick){return'<button class="p-card" onclick="'+onclick+'" style="cursor:pointer;text-align:center"><div style="font-size:28px;margin-bottom:8px">'+icon+'</div><div style="font-size:13px;font-weight:700;color:var(--text)">'+label+'</div></button>';}
 
@@ -452,7 +518,7 @@ async function abrirTorneo(id,nombre,ciudad,temporada){
   document.querySelector('.tv-navbar').style.display='flex';
   document.querySelectorAll('.tv-nav-btn').forEach(function(b){b.classList.remove('active');});
   document.getElementById('tnav-fixture').classList.add('active');
-  ['tab-fixture','tab-resultados','tab-posiciones','tab-clubes','tab-noticias','tab-sanciones'].forEach(function(t){var el=document.getElementById(t);if(el){el.style.display=t==='tab-fixture'?'block':'none';el.innerHTML='';}});
+  ['tab-fixture','tab-resultados','tab-posiciones','tab-clubes','tab-noticias','tab-sanciones','tab-programacion'].forEach(function(t){var el=document.getElementById(t);if(el){el.style.display=t==='tab-fixture'?'block':'none';el.innerHTML='';}});
   CAT_ACTUAL=null;
   await loadCategorias(id);
 }
@@ -462,7 +528,7 @@ function volverPublico(){TORNEO_ACTUAL=null;document.querySelector('.tv-navbar')
 function showTab(tabId,btn){
   document.querySelectorAll('.tv-nav-btn').forEach(function(b){b.classList.remove('active');});
   if(btn)btn.classList.add('active');
-  ['tab-fixture','tab-resultados','tab-posiciones','tab-clubes','tab-noticias','tab-sanciones'].forEach(function(t){var el=document.getElementById(t);if(el)el.style.display=t===tabId?'block':'none';});
+  ['tab-fixture','tab-resultados','tab-posiciones','tab-clubes','tab-noticias','tab-sanciones','tab-programacion'].forEach(function(t){var el=document.getElementById(t);if(el)el.style.display=t===tabId?'block':'none';});
   if(!TORNEO_ACTUAL)return;
   var tab=tabId.replace('tab-','');
   if(tab==='fixture')renderFixture();
@@ -471,6 +537,7 @@ function showTab(tabId,btn){
   if(tab==='clubes')renderClubes();
   if(tab==='noticias')renderNoticias();
   if(tab==='sanciones')renderSanciones();
+  if(tab==='programacion')renderProgramacion();
 }
 
 async function loadCategorias(torneo_id){
@@ -549,10 +616,10 @@ async function renderPosiciones(){
     rows.forEach(function(r,i){var dg=Number(r.gf||0)-Number(r.gc||0),rc=i===0?'rk-1':i===1?'rk-2':i===2?'rk-3':'';h+='<tr><td><span class="rk '+rc+'">'+(i+1)+'</span></td><td><span class="color-dot" style="background:'+(r.color||'#475569')+'"></span>'+r.equipo_nombre+'</td><td>'+r.pj+'</td><td>'+r.pg+'</td><td>'+r.pe+'</td><td>'+r.pp+'</td><td>'+r.gf+'</td><td>'+r.gc+'</td><td class="'+(dg>0?'dif-pos':dg<0?'dif-neg':'')+'">'+(dg>0?'+':'')+dg+'</td><td><span class="pts-cell">'+r.pts+'</span></td></tr>';});
     h+='</tbody></table></div>';
   }
-  h+='<div class="tv-sec-label">Reportes</div>';
-  h+='<button class="pdf-btn-dark" onclick="pdfalert()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar fixture PDF</button>';
-  h+='<button class="pdf-btn-dark" onclick="pdfalert()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar tabla posiciones PDF</button>';
-  h+='<button class="pdf-btn-dark pdf-btn-ghost" onclick="pdfalert()">Ver reglamento</button>';
+  h+='<div class="tv-sec-label">Reportes y documentos</div>';
+  h+='<button class="pdf-btn-dark" onclick="generarPDFFixture()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar Programación PDF</button>';
+  h+='<button class="pdf-btn-dark" onclick="generarPDFTabla()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar Tabla de Posiciones PDF</button>';
+  h+='<button class="pdf-btn-dark pdf-btn-ghost" onclick="generarPDFResultados()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar Resultados PDF</button>';
   h+='<div style="text-align:center;padding:8px 0"><button class="tv-admin-btn" onclick="pdfopenAdmin()">⚙ Acceso administrador</button></div>';
   el.innerHTML=h;
 }
@@ -631,8 +698,17 @@ function initPanel(){
   showView('panel-view');
   document.getElementById('panel-user-name').textContent=SESSION.nombre;
   var badge=document.getElementById('panel-role-badge');
-  if(SESSION.rol==='admin'){badge.textContent='Admin';badge.style.cssText='background:rgba(29,78,216,.2);color:#93c5fd;border:1px solid rgba(29,78,216,.3);font-size:10px;padding:2px 8px;border-radius:100px';document.getElementById('sidebar-admin').style.display='flex';document.getElementById('sidebar-org').style.display='none';showPanel('p-solicitudes',document.querySelector('#sidebar-admin .sb-btn'));}
-  else{badge.textContent='Org '+(SESSION.org_id||'');badge.style.cssText='background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3);font-size:10px;padding:2px 8px;border-radius:100px';document.getElementById('sidebar-admin').style.display='none';document.getElementById('sidebar-org').style.display='flex';showPanel('p-dashboard',document.querySelector('#sidebar-org .sb-btn'));}
+  if(SESSION.rol==='admin'){
+    badge.textContent='Admin';badge.style.cssText='background:rgba(29,78,216,.2);color:#93c5fd;border:1px solid rgba(29,78,216,.3);font-size:10px;padding:2px 8px;border-radius:100px';
+    document.getElementById('sidebar-admin').style.display='flex';document.getElementById('sidebar-org').style.display='none';
+    document.getElementById('pbn-admin').style.display='';document.getElementById('pbn-org').style.display='none';
+    showPanel('p-solicitudes',document.querySelector('#sidebar-admin .sb-btn'));
+  } else {
+    badge.textContent='Org '+(SESSION.org_id||'');badge.style.cssText='background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3);font-size:10px;padding:2px 8px;border-radius:100px';
+    document.getElementById('sidebar-admin').style.display='none';document.getElementById('sidebar-org').style.display='flex';
+    document.getElementById('pbn-org').style.display='';document.getElementById('pbn-admin').style.display='none';
+    showPanel('p-dashboard',document.querySelector('#sidebar-org .sb-btn'));
+  }
 }
 
 /* ── PANEL ROUTER ── */
@@ -785,17 +861,52 @@ async function cargarFixturePanel(catId){
   var r=await api('getPartidosCategoria',{categoria_id:catId});
   if(!r.success||!r.data.length){el.innerHTML='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin partidos.</div>';return;}
   var grupos={};r.data.forEach(function(p){var k='Fecha '+(p.nro_fecha||'—');if(!grupos[k])grupos[k]=[];grupos[k].push(p);});
-  var h='';Object.keys(grupos).forEach(function(g){h+='<div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 6px">'+g+'</div>';grupos[g].forEach(function(p){var lN=p.local?p.local.nombre:'?',vN=p.visita?p.visita.nombre:'?',fin=p.estado==='finalizado';h+='<div class="p-card" style="margin-bottom:6px"><div class="p-card-header"><div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--text)">'+lN+' vs '+vN+'</div><div class="p-card-sub">'+(p.fecha||'Sin fecha')+(p.hora?' · '+p.hora:'')+(p.cancha?' · '+p.cancha:'')+' · '+(p.fase||'')+'</div>'+(fin?'<div style="font-size:12px;color:var(--orange);font-weight:700;margin-top:2px">Resultado: '+p.pts_local+' – '+p.pts_visita+'</div>':'')+'</div><div class="p-card-actions">'+((!fin)?'<button class="btn-sm" onclick="abrirEditarPartido(\''+p.id+'\','+encodeURIComponent(JSON.stringify(p))+')">Editar</button>':'')+'<button class="btn-sm btn-sm-danger" onclick="eliminarPartido(\''+p.id+'\')">✕</button></div></div></div>';});});
+  var h='';Object.keys(grupos).forEach(function(g){h+='<div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 6px">'+g+'</div>';grupos[g].forEach(function(p){var lN=p.local?p.local.nombre:'?',vN=p.visita?p.visita.nombre:'?',fin=p.estado==='finalizado';var fechaCompleta=p.fecha?new Date(p.fecha+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'Sin fecha';
+      h+='<div class="p-card" style="margin-bottom:6px"><div class="p-card-header"><div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--text)">'+lN+' <span style="color:var(--blue);font-size:11px">LOCAL</span> vs '+vN+' <span style="color:var(--orange);font-size:11px">VISITA</span></div><div class="p-card-sub">'+fechaCompleta+(p.hora?' · '+p.hora:'')+(p.cancha?' · '+p.cancha:'')+' · '+(p.fase||'')+'</div>'+(fin?'<div style="font-size:12px;color:var(--orange);font-weight:700;margin-top:2px">Resultado: '+p.pts_local+' – '+p.pts_visita+'</div>':'')+'</div><div class="p-card-actions">'+((!fin)?'<button class="btn-sm" onclick="abrirEditarPartido(\''+p.id+'\','+encodeURIComponent(JSON.stringify(p))+')">Editar</button>':'')+'<button class="btn-sm btn-sm-danger" onclick="eliminarPartido(\''+p.id+'\')">✕</button></div></div></div>';});});
   el.innerHTML=h;
 }
 async function abrirCrearPartido(){
   var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:'';
-  var re=await api('getEquiposCategoria',{categoria_id:catId});var eqs=(re.success&&re.data)?re.data:[];
-  if(eqs.length<2){toast('Necesitas al menos 2 equipos','err');return;}
+  var re=await api('getEquiposCategoria',{categoria_id:catId});
+  var eqs=(re.success&&re.data)?re.data:[];
+  if(eqs.length<2){toast('Necesitas al menos 2 equipos en esta categoría','err');return;}
   var opts=eqs.map(function(e){return'<option value="'+e.id+'">'+e.nombre+'</option>';}).join('');
-  openInlineModal('<div class="modal-title">Nuevo partido</div><div class="f-row"><div class="f-group"><label class="f-label">Local</label><select class="f-select" id="np-local">'+opts+'</select></div><div class="f-group"><label class="f-label">Visita</label><select class="f-select" id="np-visita">'+opts+'</select></div></div><div class="f-row"><div class="f-group"><label class="f-label">Nro. fecha</label><input class="f-input" id="np-nfecha" type="number" value="1" min="1"></div><div class="f-group"><label class="f-label">Fase</label><select class="f-select" id="np-fase"><option>Fase Regular</option><option>Cuartos de Final</option><option>Semifinal</option><option>Final</option></select></div></div><div class="f-row"><div class="f-group"><label class="f-label">Fecha</label><input class="f-input" id="np-fecha" type="date"></div><div class="f-group"><label class="f-label">Hora</label><input class="f-input" id="np-hora" type="time"></div></div><div class="f-group"><label class="f-label">Cancha (opcional)</label><input class="f-input" id="np-cancha" placeholder="Gimnasio Municipal..."></div><div class="f-group"><label class="f-label">URL transmisión (opcional)</label><input class="f-input" id="np-url" placeholder="https://..."></div><button class="f-submit" onclick="guardarNuevoPartido(\''+catId+'\')">PROGRAMAR</button>');
+  var html='<div class="modal-title">Nuevo partido</div>'
+    +'<div class="f-row">'
+    +'<div class="f-group"><label class="f-label">🏠 Local</label><select class="f-select" id="np-local">'+opts+'</select></div>'
+    +'<div class="f-group"><label class="f-label">✈️ Visita</label><select class="f-select" id="np-visita">'+opts+'</select></div>'
+    +'</div>'
+    +'<div class="f-row">'
+    +'<div class="f-group"><label class="f-label">Nro. fecha</label><input class="f-input" id="np-nfecha" type="number" value="1" min="1"></div>'
+    +'<div class="f-group"><label class="f-label">Fase</label><select class="f-select" id="np-fase"><option>Fase Regular</option><option>Cuartos de Final</option><option>Semifinal</option><option>Final</option></select></div>'
+    +'</div>'
+    +'<div class="f-row">'
+    +'<div class="f-group"><label class="f-label">Fecha</label><input class="f-input" id="np-fecha" type="date"></div>'
+    +'<div class="f-group"><label class="f-label">Hora</label><input class="f-input" id="np-hora" type="time"></div>'
+    +'</div>'
+    +'<div class="f-group"><label class="f-label">Cancha (opcional)</label><input class="f-input" id="np-cancha" placeholder="Gimnasio Municipal..."></div>'
+    +'<div class="f-group"><label class="f-label">URL transmisión (opcional)</label><input class="f-input" id="np-url" type="url" placeholder="https://youtube.com/..."></div>'
+    +'<button class="f-submit" id="np-submit" onclick="guardarNuevoPartido()">PROGRAMAR PARTIDO</button>';
+  window._npCatId=catId;
+  openInlineModal(html);
 }
-async function guardarNuevoPartido(catId){var loc=document.getElementById('np-local').value,vis=document.getElementById('np-visita').value;if(loc===vis){toast('No pueden ser el mismo equipo','err');return;}var r=await api('crearPartido',{categoria_id:catId,equipo_local:loc,equipo_visita:vis,nro_fecha:parseInt(document.getElementById('np-nfecha').value)||1,fase:document.getElementById('np-fase').value,fecha:document.getElementById('np-fecha').value||null,hora:document.getElementById('np-hora').value||null,cancha:document.getElementById('np-cancha').value.trim()||null,url_transmision:document.getElementById('np-url').value.trim()||null});if(r.success){toast('Partido programado ✓','ok');closeInlineModal();cargarFixturePanel(catId);}else toast(r.message,'err');}
+async function guardarNuevoPartido(){
+  var catId=window._npCatId||'';
+  var loc=document.getElementById('np-local').value,vis=document.getElementById('np-visita').value;
+  if(loc===vis){toast('Local y visita no pueden ser el mismo equipo','err');return;}
+  var btn=document.getElementById('np-submit');if(btn){btn.disabled=true;btn.textContent='Guardando...';}
+  var r=await api('crearPartido',{
+    categoria_id:catId,equipo_local:loc,equipo_visita:vis,
+    nro_fecha:parseInt(document.getElementById('np-nfecha').value)||1,
+    fase:document.getElementById('np-fase').value,
+    fecha:document.getElementById('np-fecha').value||null,
+    hora:document.getElementById('np-hora').value||null,
+    cancha:document.getElementById('np-cancha').value.trim()||null,
+    url_transmision:document.getElementById('np-url').value.trim()||null
+  });
+  if(r.success){toast('Partido programado ✓','ok');closeInlineModal();cargarFixturePanel(catId);}
+  else{toast(r.message,'err');if(btn){btn.disabled=false;btn.textContent='PROGRAMAR PARTIDO';}}
+}
 async function abrirEditarPartido(id,enc){
   var p=JSON.parse(decodeURIComponent(enc));var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:p.categoria_id;
   var re=await api('getEquiposCategoria',{categoria_id:catId});var eqs=(re.success&&re.data)?re.data:[];
@@ -830,7 +941,13 @@ async function cargarResultadosPanel(catId){
   });el.innerHTML=h;
 }
 function abrirCargarResultado(id,lN,vN,ptsL,ptsV){openInlineModal('<div class="modal-title">Cargar resultado</div><div class="modal-sub">'+lN+' vs '+vN+'</div><div class="f-row"><div class="f-group"><label class="f-label">'+lN+'</label><input class="f-input" id="cr-local" type="number" min="0" value="'+(ptsL||0)+'" style="font-size:28px;font-weight:900;text-align:center"></div><div class="f-group"><label class="f-label">'+vN+'</label><input class="f-input" id="cr-visita" type="number" min="0" value="'+(ptsV||0)+'" style="font-size:28px;font-weight:900;text-align:center"></div></div><div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 8px;padding-bottom:8px;border-bottom:1px solid var(--border)">Parciales por cuarto (opcional)</div><div class="f-row"><div class="f-group"><label class="f-label">1er cuarto</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><input class="f-input" id="cr-q1l" type="number" min="0" placeholder="L"><input class="f-input" id="cr-q1v" type="number" min="0" placeholder="V"></div></div><div class="f-group"><label class="f-label">2do cuarto</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><input class="f-input" id="cr-q2l" type="number" min="0" placeholder="L"><input class="f-input" id="cr-q2v" type="number" min="0" placeholder="V"></div></div></div><div class="f-row"><div class="f-group"><label class="f-label">3er cuarto</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><input class="f-input" id="cr-q3l" type="number" min="0" placeholder="L"><input class="f-input" id="cr-q3v" type="number" min="0" placeholder="V"></div></div><div class="f-group"><label class="f-label">4to cuarto</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><input class="f-input" id="cr-q4l" type="number" min="0" placeholder="L"><input class="f-input" id="cr-q4v" type="number" min="0" placeholder="V"></div></div></div><button class="f-submit" onclick="guardarResultado(\''+id+'\')">CONFIRMAR RESULTADO</button>');}
-async function guardarResultado(id){var pl={id:id,pts_local:parseInt(document.getElementById('cr-local').value)||0,pts_visita:parseInt(document.getElementById('cr-visita').value)||0};['q1','q2','q3','q4'].forEach(function(q){var v=document.getElementById('cr-'+q+'l').value;if(v!==''){pl[q+'_local']=parseInt(v)||0;pl[q+'_visita']=parseInt(document.getElementById('cr-'+q+'v').value)||0;}});var r=await api('actualizarResultado',pl);if(r.success){toast('Resultado guardado ✓','ok');closeInlineModal();var c=document.getElementById('res-cat-sel');if(c)cargarResultadosPanel(c.value);}else toast(r.message,'err');}
+async function guardarResultado(id){
+  var btn=document.getElementById('cr-submit');if(btn){btn.disabled=true;btn.textContent='Guardando...';}
+  var pl={id:id,pts_local:parseInt(document.getElementById('cr-local').value)||0,pts_visita:parseInt(document.getElementById('cr-visita').value)||0};
+  var r=await api('actualizarResultado',pl);
+  if(r.success){toast('Resultado guardado ✓','ok');closeInlineModal();var cs=document.getElementById('res-cat-sel');if(cs)cargarResultadosPanel(cs.value);}
+  else{toast(r.message,'err');if(btn){btn.disabled=false;btn.textContent='CONFIRMAR RESULTADO';}}
+}
 async function marcarEnVivo(id){var r=await api('actualizarEstadoPartido',{id:id,estado:'en_vivo'});if(r.success){toast('En vivo ✓','ok');var c=document.getElementById('res-cat-sel');if(c)cargarResultadosPanel(c.value);}else toast(r.message,'err');}
 
 /* ── ORG: NOTICIAS ── */
@@ -846,10 +963,113 @@ async function eliminarNoticia(id,tid){confirmAction('¿Eliminar esta noticia?',
 async function renderSancionesPanel(){var cats=await getCats();var h='<div class="panel-content"><div class="panel-title">Sanciones</div>';if(!cats.length){setMain(h+'<div class="panel-sub">Crea categorías primero</div></div>');return;}h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap"><select class="f-select" id="san-cat-sel" onchange="cargarSancionesPanel(this.value)" style="max-width:220px">';cats.forEach(function(c){h+='<option value="'+c.id+'">'+c.nombre+'</option>';});h+='</select><button class="btn-sm btn-sm-primary" onclick="abrirCrearSancion()">+ Nueva sanción</button></div><div id="sanciones-panel-list"></div></div>';setMain(h);cargarSancionesPanel(cats[0].id);}
 async function cargarSancionesPanel(catId){var el=document.getElementById('sanciones-panel-list');if(!el)return;el.innerHTML='<div style="color:var(--text2);font-size:13px;padding:12px">Cargando...</div>';var r=await api('getSancionesCategoria',{categoria_id:catId});if(!r.success||!r.data.length){el.innerHTML='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin sanciones.</div>';return;}var h='';r.data.forEach(function(s){h+='<div class="san-card" style="cursor:default"><div class="san-header"><span class="san-type">'+(s.tipo||'Sanción')+'</span><div class="p-card-actions" style="margin:0"><button class="btn-sm" onclick="abrirEditarSancion(\''+s.id+'\','+encodeURIComponent(JSON.stringify(s))+')">Editar</button><button class="btn-sm btn-sm-danger" onclick="eliminarSancion(\''+s.id+'\')">✕</button></div></div><div class="san-player">'+(s.jugador_nombre||'Sin nombre')+'</div>'+(s.descripcion?'<div class="san-detail" style="display:block">'+s.descripcion+'</div>':'')+(s.fecha_fin?'<div style="font-size:11px;color:var(--orange);margin-top:4px">Hasta: '+s.fecha_fin+'</div>':'')+'</div>';});el.innerHTML=h;}
 async function abrirCrearSancion(){var catId=document.getElementById('san-cat-sel')?document.getElementById('san-cat-sel').value:'';var re=await api('getEquiposCategoria',{categoria_id:catId});var eqs=(re.success&&re.data)?re.data:[];var optsEq='<option value="">Sin equipo</option>'+eqs.map(function(e){return'<option value="'+e.id+'">'+e.nombre+'</option>';}).join('');openInlineModal('<div class="modal-title">Nueva sanción</div><div class="f-group"><label class="f-label">Jugador / Persona</label><input class="f-input" id="ns-jugador" placeholder="Nombre del sancionado"></div><div class="f-group"><label class="f-label">Equipo</label><select class="f-select" id="ns-equipo">'+optsEq+'</select></div><div class="f-group"><label class="f-label">Tipo</label><select class="f-select" id="ns-tipo"><option>Amonestación</option><option>Suspensión</option><option>Expulsión</option><option>Multa</option><option>Otra</option></select></div><div class="f-group"><label class="f-label">Descripción</label><textarea class="f-input" id="ns-desc" rows="2" placeholder="Detalle..."></textarea></div><div class="f-group"><label class="f-label">Fecha de término</label><input class="f-input" id="ns-fin" type="date"></div><button class="f-submit" onclick="guardarNuevaSancion(\''+catId+'\')">REGISTRAR</button>');}
-async function guardarNuevaSancion(catId){var j=document.getElementById('ns-jugador').value.trim();if(!j){toast('Nombre obligatorio','err');return;}var r=await api('crearSancion',{categoria_id:catId,jugador_nombre:j,equipo_id:document.getElementById('ns-equipo').value||null,tipo:document.getElementById('ns-tipo').value,descripcion:document.getElementById('ns-desc').value.trim()||null,fecha_fin:document.getElementById('ns-fin').value||null});if(r.success){toast('Sanción registrada ✓','ok');closeInlineModal();cargarSancionesPanel(catId);}else toast(r.message,'err');}
+async function guardarNuevaSancion(catId){
+  var j=document.getElementById('ns-jugador').value.trim();
+  if(!j){toast('Nombre obligatorio','err');return;}
+  var r=await api('crearSancion',{categoria_id:catId,jugador_nombre:j,equipo_id:document.getElementById('ns-equipo').value||null,tipo:document.getElementById('ns-tipo').value,descripcion:document.getElementById('ns-desc').value.trim()||null,fecha_fin:document.getElementById('ns-fin').value||null,fecha_apelacion:document.getElementById('ns-apelacion')?document.getElementById('ns-apelacion').value||null:null});
+  if(r.success){toast('Sanción registrada ✓','ok');closeInlineModal();cargarSancionesPanel(catId);}
+  else toast(r.message,'err');
+}
+async function guardarNuevaSancion2(){guardarNuevaSancion(window._nsCatId||'');}
 function abrirEditarSancion(id,enc){var s=JSON.parse(decodeURIComponent(enc));var tipos=['Amonestación','Suspensión','Expulsión','Multa','Otra'];openInlineModal('<div class="modal-title">Editar sanción</div><div class="f-group"><label class="f-label">Jugador</label><input class="f-input" id="es-jugador" value="'+(s.jugador_nombre||'')+'"></div><div class="f-group"><label class="f-label">Tipo</label><select class="f-select" id="es-tipo">'+tipos.map(function(t){return'<option'+(t===s.tipo?' selected':'')+'>'+t+'</option>';}).join('')+'</select></div><div class="f-group"><label class="f-label">Descripción</label><textarea class="f-input" id="es-desc" rows="2">'+(s.descripcion||'')+'</textarea></div><div class="f-group"><label class="f-label">Fecha término</label><input class="f-input" id="es-fin" type="date" value="'+(s.fecha_fin||'')+'"></div><button class="f-submit" onclick="guardarEditarSancion(\''+id+'\')">GUARDAR</button>');}
-async function guardarEditarSancion(id){var catId=document.getElementById('san-cat-sel')?document.getElementById('san-cat-sel').value:'';var r=await api('actualizarSancion',{id:id,jugador_nombre:document.getElementById('es-jugador').value.trim(),tipo:document.getElementById('es-tipo').value,descripcion:document.getElementById('es-desc').value.trim()||null,fecha_fin:document.getElementById('es-fin').value||null});if(r.success){toast('Actualizada ✓','ok');closeInlineModal();if(catId)cargarSancionesPanel(catId);}else toast(r.message,'err');}
+async function guardarEditarSancion(id){
+  var catId=document.getElementById('san-cat-sel')?document.getElementById('san-cat-sel').value:'';
+  var r=await api('actualizarSancion',{id:id,jugador_nombre:document.getElementById('es-jugador').value.trim(),tipo:document.getElementById('es-tipo').value,descripcion:document.getElementById('es-desc').value.trim()||null,fecha_fin:document.getElementById('es-fin').value||null,fecha_apelacion:document.getElementById('es-apelacion')?document.getElementById('es-apelacion').value||null:null});
+  if(r.success){toast('Actualizada ✓','ok');closeInlineModal();if(catId)cargarSancionesPanel(catId);}
+  else toast(r.message,'err');
+}
 async function eliminarSancion(id){var catId=document.getElementById('san-cat-sel')?document.getElementById('san-cat-sel').value:'';confirmAction('¿Eliminar esta sanción?',async function(){var r=await api('eliminarSancion',{id:id});if(r.success){toast('Eliminada','');if(catId)cargarSancionesPanel(catId);}else toast(r.message,'err');});}
+
+/* ── PROGRAMACIÓN GENERAL ── */
+async function renderProgramacion(){
+  var el=document.getElementById('tab-programacion');
+  if(!el)return;
+  if(!TORNEO_ACTUAL){el.innerHTML='';return;}
+  el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando programación...</div>';
+  // Traer todos los partidos del torneo (todas las categorías)
+  var promises=CATEGORIAS.map(function(c){return fetch(SUPA_URL+'/rest/v1/partidos?torneo_id=eq.'+TORNEO_ACTUAL.id+'&categoria_id=eq.'+c.id+'&select=*,local:equipo_local(nombre),visita:equipo_visita(nombre)&order=nro_fecha,fecha,hora',{headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}}).then(function(r){return r.json();}).then(function(data){return{cat:c,partidos:data||[]};}).catch(function(){return{cat:c,partidos:[]};});});
+  var results=await Promise.all(promises);
+  // Agrupar todos los partidos por fecha (día)
+  var porFecha={};
+  results.forEach(function(res){
+    res.partidos.forEach(function(p){
+      var dia=p.fecha||'Sin fecha';
+      if(!porFecha[dia])porFecha[dia]=[];
+      porFecha[dia].push({partido:p,cat:res.cat});
+    });
+  });
+  var dias=Object.keys(porFecha).sort();
+  var h='<div class="tv-sec-label">Programación general</div>';
+  if(!dias.length){h+='<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin partidos programados aún.</div>';el.innerHTML=h;return;}
+  dias.forEach(function(dia){
+    var fechaCompleta=dia!=='Sin fecha'?new Date(dia+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):dia;
+    h+='<div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin:16px 0 8px;display:flex;align-items:center;gap:8px">'+fechaCompleta+'<span style="flex:1;height:1px;background:var(--border);display:inline-block"></span></div>';
+    porFecha[dia].sort(function(a,b){return(a.partido.hora||'').localeCompare(b.partido.hora||'');});
+    porFecha[dia].forEach(function(item){
+      var p=item.partido,cat=item.cat;
+      var lN=p.local?p.local.nombre:'?',vN=p.visita?p.visita.nombre:'?';
+      var fin=p.estado==='finalizado',enVivo=p.estado==='en_vivo';
+      h+='<div class="mc" style="margin-bottom:8px">';
+      h+='<div class="mc-top"><span class="mc-top-info">'+(p.hora||'')+(p.cancha?' · '+p.cancha:'')+'</span>';
+      h+='<span style="font-size:10px;font-weight:700;color:var(--orange);letter-spacing:.5px">'+cat.nombre+'</span></div>';
+      h+='<div class="mc-teams"><div class="mc-team'+(fin&&p.pts_local>p.pts_visita?' win':'')+' ">'+lN+'</div>';
+      if(fin)h+='<div class="mc-score">'+p.pts_local+'–'+p.pts_visita+'</div>';
+      else if(enVivo)h+='<div style="font-size:12px;font-weight:700;color:var(--red);text-align:center">EN VIVO</div>';
+      else h+='<div class="mc-vs">VS</div>';
+      h+='<div class="mc-team right'+(fin&&p.pts_visita>p.pts_local?' win':'')+' ">'+vN+'</div></div>';
+      if(fin)h+='<div style="padding-top:6px;border-top:1px solid var(--border);font-size:11px;color:var(--text2)">Resultado final · Fecha N°'+(p.nro_fecha||'')+'</div>';
+      else h+='<div style="padding-top:6px;border-top:1px solid var(--border);font-size:11px;color:var(--text2)">Fecha N°'+(p.nro_fecha||'')+(p.fase&&p.fase!=='Fase Regular'?' · '+p.fase:'')+'</div>';
+      h+='</div>';
+    });
+  });
+  el.innerHTML=h;
+}
+
+/* ── PDF GENERATORS (print via window.print) ── */
+function _pdfPrint(titulo,bodyHtml){
+  var w=window.open('','_blank','width=900,height=700');
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+titulo+'</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#1b263b}h1{font-size:22px;margin-bottom:4px}p{color:#6c757d;font-size:13px;margin-bottom:20px}table{width:100%;border-collapse:collapse;font-size:13px}th{background:#1d3557;color:#fff;padding:8px;text-align:left}td{padding:8px;border-bottom:1px solid #dee2e6}.score{font-weight:900;font-size:16px}.section{font-weight:700;font-size:14px;color:#1d3557;margin:16px 0 8px;border-bottom:2px solid #e0e7f0;padding-bottom:4px}@media print{button{display:none}}</style></head><body>');
+  w.document.write('<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div><h1>'+titulo+'</h1><p>'+(TORNEO_ACTUAL?TORNEO_ACTUAL.nombre+' · '+TORNEO_ACTUAL.ciudad:'')+'</p></div><button onclick="window.print()">🖨️ Imprimir / Guardar PDF</button></div>');
+  w.document.write(bodyHtml);
+  w.document.write('</body></html>');
+  w.document.close();
+}
+
+async function generarPDFFixture(){
+  var cat=getCatActual();if(!cat){toast('Sin categoría seleccionada','err');return;}
+  var r=await fetch(SUPA_URL+'/rest/v1/partidos?categoria_id=eq.'+cat.id+'&select=*,local:equipo_local(nombre),visita:equipo_visita(nombre)&estado=neq.finalizado&order=nro_fecha,fecha,hora',{headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}});
+  var partidos=await r.json();
+  var body='<div class="section">'+cat.nombre+' — Próximos partidos</div><table><tr><th>Fecha</th><th>Local</th><th>Visita</th><th>Día/Hora</th><th>Cancha</th></tr>';
+  (partidos||[]).forEach(function(p){
+    var dia=p.fecha?new Date(p.fecha+'T12:00:00').toLocaleDateString('es-CL',{weekday:'short',day:'2-digit',month:'short'}):'';
+    body+='<tr><td>N°'+p.nro_fecha+'</td><td>'+((p.local&&p.local.nombre)||'?')+'</td><td>'+((p.visita&&p.visita.nombre)||'?')+'</td><td>'+dia+(p.hora?' '+p.hora:'')+'</td><td>'+(p.cancha||'—')+'</td></tr>';
+  });
+  body+='</table>';
+  _pdfPrint('Programación — '+(cat.nombre||''),body);
+}
+
+async function generarPDFTabla(){
+  var cat=getCatActual();if(!cat){toast('Sin categoría seleccionada','err');return;}
+  var r=await fetch(SUPA_URL+'/rest/v1/standings?categoria_id=eq.'+cat.id+'&order=pts.desc',{headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}});
+  var rows=await r.json();
+  var body='<div class="section">'+cat.nombre+' — Tabla de posiciones</div><table><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>Dif</th><th>Pts</th></tr>';
+  (rows||[]).forEach(function(row,i){var dg=(row.gf||0)-(row.gc||0);body+='<tr><td>'+(i+1)+'</td><td>'+row.equipo_nombre+'</td><td>'+row.pj+'</td><td>'+row.pg+'</td><td>'+row.pe+'</td><td>'+row.pp+'</td><td>'+row.gf+'</td><td>'+row.gc+'</td><td>'+(dg>0?'+':'')+dg+'</td><td class="score">'+row.pts+'</td></tr>';});
+  body+='</table>';
+  _pdfPrint('Tabla de Posiciones — '+(cat.nombre||''),body);
+}
+
+async function generarPDFResultados(){
+  var cat=getCatActual();if(!cat){toast('Sin categoría seleccionada','err');return;}
+  var r=await fetch(SUPA_URL+'/rest/v1/partidos?categoria_id=eq.'+cat.id+'&select=*,local:equipo_local(nombre),visita:equipo_visita(nombre)&estado=eq.finalizado&order=nro_fecha.desc,fecha.desc',{headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}});
+  var partidos=await r.json();
+  var body='<div class="section">'+cat.nombre+' — Resultados</div><table><tr><th>Fecha</th><th>Local</th><th>Resultado</th><th>Visita</th><th>Día</th></tr>';
+  (partidos||[]).forEach(function(p){
+    var dia=p.fecha?new Date(p.fecha+'T12:00:00').toLocaleDateString('es-CL',{day:'2-digit',month:'short'}):'';
+    body+='<tr><td>N°'+p.nro_fecha+'</td><td>'+((p.local&&p.local.nombre)||'?')+'</td><td class="score" style="text-align:center">'+p.pts_local+' – '+p.pts_visita+'</td><td>'+((p.visita&&p.visita.nombre)||'?')+'</td><td>'+dia+'</td></tr>';
+  });
+  body+='</table>';
+  _pdfPrint('Resultados — '+(cat.nombre||''),body);
+}
 
 /* ── INIT ── */
 document.getElementById('pub-view').style.display='flex';
