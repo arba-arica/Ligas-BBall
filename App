@@ -704,7 +704,8 @@ async function loginAdmin(e){
   e.preventDefault();var errEl=document.getElementById('admin-error'),btn=document.getElementById('admin-btn');
   errEl.style.display='none';btn.disabled=true;btn.textContent='Ingresando...';
   try{var json=await api('checkLogin',{email:document.getElementById('admin-email').value.trim(),password:document.getElementById('admin-pass').value});
-    if(json.success){SESSION={rol:'admin',token:json.token,nombre:json.nombre,email:json.email};closeModal('modal-login-admin');initPanel();}
+    if(json.success&&json.rol==='admin'){SESSION={rol:'admin',token:json.token,nombre:json.nombre,email:json.email};closeModal('modal-login-admin');initPanel();}
+    else if(json.success&&json.rol!=='admin'){errEl.textContent='Acceso denegado. Esta cuenta no es administrador.';errEl.style.display='block';}
     else{errEl.textContent=json.message||'Email o contraseña incorrectos';errEl.style.display='block';}}
   catch(err){errEl.textContent='Error de conexión';errEl.style.display='block';}
   finally{btn.disabled=false;btn.textContent='INGRESAR';}
@@ -880,8 +881,25 @@ async function cargarEquiposCategoria(catId){
 }
 function abrirCrearEquipo(){var sel=document.getElementById('eq-cat-sel'),catId=sel?sel.value:'';openInlineModal('<div class="modal-title">Nuevo equipo</div><div class="f-group"><label class="f-label">Nombre del equipo</label><input class="f-input" id="ne-nombre" placeholder="Club Atlético..."></div><div class="f-row"><div class="f-group"><label class="f-label">Color local</label><input class="f-input" id="ne-local" type="color" value="#1d4ed8" style="height:42px;padding:4px"></div><div class="f-group"><label class="f-label">Color visita</label><input class="f-input" id="ne-visita" type="color" value="#ffffff" style="height:42px;padding:4px"></div></div><button class="f-submit" onclick="guardarNuevoEquipo(\''+catId+'\')">CREAR EQUIPO</button>');}
 async function guardarNuevoEquipo(catId){var n=document.getElementById('ne-nombre').value.trim();if(!n){toast('Nombre obligatorio','err');return;}var r=await api('crearEquipo',{categoria_id:catId,nombre:n,color_local:document.getElementById('ne-local').value,color_visita:document.getElementById('ne-visita').value});if(r.success){toast('Creado ✓','ok');closeInlineModal();cargarEquiposCategoria(catId);}else toast(r.message,'err');}
-function abrirEditarEquipo(id,enc){var e=JSON.parse(decodeURIComponent(enc));var catId=e.categoria_id||'';openInlineModal('<div class="modal-title">Editar equipo</div><div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="ee-nombre" value="'+esc(e.nombre||'')+'"></div><div class="f-row"><div class="f-group"><label class="f-label">Color local</label><input class="f-input" id="ee-local" type="color" value="'+(e.color_local||'#1d4ed8')+'" style="height:42px;padding:4px"></div><div class="f-group"><label class="f-label">Color visita</label><input class="f-input" id="ee-visita" type="color" value="'+(e.color_visita||'#ffffff')+'" style="height:42px;padding:4px"></div></div><button class="f-submit" onclick="guardarEditarEquipo(\''+id+'\',\''+catId+'\')">GUARDAR</button>');}
-async function guardarEditarEquipo(id,catId){var r=await api('actualizarEquipo',{id:id,nombre:document.getElementById('ee-nombre').value.trim(),color_local:document.getElementById('ee-local').value,color_visita:document.getElementById('ee-visita').value});if(r.success){toast('Actualizado ✓','ok');closeInlineModal();cargarEquiposCategoria(catId);}else toast(r.message,'err');}
+function abrirEditarEquipo(id,enc){
+  var e=JSON.parse(decodeURIComponent(enc));
+  window._eeId=id; window._eeCatId=e.categoria_id||'';
+  var html='<div class="modal-title">Editar equipo</div>'
+    +'<div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="ee-nombre" value="'+esc(e.nombre||'')+'"></div>'
+    +'<div class="f-row">'
+    +'<div class="f-group"><label class="f-label">Color local</label><input class="f-input" id="ee-local" type="color" value="'+(e.color_local||'#1d4ed8')+'" style="height:42px;padding:4px"></div>'
+    +'<div class="f-group"><label class="f-label">Color visita</label><input class="f-input" id="ee-visita" type="color" value="'+(e.color_visita||'#ffffff')+'" style="height:42px;padding:4px"></div>'
+    +'</div>'
+    +'<button class="f-submit" id="ee-submit" onclick="guardarEditarEquipo()">GUARDAR CAMBIOS</button>';
+  openInlineModal(html);
+}
+async function guardarEditarEquipo(){
+  var id=window._eeId||'',catId=window._eeCatId||'';
+  var btn=document.getElementById('ee-submit');if(btn){btn.disabled=true;btn.textContent='Guardando...';}
+  var r=await api('actualizarEquipo',{id:id,nombre:document.getElementById('ee-nombre').value.trim(),color_local:document.getElementById('ee-local').value,color_visita:document.getElementById('ee-visita').value});
+  if(r.success){toast('Equipo actualizado ✓','ok');closeInlineModal();cargarEquiposCategoria(catId);}
+  else{toast(r.message,'err');if(btn){btn.disabled=false;btn.textContent='GUARDAR CAMBIOS';}}
+}
 async function eliminarEquipo(id,nombre){var sel=document.getElementById('eq-cat-sel'),catId=sel?sel.value:'';confirmAction('¿Eliminar "'+nombre+'"?',async function(){var r=await api('eliminarEquipo',{id:id});if(r.success){toast('Eliminado','');cargarEquiposCategoria(catId);}else toast(r.message,'err');});}
 
 /* ── ORG: FIXTURE ── */
@@ -900,7 +918,16 @@ async function cargarFixturePanel(catId){
   if(!r.success||!r.data.length){el.innerHTML='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin partidos.</div>';return;}
   var grupos={};r.data.forEach(function(p){var k='Fecha '+(p.nro_fecha||'—');if(!grupos[k])grupos[k]=[];grupos[k].push(p);});
   var h='';Object.keys(grupos).forEach(function(g){h+='<div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 6px">'+g+'</div>';grupos[g].forEach(function(p){var lN=p.local?p.local.nombre:'?',vN=p.visita?p.visita.nombre:'?',fin=p.estado==='finalizado';var fechaCompleta=p.fecha?new Date(p.fecha+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'Sin fecha';
-      h+='<div class="p-card" style="margin-bottom:6px"><div class="p-card-header"><div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--text)">'+lN+' <span style="color:var(--blue);font-size:11px">LOCAL</span> vs '+vN+' <span style="color:var(--orange);font-size:11px">VISITA</span></div><div class="p-card-sub">'+fechaCompleta+(p.hora?' · '+p.hora:'')+(p.cancha?' · '+p.cancha:'')+' · '+(p.fase||'')+'</div>'+(fin?'<div style="font-size:12px;color:var(--orange);font-weight:700;margin-top:2px">Resultado: '+p.pts_local+' – '+p.pts_visita+'</div>':'')+'</div><div class="p-card-actions">'+((!fin)?'<button class="btn-sm" onclick="abrirEditarPartido(\''+p.id+'\','+encodeURIComponent(JSON.stringify(p))+')">Editar</button>':'')+'<button class="btn-sm btn-sm-danger" onclick="eliminarPartido(\''+p.id+'\')">✕</button></div></div></div>';});});
+      window._partidoRegistry=window._partidoRegistry||{};
+      window._partidoRegistry[p.id]=p;
+      h+='<div class="p-card" style="margin-bottom:6px"><div class="p-card-header"><div style="flex:1">'
+        +'<div style="font-size:13px;font-weight:700;color:var(--text)">'+lN+' <span style="color:var(--blue);font-size:11px">LOCAL</span> vs '+vN+' <span style="color:var(--orange);font-size:11px">VISITA</span></div>'
+        +'<div class="p-card-sub">'+fechaCompleta+(p.hora?' · '+p.hora:'')+(p.cancha?' · '+p.cancha:'')+' · '+(p.fase||'')+'</div>'
+        +(fin?'<div style="font-size:12px;color:var(--orange);font-weight:700;margin-top:2px">Resultado: '+p.pts_local+' – '+p.pts_visita+'</div>':'')
+        +'</div><div class="p-card-actions">'
+        +((!fin)?'<button class="btn-sm" onclick="abrirEditarPartido(\''+p.id+'\')">Editar</button>':'')
+        +'<button class="btn-sm btn-sm-danger" onclick="eliminarPartido(\''+p.id+'\')">✕</button>'
+        +'</div></div></div>';});});
   el.innerHTML=h;
 }
 async function abrirCrearPartido(){
@@ -945,8 +972,9 @@ async function guardarNuevoPartido(){
   if(r.success){toast('Partido programado ✓','ok');closeInlineModal();cargarFixturePanel(catId);}
   else{toast(r.message,'err');if(btn){btn.disabled=false;btn.textContent='PROGRAMAR PARTIDO';}}
 }
-async function abrirEditarPartido(id,enc){
-  var p=JSON.parse(decodeURIComponent(enc));var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:p.categoria_id;
+async function abrirEditarPartido(id){
+  var p=(window._partidoRegistry&&window._partidoRegistry[id])||{};
+  var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:p.categoria_id;
   var re=await api('getEquiposCategoria',{categoria_id:catId});var eqs=(re.success&&re.data)?re.data:[];
   var opts=eqs.map(function(e){return'<option value="'+e.id+'"'+(e.id===p.equipo_local?' selected':'')+'>'+e.nombre+'</option>';}).join('');
   var optsV=eqs.map(function(e){return'<option value="'+e.id+'"'+(e.id===p.equipo_visita?' selected':'')+'>'+e.nombre+'</option>';}).join('');
@@ -1040,15 +1068,92 @@ async function renderProgramacion(){
   if(!el)return;
   if(!TORNEO_ACTUAL){el.innerHTML='';return;}
   el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando programación...</div>';
-  // Traer todos los partidos del torneo con join de nombres, para todas las categorías
-  var promises=CATEGORIAS.map(function(cat){
-    return fetch(SUPA_URL+'/rest/v1/partidos?torneo_id=eq.'+TORNEO_ACTUAL.id+'&categoria_id=eq.'+cat.id+'&select=id,nro_fecha,fecha,hora,cancha,fase,estado,pts_local,pts_visita,url_transmision,equipo_local,equipo_visita,local:equipo_local(nombre),visita:equipo_visita(nombre)&order=fecha,hora',
-      {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON,'Accept':'application/json'}})
-    .then(function(r){return r.json();})
-    .then(function(data){return{cat:cat,partidos:Array.isArray(data)?data:[]};})
-    .catch(function(){return{cat:cat,partidos:[]};});
-  });
-  var results=await Promise.all(promises);
+  // Un solo fetch para todos los partidos del torneo con joins
+  var data=[];
+  try{
+    var resp=await fetch(
+      SUPA_URL+'/rest/v1/partidos?torneo_id=eq.'+TORNEO_ACTUAL.id
+      +'&select=id,nro_fecha,fecha,hora,cancha,fase,estado,pts_local,pts_visita,url_transmision,categoria_id,equipo_local,equipo_visita,local:equipo_local(nombre),visita:equipo_visita(nombre)'
+      +'&order=fecha.asc,hora.asc',
+      {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON,'Accept':'application/json','Content-Type':'application/json'}}
+    );
+    var raw=await resp.json();
+    data=Array.isArray(raw)?raw:[];
+  }catch(err){el.innerHTML='<div style="padding:20px;color:var(--text2)">Error al cargar programación.</div>';return;}
+  // Mapear cat por id
+  var catMap={};CATEGORIAS.forEach(function(c){catMap[c.id]=c;});
+  // Separar próximos y finalizados
+  var proximos=data.filter(function(p){return p.estado!=='finalizado';});
+  var finalizados=data.filter(function(p){return p.estado==='finalizado';});
+  // Agrupar proximos por fecha
+  var porFechaProx={};
+  proximos.forEach(function(p){var dia=p.fecha||'Sin fecha';if(!porFechaProx[dia])porFechaProx[dia]=[];porFechaProx[dia].push(p);});
+  // Agrupar finalizados por fecha
+  var porFechaFin={};
+  finalizados.forEach(function(p){var dia=p.fecha||'Sin fecha';if(!porFechaFin[dia])porFechaFin[dia]=[];porFechaFin[dia].push(p);});
+  var diasProx=Object.keys(porFechaProx).sort();
+  var diasFin=Object.keys(porFechaFin).sort().reverse();
+  var h='';
+  if(!data.length){h='<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin partidos programados aún.</div>';el.innerHTML=h;return;}
+  // PRÓXIMOS
+  if(proximos.length){
+    h+='<div class="tv-sec-label">Próximos partidos</div>';
+    diasProx.forEach(function(dia){
+      var fechaCompleta=dia!=='Sin fecha'?new Date(dia+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):dia;
+      h+='<div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin:12px 0 6px;display:flex;align-items:center;gap:8px">'+fechaCompleta+'<span style="flex:1;height:1px;background:var(--border);display:inline-block"></span></div>';
+      porFechaProx[dia].sort(function(a,b){return(a.hora||'').localeCompare(b.hora||'');});
+      porFechaProx[dia].forEach(function(p){
+        var cat=catMap[p.categoria_id]||{nombre:''};
+        var lN=(p.local&&p.local.nombre)||'?',vN=(p.visita&&p.visita.nombre)||'?';
+        var enVivo=p.estado==='en_vivo';
+        h+='<div class="mc" style="margin-bottom:8px">';
+        h+='<div class="mc-top" style="display:flex;align-items:center;justify-content:space-between">';
+        h+='<span class="mc-top-info">'+(p.hora||'Sin hora')+(p.cancha?' · 📍'+p.cancha:'')+'</span>';
+        h+='<span style="font-size:10px;font-weight:700;color:var(--orange);letter-spacing:.5px;text-transform:uppercase">'+cat.nombre+'</span>';
+        h+='</div>';
+        h+='<div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:4px;margin-bottom:4px;padding:0 2px">';
+        h+='<div style="font-size:9px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase">🏠 Local</div><div></div>';
+        h+='<div style="font-size:9px;font-weight:700;color:var(--orange);letter-spacing:1px;text-transform:uppercase;text-align:right">Visita ✈️</div></div>';
+        h+='<div class="mc-teams"><div class="mc-team">'+lN+'</div>';
+        if(enVivo)h+='<div class="mc-badge mc-badge-live" style="text-align:center">● EN VIVO</div>';
+        else h+='<div class="mc-vs">VS</div>';
+        h+='<div class="mc-team right">'+vN+'</div></div>';
+        h+='<div style="padding-top:6px;border-top:1px solid var(--border);text-align:center;font-size:11px;color:var(--text2)">Partido N°'+(p.nro_fecha||'—')+(p.fase&&p.fase!=='Fase Regular'?' · '+p.fase:'')+'</div>';
+        h+='</div>';
+      });
+    });
+  }else{h+='<div class="tv-sec-label">Próximos partidos</div><div style="padding:12px;color:var(--text2);font-size:13px;text-align:center">No hay partidos pendientes.</div>';}
+  // RESULTADOS
+  if(finalizados.length){
+    h+='<div class="tv-sec-label" style="margin-top:24px">Resultados</div>';
+    diasFin.forEach(function(dia){
+      var fechaCompleta=dia!=='Sin fecha'?new Date(dia+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):dia;
+      h+='<div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin:12px 0 6px;display:flex;align-items:center;gap:8px">'+fechaCompleta+'<span style="flex:1;height:1px;background:var(--border);display:inline-block"></span></div>';
+      porFechaFin[dia].sort(function(a,b){return(a.hora||'').localeCompare(b.hora||'');});
+      porFechaFin[dia].forEach(function(p){
+        var cat=catMap[p.categoria_id]||{nombre:''};
+        var lN=(p.local&&p.local.nombre)||'?',vN=(p.visita&&p.visita.nombre)||'?';
+        var lWin=p.pts_local>p.pts_visita,vWin=p.pts_visita>p.pts_local;
+        h+='<div class="mc" style="margin-bottom:8px">';
+        h+='<div class="mc-top" style="display:flex;align-items:center;justify-content:space-between">';
+        h+='<span class="mc-top-info">'+(p.hora||'')+(p.cancha?' · 📍'+p.cancha:'')+'</span>';
+        h+='<span style="font-size:10px;font-weight:700;color:var(--orange);letter-spacing:.5px;text-transform:uppercase">'+cat.nombre+'</span>';
+        h+='</div>';
+        h+='<div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:4px;margin-bottom:4px;padding:0 2px">';
+        h+='<div style="font-size:9px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase">🏠 Local</div><div></div>';
+        h+='<div style="font-size:9px;font-weight:700;color:var(--orange);letter-spacing:1px;text-transform:uppercase;text-align:right">Visita ✈️</div></div>';
+        h+='<div class="mc-teams"><div class="mc-team'+(lWin?' win':'')+' ">'+lN+'</div>';
+        h+='<div class="mc-score">'+p.pts_local+'–'+p.pts_visita+'</div>';
+        h+='<div class="mc-team right'+(vWin?' win':'')+' ">'+vN+'</div></div>';
+        h+='<div style="padding-top:6px;border-top:1px solid var(--border);text-align:center;font-size:11px;color:var(--text2)">Partido N°'+(p.nro_fecha||'—')+(p.fase&&p.fase!=='Fase Regular'?' · '+p.fase:'')+'</div>';
+        h+='</div>';
+      });
+    });
+  }
+  el.innerHTML=h;
+  // Bloque vacío para reemplazar el resto de la función vieja
+  var _dummy=null;
+  var results=[]; // compatibilidad con código viejo abajo
   // Agrupar todos los partidos por fecha (día)
   var porFecha={};
   results.forEach(function(res){
