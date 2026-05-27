@@ -332,9 +332,9 @@ textarea.f-input{resize:none}
     <!-- SIDEBAR ORGANIZADOR -->
     <div class="panel-sidebar" id="sidebar-org" style="display:none">
       <div class="sb-section">Navegacion</div>
-      <button class="sb-btn active" onclick="showPanel('p-dashboard',this)">
+      <button class="sb-btn active" onclick="showPanel('p-dashboard',this)" style="justify-content:center;margin-top:8px;background:rgba(29,78,216,.25);color:#fff;font-weight:700;border-radius:10px;padding:12px 8px">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        ← Menu principal
+        ← Menú principal
       </button>
     </div>
     <div class="panel-main" id="panel-main"></div>
@@ -495,6 +495,8 @@ async function abrirTorneo(id,nombre,ciudad,temporada){
   TORNEO_ACTUAL={id:id,nombre:nombre,ciudad:ciudad,temporada:temporada};
   document.getElementById('tv-nombre').textContent=nombre;
   document.getElementById('tv-temporada-lbl').textContent=(temporada?temporada.toUpperCase():'')+(ciudad?' · '+ciudad.toUpperCase():'');
+  // URL única para compartir
+  try{history.replaceState(null,'','?liga='+id);}catch(e){}
   showView('torneo-view');
   document.querySelector('.tv-navbar').style.display='flex';
   document.querySelectorAll('.tv-nav-btn').forEach(function(b){b.classList.remove('active');});
@@ -504,7 +506,7 @@ async function abrirTorneo(id,nombre,ciudad,temporada){
   await loadCategorias(id);
 }
 
-function volverPublico(){TORNEO_ACTUAL=null;document.querySelector('.tv-navbar').style.display='none';showView('pub-view');loadTorneos();}
+function volverPublico(){TORNEO_ACTUAL=null;try{history.replaceState(null,'',window.location.pathname);}catch(e){}document.querySelector('.tv-navbar').style.display='none';showView('pub-view');loadTorneos();}
 
 function showTab(tabId,btn){
   document.querySelectorAll('.tv-nav-btn').forEach(function(b){b.classList.remove('active');});
@@ -579,6 +581,17 @@ function buildPartidoCard(p,finalizado){
   if(p.cancha)h+='<span class="mc-meta-sep">·</span><span>📍 '+p.cancha+'</span>';
   h+='</div>';
   if(p.url_transmision)h+='<div style="margin-top:6px"><a href="'+p.url_transmision+'" target="_blank" class="mc-yt" style="justify-content:center">▶ Ver en vivo</a></div>';
+  // WhatsApp share para partidos no finalizados
+  if(!finalizado){
+    var lN2=(p.local&&p.local.nombre)||local.nombre||'?';
+    var vN2=(p.visita&&p.visita.nombre)||visita.nombre||'?';
+    var fechaWa=p.fecha?new Date(p.fecha+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long'}):'';
+    var horaWa=p.hora||'';
+    var canchaWa=p.cancha?'\nCancha: '+p.cancha:'';
+    var ligaUrl=window.location.origin+window.location.pathname+(TORNEO_ACTUAL?'?liga='+TORNEO_ACTUAL.id:'');
+    var txt=encodeURIComponent('🏀 '+lN2+' vs '+vN2+'\n📅 '+(fechaWa+(horaWa?' · '+horaWa:''))+canchaWa+'\n🔗 Sigue en vivo: '+ligaUrl);
+    h+='<div style="margin-top:6px"><a href="https://wa.me/?text='+txt+'" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;font-weight:700;color:#25d366;text-decoration:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.135.563 4.14 1.534 5.876L0 24l6.29-1.51A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.93 0-3.74-.51-5.3-1.395l-.38-.225-3.733.898.939-3.638-.248-.387A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>Compartir por WhatsApp</a></div>';
+  }
   h+='</div></div>';
   return h;
 }
@@ -658,7 +671,13 @@ async function renderSanciones(){
   window.toggleSanAcc=function(i){var b=document.getElementById('san-body-'+i);if(b)b.style.display=b.style.display==='none'?'block':'none';};
 }
 
-function compartirTorneo(){var u=window.location.href;if(navigator.share)navigator.share({title:TORNEO_ACTUAL?TORNEO_ACTUAL.nombre:'ACTIVA PLAY',url:u});else if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){toast('Link copiado','ok');});}
+function compartirTorneo(){
+  var base=window.location.origin+window.location.pathname;
+  var u=TORNEO_ACTUAL?base+'?liga='+TORNEO_ACTUAL.id:window.location.href;
+  var titulo=TORNEO_ACTUAL?TORNEO_ACTUAL.nombre+' — ACTIVA PLAY':'ACTIVA PLAY';
+  if(navigator.share)navigator.share({title:titulo,text:'Sigue el torneo en tiempo real',url:u});
+  else if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){toast('Link copiado ✓','ok');});
+}
 function pdfalert(){toast('Próximamente disponible','');}
 function pdfopenAdmin(){openModal('modal-login-admin');}
 
@@ -1058,24 +1077,38 @@ async function renderProgramacion(){
   // Un solo fetch para todos los partidos del torneo con joins
   var data=[];
   try{
+    // Primero cargar categorías si no están
+    if(!CATEGORIAS||!CATEGORIAS.length){
+      var cr0=await fetch(SUPA_URL+'/rest/v1/categorias?torneo_id=eq.'+TORNEO_ACTUAL.id+'&activo=eq.true&order=orden',
+        {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}});
+      var cd0=await cr0.json();
+      if(Array.isArray(cd0))CATEGORIAS=cd0;
+    }
+    // Buscar por torneo_id directamente
     var resp=await fetch(
       SUPA_URL+'/rest/v1/partidos?torneo_id=eq.'+TORNEO_ACTUAL.id
       +'&select=id,nro_fecha,fecha,hora,cancha,fase,estado,pts_local,pts_visita,url_transmision,categoria_id,equipo_local,equipo_visita,local:equipo_local(nombre),visita:equipo_visita(nombre)'
       +'&order=fecha.asc,hora.asc',
-      {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON,'Accept':'application/json','Content-Type':'application/json'}}
+      {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON,'Accept':'application/json'}}
     );
     var raw=await resp.json();
     data=Array.isArray(raw)?raw:[];
-  }catch(err){el.innerHTML='<div style="padding:20px;color:var(--text2)">Error al cargar programación.</div>';return;}
-  // Cargar categorías si no están cargadas aún
-  if(!CATEGORIAS||!CATEGORIAS.length){
-    try{
-      var cr=await fetch(SUPA_URL+'/rest/v1/categorias?torneo_id=eq.'+TORNEO_ACTUAL.id+'&activo=eq.true&order=orden',
-        {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}});
-      var cd=await cr.json();
-      if(Array.isArray(cd))CATEGORIAS=cd;
-    }catch(e){}
-  }
+    // Fallback: si torneo_id no trae datos, buscar por categorías
+    if(!data.length&&CATEGORIAS&&CATEGORIAS.length){
+      var allP=[];
+      for(var ci=0;ci<CATEGORIAS.length;ci++){
+        var cr2=await fetch(
+          SUPA_URL+'/rest/v1/partidos?categoria_id=eq.'+CATEGORIAS[ci].id
+          +'&select=id,nro_fecha,fecha,hora,cancha,fase,estado,pts_local,pts_visita,url_transmision,categoria_id,equipo_local,equipo_visita,local:equipo_local(nombre),visita:equipo_visita(nombre)'
+          +'&order=fecha.asc,hora.asc',
+          {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON,'Accept':'application/json'}}
+        );
+        var pd=await cr2.json();
+        if(Array.isArray(pd))allP=allP.concat(pd);
+      }
+      data=allP;
+    }
+  }catch(err){el.innerHTML='<div style="padding:20px;color:var(--text2)">Error: '+err.message+'</div>';return;}
   // Mapear cat por id
   var catMap={};
   (CATEGORIAS||[]).forEach(function(cat){catMap[cat.id]=cat;});
@@ -1201,6 +1234,22 @@ document.getElementById('pub-view').style.display='flex';
 document.getElementById('torneo-view').style.display='none';
 document.getElementById('panel-view').style.display='none';
 loadTorneos();
+// Si hay ?liga=ID en la URL, abrir ese torneo directamente
+(async function(){
+  try{
+    var params=new URLSearchParams(window.location.search);
+    var ligaId=params.get('liga');
+    if(ligaId){
+      var r=await fetch(SUPA_URL+'/rest/v1/torneos?id=eq.'+ligaId+'&select=id,nombre,ciudad,temporada&visible=eq.true&limit=1',
+        {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}});
+      var data=await r.json();
+      if(Array.isArray(data)&&data.length){
+        var t=data[0];
+        await abrirTorneo(t.id,t.nombre,t.ciudad||'',t.temporada||'');
+      }
+    }
+  }catch(e){}
+})();
 </script>
 </body>
 </html>
