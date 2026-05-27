@@ -329,36 +329,12 @@ textarea.f-input{resize:none}
       </button>
     </div>
     <!-- SIDEBAR ORG -->
+    <!-- SIDEBAR ORGANIZADOR -->
     <div class="panel-sidebar" id="sidebar-org" style="display:none">
-      <div class="sb-section">Mi torneo</div>
+      <div class="sb-section">Navegacion</div>
       <button class="sb-btn active" onclick="showPanel('p-dashboard',this)">
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        Dashboard
-      </button>
-      <button class="sb-btn" onclick="showPanel('p-categorias',this)">
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-        Categorías
-      </button>
-      <button class="sb-btn" onclick="showPanel('p-equipos',this)">
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-        Equipos
-      </button>
-      <button class="sb-btn" onclick="showPanel('p-fixture',this)">
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
-        Fixture
-      </button>
-      <button class="sb-btn" onclick="showPanel('p-resultados',this)">
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        Resultados
-      </button>
-      <div class="sb-section">Comunicaciones</div>
-      <button class="sb-btn" onclick="showPanel('p-noticias',this)">
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Z"/></svg>
-        Noticias
-      </button>
-      <button class="sb-btn" onclick="showPanel('p-sanciones',this)">
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
-        Sanciones
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        ← Menu principal
       </button>
     </div>
     <div class="panel-main" id="panel-main"></div>
@@ -382,27 +358,11 @@ textarea.f-input{resize:none}
       Métricas
     </button>
   </nav>
-  <!-- Bottom nav para mobile (organizador) -->
+  <!-- Bottom nav para mobile (organizador) — solo Inicio -->
   <nav class="panel-bottom-nav" id="pbn-org" style="display:none">
     <button class="pbn-btn active" onclick="pbnClick('p-dashboard',this,'pbn-org')">
-      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-      Inicio
-    </button>
-    <button class="pbn-btn" onclick="pbnClick('p-fixture',this,'pbn-org')">
-      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      Fixture
-    </button>
-    <button class="pbn-btn" onclick="pbnClick('p-resultados',this,'pbn-org')">
-      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      Result.
-    </button>
-    <button class="pbn-btn" onclick="pbnClick('p-equipos',this,'pbn-org')">
-      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-      Equipos
-    </button>
-    <button class="pbn-btn" onclick="pbnClick('p-mas',this,'pbn-org')">
-      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-      Más
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Menú principal
     </button>
   </nav>
 </div>
@@ -505,9 +465,12 @@ function pbnClick(panelId,btn,navId){
   document.querySelectorAll('#'+navId+' .pbn-btn').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active');
   if(panelId==='p-mas'){
-    openInlineModal('<div class="modal-title" style="margin-bottom:16px">Más opciones</div>'
+    openInlineModal('<div class="modal-title" style="margin-bottom:16px">Todas las secciones</div>'
       +'<div style="display:grid;gap:8px">'
-      +'<button class="f-submit" style="margin:0" onclick="closeInlineModal();showPanel(\'p-categorias\',null)">🏅 Categorías</button>'
+      +'<button class="f-submit" style="margin:0" onclick="closeInlineModal();showPanel(\'p-fixture\',null)">📅 Fixture</button>'
+      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-resultados\',null)">⚽ Resultados</button>'
+      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-equipos\',null)">👥 Equipos</button>'
+      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-categorias\',null)">🏅 Categorías</button>'
       +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-noticias\',null)">📰 Noticias</button>'
       +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-sanciones\',null)">⚠️ Sanciones</button>'
       +'</div>');
@@ -836,7 +799,14 @@ async function renderDashboard(){
     h+='<div class="p-card"><div class="p-card-header"><div><div class="p-card-title">'+t.nombre+'</div><div class="p-card-sub">'+t.ciudad+(t.temporada?' · '+t.temporada:'')+'</div></div><div class="p-card-actions"><span class="badge '+(t.visible?'badge-active':'badge-draft')+'">'+(t.visible?'● Publicado':'○ Borrador')+'</span><button class="btn-sm btn-sm-primary" onclick="editarTorneo(\''+t.id+'\',\''+encodeURIComponent(JSON.stringify(t))+'\')">Editar</button></div></div>';
     if(t.descripcion)h+='<div style="font-size:13px;color:var(--text2);margin-top:8px">'+t.descripcion+'</div>';
     h+='<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;color:var(--text2)">'+(t.visible?'Visible al público':'Oculto al público')+'</span><button class="btn-sm '+(t.visible?'':'btn-sm-primary')+'" onclick="toggleVisible(\''+t.id+'\','+!t.visible+')">'+(t.visible?'Ocultar':'Publicar')+'</button></div></div>';
-    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">'+quickAction('Categorías','🏅',"showPanel('p-categorias',null)")+quickAction('Equipos','👥',"showPanel('p-equipos',null)")+quickAction('Fixture','📅',"showPanel('p-fixture',null)")+quickAction('Resultados','⚽',"showPanel('p-resultados',null)")+'</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">'
+      +quickAction('Categorías','🏅',"showPanel('p-categorias',null)")
+      +quickAction('Equipos','👥',"showPanel('p-equipos',null)")
+      +quickAction('Fixture','📅',"showPanel('p-fixture',null)")
+      +quickAction('Resultados','⚽',"showPanel('p-resultados',null)")
+      +quickAction('Noticias','📰',"showPanel('p-noticias',null)")
+      +quickAction('Sanciones','⚠️',"showPanel('p-sanciones',null)")
+      +'</div>';
   }
   setMain(h+'</div>');
 }
@@ -1097,8 +1067,18 @@ async function renderProgramacion(){
     var raw=await resp.json();
     data=Array.isArray(raw)?raw:[];
   }catch(err){el.innerHTML='<div style="padding:20px;color:var(--text2)">Error al cargar programación.</div>';return;}
+  // Cargar categorías si no están cargadas aún
+  if(!CATEGORIAS||!CATEGORIAS.length){
+    try{
+      var cr=await fetch(SUPA_URL+'/rest/v1/categorias?torneo_id=eq.'+TORNEO_ACTUAL.id+'&activo=eq.true&order=orden',
+        {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}});
+      var cd=await cr.json();
+      if(Array.isArray(cd))CATEGORIAS=cd;
+    }catch(e){}
+  }
   // Mapear cat por id
-  var catMap={};CATEGORIAS.forEach(function(c){catMap[c.id]=c;});
+  var catMap={};
+  (CATEGORIAS||[]).forEach(function(cat){catMap[cat.id]=cat;});
   // Separar próximos y finalizados
   var proximos=data.filter(function(p){return p.estado!=='finalizado';});
   var finalizados=data.filter(function(p){return p.estado==='finalizado';});
