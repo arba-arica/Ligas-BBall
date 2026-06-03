@@ -322,9 +322,56 @@ exports.handler = async (event) => {
           result = { success: false, message: 'Nombre, email y ciudad son obligatorios' };
           break;
         }
+        const emailClean = data.email.toLowerCase().trim();
+
+        // Verificar si ya existe una solicitud con ese correo
+        const { data: existe } = await db.from('solicitudes')
+          .select('id, estado')
+          .eq('email', emailClean)
+          .maybeSingle();
+
+        if (existe) {
+          if (existe.estado === 'pendiente') {
+            result = { success: false, message: 'Ya tienes una solicitud pendiente con ese correo. Te contactaremos pronto.' };
+            break;
+          }
+          if (existe.estado === 'aprobada') {
+            result = { success: false, message: 'Este correo ya tiene una cuenta activa. Ingresa desde el panel de organizador.' };
+            break;
+          }
+          // Si fue rechazada, permitir reenviar — actualizar la solicitud existente
+          if (existe.estado === 'rechazada') {
+            await db.from('solicitudes').update({
+              nombre:          data.nombre.trim(),
+              telefono:        data.telefono || null,
+              ciudad:          data.ciudad.trim(),
+              deporte:         data.deporte || 'Básquetbol',
+              descripcion:     data.descripcion || null,
+              cant_categorias: data.cant_categorias || 1,
+              estado:          'pendiente',
+              notas_admin:     null,
+            }).eq('id', existe.id);
+            result = { success: true, message: '¡Solicitud reenviada! Te contactaremos pronto.' };
+            break;
+          }
+        }
+
+        // También verificar si ya existe como organizador
+        const { data: orgExiste } = await db.from('organizadores')
+          .select('org_id, activo')
+          .eq('email', emailClean)
+          .maybeSingle();
+
+        if (orgExiste) {
+          result = { success: false, message: orgExiste.activo
+            ? 'Este correo ya tiene una cuenta activa. Ingresa desde el panel de organizador.'
+            : 'Este correo tiene una cuenta suspendida. Contacta al administrador.' };
+          break;
+        }
+
         const { error } = await db.from('solicitudes').insert({
           nombre:          data.nombre.trim(),
-          email:           data.email.toLowerCase().trim(),
+          email:           emailClean,
           telefono:        data.telefono || null,
           ciudad:          data.ciudad.trim(),
           deporte:         data.deporte || 'Básquetbol',
@@ -458,6 +505,16 @@ exports.handler = async (event) => {
         break;
       }
 
+      case 'getMisTorneos': {
+        requireOrg(session);
+        const { data: torneos, error } = await db.from('torneos')
+          .select('*')
+          .eq('org_id', session.org_id)
+          .order('created_at', { ascending: false });
+        result = error ? fail(error, 'Error al cargar torneos') : { success: true, data: torneos || [] };
+        break;
+      }
+
       case 'crearTorneo': {
         requireOrg(session);
         const { data: torneo, error } = await db.from('torneos').insert({
@@ -467,6 +524,8 @@ exports.handler = async (event) => {
           deporte:     data.deporte || 'Básquetbol',
           temporada:   data.temporada || null,
           descripcion: data.descripcion || null,
+          fecha_inicio: data.fecha_inicio || null,
+          fecha_fin:    data.fecha_fin || null,
           estado:      'borrador',
           visible:     false,
         }).select().single();
@@ -483,6 +542,8 @@ exports.handler = async (event) => {
           temporada:      data.temporada,
           descripcion:    data.descripcion,
           reglamento_url: data.reglamento_url,
+          fecha_inicio:   data.fecha_inicio || null,
+          fecha_fin:      data.fecha_fin || null,
         }).eq('id', data.id);
         result = error ? fail(error, 'Error al actualizar torneo') : { success: true, message: 'Torneo actualizado' };
         break;
