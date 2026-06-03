@@ -1289,41 +1289,67 @@ function importarFixtureCSV(){
       if(!file)return;
       var reader=new FileReader();
       reader.onload=function(ev){
-        var text=ev.target.result;
-        if(text.charCodeAt(0)===0xFEFF)text=text.slice(1);
-        var lines=text.split('\n').filter(function(l){return l.trim();});
-        window._csvText=text;
-        var prev=document.getElementById('csv-preview');
-        var btn=document.getElementById('csv-btn');
-        if(prev)prev.innerHTML='<div style="background:var(--bg3);border-radius:8px;padding:8px">'+(lines.length-1)+' partidos detectados</div>';
-        if(btn)btn.style.display='block';
+        try{
+          // Leer XLSX con SheetJS
+          var data=new Uint8Array(ev.target.result);
+          var wb=XLSX.read(data,{type:'array'});
+          var ws=wb.Sheets[wb.SheetNames[0]];
+          var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+          // Filtrar filas vacías y quitar header
+          var dataRows=rows.slice(1).filter(function(r){return r.some(function(v){return String(v||'').trim();});});
+          window._xlsRows=dataRows;
+          window._csvCatId=catId;
+          var prev=document.getElementById('csv-preview');
+          var btn=document.getElementById('csv-btn');
+          if(dataRows.length===0){
+            if(prev)prev.innerHTML='<div style="color:var(--red);padding:8px">No se encontraron partidos en el archivo.</div>';
+            return;
+          }
+          // Preview primeras 3 filas
+          var previewHtml='<div style="background:var(--bg3);border-radius:8px;padding:10px">';
+          previewHtml+='<b style="color:var(--text)">'+dataRows.length+' partidos detectados</b>';
+          previewHtml+='<div style="margin-top:8px;font-size:11px;color:var(--text2)">';
+          dataRows.slice(0,3).forEach(function(r){
+            previewHtml+='<div style="padding:2px 0">'+[r[5],r[6]].join(' vs ')+(r[1]?' · '+r[1]:'')+'</div>';
+          });
+          if(dataRows.length>3)previewHtml+='<div>... y '+(dataRows.length-3)+' más</div>';
+          previewHtml+='</div></div>';
+          if(prev)prev.innerHTML=previewHtml;
+          if(btn)btn.style.display='block';
+        }catch(err){
+          var prev=document.getElementById('csv-preview');
+          if(prev)prev.innerHTML='<div style="color:var(--red);padding:8px">Error al leer el archivo: '+err.message+'</div>';
+        }
       };
-      reader.readAsText(file,'UTF-8');
+      reader.readAsArrayBuffer(file);
     });
   },200);
 }
 
 async function procesarCSV(){
-  var text=window._csvText||'';
+  var rows=window._xlsRows||[];
   var catId=window._csvCatId||'';
-  if(!text||!catId){toast('Error: intenta de nuevo','err');return;}
+  if(!rows.length||!catId){toast('Carga un archivo primero','err');return;}
   var btn=document.getElementById('csv-btn');
   if(btn){btn.disabled=true;btn.textContent='Importando...';}
+  // Traer equipos para mapear nombre -> id
   var re=await api('getEquiposCategoria',{categoria_id:catId});
   var equipos=(re.success&&re.data)?re.data:[];
   var eMap={};
   equipos.forEach(function(e){eMap[e.nombre.toLowerCase().trim()]=e.id;});
-  if(text.charCodeAt(0)===0xFEFF)text=text.slice(1);
-  var lines=text.split('\n').filter(function(l){return l.trim();});
   var errors=[];
   var imported=0;
-  for(var i=1;i<lines.length;i++){
-    var cols=lines[i].split(',').map(function(v){return v.replace(/^"|"$/g,'').replace(/""/g,'"').trim();});
+  for(var i=0;i<rows.length;i++){
+    var cols=rows[i].map(function(v){return String(v||'').trim();});
     if(cols.length<7)continue;
+    // Columnas: 0=NroFecha, 1=Fecha, 2=Hora, 3=Cancha, 4=Fase, 5=Local, 6=Visita
     var localId=eMap[cols[5].toLowerCase().trim()];
     var visitaId=eMap[cols[6].toLowerCase().trim()];
-    if(!localId||!visitaId){errors.push('Fila '+(i+1)+': equipo no encontrado');continue;}
-    if(localId===visitaId){errors.push('Fila '+(i+1)+': local=visita');continue;}
+    if(!localId||!visitaId){
+      errors.push('Fila '+(i+2)+': equipo no encontrado ("'+cols[5]+'" / "'+cols[6]+'")');
+      continue;
+    }
+    if(localId===visitaId){errors.push('Fila '+(i+2)+': local y visita iguales');continue;}
     var r=await api('crearPartido',{
       categoria_id:catId,
       nro_fecha:parseInt(cols[0])||1,
@@ -1335,7 +1361,7 @@ async function procesarCSV(){
       equipo_visita:visitaId
     });
     if(r.success)imported++;
-    else errors.push('Fila '+(i+1)+': '+r.message);
+    else errors.push('Fila '+(i+2)+': '+r.message);
   }
   closeInlineModal();
   if(errors.length){toast(imported+' importados, '+errors.length+' errores','err');console.warn(errors);}
