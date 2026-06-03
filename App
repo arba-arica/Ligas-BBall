@@ -904,18 +904,64 @@ async function renderDashboard(){
 async function toggleVisible(id,visible){var r=await api('publicarTorneo',{id:id,visible:visible});if(r.success){toast(r.message,'ok');_torneoId=null;renderDashboard();}else toast(r.message,'err');}
 function abrirCrearTorneo(){openInlineModal('<div class="modal-title">Crear torneo</div><div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="ct-nombre" placeholder="Liga Municipal 2026"></div><div class="f-row"><div class="f-group"><label class="f-label">Ciudad</label><input class="f-input" id="ct-ciudad" value="'+(SESSION.ciudad||'')+'"></div><div class="f-group"><label class="f-label">Temporada</label><input class="f-input" id="ct-temporada" placeholder="2026"></div></div><div class="f-group"><label class="f-label">Descripción (opcional)</label><textarea class="f-input" id="ct-desc" rows="2"></textarea></div><button class="f-submit" onclick="guardarNuevoTorneo()">CREAR TORNEO</button>');}
 async function guardarNuevoTorneo(){var nombre=document.getElementById('ct-nombre').value.trim(),ciudad=document.getElementById('ct-ciudad').value.trim();if(!nombre||!ciudad){toast('Nombre y ciudad son obligatorios','err');return;}var r=await api('crearTorneo',{nombre:nombre,ciudad:ciudad,temporada:document.getElementById('ct-temporada').value.trim(),fecha_inicio:document.getElementById('ct-finicio').value||null,fecha_fin:document.getElementById('ct-ffin').value||null,descripcion:document.getElementById('ct-desc').value.trim()});if(r.success){toast('Torneo creado ✓','ok');closeInlineModal();_torneoId=null;renderDashboard();}else toast(r.message,'err');}
-function editarTorneo(id,encoded){var t=JSON.parse(decodeURIComponent(encoded));openInlineModal('<div class="modal-title">Editar torneo</div><div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="et-nombre" value="'+esc(t.nombre||'')+'"></div><div class="f-group"><label class="f-label">Temporada</label><input class="f-input" id="et-temporada" value="'+(t.temporada||'')+'"></div><div class="f-group"><label class="f-label">Descripción</label><textarea class="f-input" id="et-desc" rows="2">'+(t.descripcion||'')+'</textarea></div><div class="f-group"><label class="f-label">URL Reglamento</label><input class="f-input" id="et-reglamento" value="'+(t.reglamento_url||'')+'" placeholder="https://..."></div><button class="f-submit" onclick="guardarEdicionTorneo(\''+id+'\')">GUARDAR CAMBIOS</button>');}
-async function guardarEdicionTorneo(id){var r=await api('actualizarTorneo',{id:id,nombre:document.getElementById('et-nombre').value.trim(),temporada:document.getElementById('et-temporada').value.trim(),descripcion:document.getElementById('et-desc').value.trim(),reglamento_url:document.getElementById('et-reglamento').value.trim()});if(r.success){toast('Actualizado ✓','ok');closeInlineModal();_torneoId=null;renderDashboard();}else toast(r.message,'err');}
-
-/* -- ORG: CATEGORIAS -- */
-async function renderCategorias(){
-  var tid=await getTorneoId();var h='<div class="panel-content"><div class="panel-title">Categorías</div>';
-  if(!tid){setMain(h+'<div class="panel-sub">Crea un torneo primero</div></div>');return;}
-  var r=await api('getMisCategorias',{torneo_id:tid});var cats=(r.success&&r.data)?r.data.filter(function(c){return c.activo;}):[]; 
-  h+='<div class="panel-sub">'+cats.length+' categoría(s)</div><button class="btn-sm btn-sm-primary" style="margin-bottom:16px" onclick="abrirCrearCategoria(\''+tid+'\')">+ Nueva categoría</button>';
-  if(!cats.length)h+='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin categorías aún.</div>';
-  else cats.forEach(function(c){h+='<div class="p-card"><div class="p-card-header"><div><div class="p-card-title">'+c.nombre+'</div><div class="p-card-sub">V:'+c.pts_victoria+' E:'+c.pts_empate+' D:'+c.pts_derrota+'</div></div><div class="p-card-actions"><button class="btn-sm" onclick="abrirEditarCategoria(\''+c.id+'\','+encodeURIComponent(JSON.stringify(c))+')">Editar</button><button class="btn-sm btn-sm-danger" onclick="eliminarCategoria(\''+c.id+'\',\''+c.nombre.replace(/'/g,"\\'")+'\')">Eliminar</button></div></div></div>';});
-  setMain(h+'</div>');
+function editarTorneo(id,encoded){
+  var t=JSON.parse(decodeURIComponent(encoded));
+  window._etTorneo=t;
+  var reglTexto=(t.reglamento_url&&t.reglamento_url.indexOf('http')!==0)?t.reglamento_url:'';
+  var reglUrl=(t.reglamento_url&&t.reglamento_url.indexOf('http')===0)?t.reglamento_url:'';
+  var html='<div class="modal-title">Editar torneo</div>'
+    +'<div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="et-nombre" value="'+esc(t.nombre||'')+'"></div>'
+    +'<div class="f-row">'
+    +'<div class="f-group"><label class="f-label">Ciudad</label><input class="f-input" id="et-ciudad" value="'+esc(t.ciudad||'')+'"></div>'
+    +'<div class="f-group"><label class="f-label">Temporada</label><input class="f-input" id="et-temporada" value="'+esc(t.temporada||'')+'"></div>'
+    +'</div>'
+    +'<div class="f-row">'
+    +'<div class="f-group"><label class="f-label">Fecha inicio</label><input class="f-input" id="et-finicio" type="date" value="'+(t.fecha_inicio||'')+'"></div>'
+    +'<div class="f-group"><label class="f-label">Fecha termino</label><input class="f-input" id="et-ffin" type="date" value="'+(t.fecha_fin||'')+'"></div>'
+    +'</div>'
+    +'<div class="f-group"><label class="f-label">Descripcion</label><textarea class="f-input" id="et-desc" rows="2">'+esc(t.descripcion||'')+'</textarea></div>'
+    +'<div class="f-group"><label class="f-label">Reglamento</label>'
+    +'<div style="display:flex;gap:6px;margin-bottom:6px">'
+    +'<button type="button" class="btn-sm" id="reg-tab-texto" onclick="toggleRegTab(\'texto\')" style="background:var(--blue);color:#fff">Texto</button>'
+    +'<button type="button" class="btn-sm" id="reg-tab-link" onclick="toggleRegTab(\'link\')">Link PDF</button>'
+    +'</div>'
+    +'<div id="reg-texto-div"><textarea class="f-input" id="et-reglamento-texto" rows="3" placeholder="Escribe el reglamento...">'+esc(reglTexto)+'</textarea></div>'
+    +'<div id="reg-link-div" style="display:none"><input class="f-input" id="et-reglamento-url" type="url" placeholder="https://..." value="'+esc(reglUrl)+'"></div>'
+    +'</div>'
+    +'<button class="f-submit" id="et-submit" onclick="guardarEditarTorneo()">GUARDAR CAMBIOS</button>';
+  openInlineModal(html);
+  if(reglUrl)toggleRegTab('link');
+}
+function toggleRegTab(tab){
+  var td=document.getElementById('reg-texto-div');
+  var ld=document.getElementById('reg-link-div');
+  var tb=document.getElementById('reg-tab-texto');
+  var lb=document.getElementById('reg-tab-link');
+  if(td)td.style.display=tab==='texto'?'block':'none';
+  if(ld)ld.style.display=tab==='link'?'block':'none';
+  if(tb){tb.style.background=tab==='texto'?'var(--blue)':'var(--surface)';tb.style.color=tab==='texto'?'#fff':'var(--text)';}
+  if(lb){lb.style.background=tab==='link'?'var(--blue)':'var(--surface)';lb.style.color=tab==='link'?'#fff':'var(--text)';}
+}
+async function guardarEditarTorneo(){
+  var t=window._etTorneo||{};
+  var btn=document.getElementById('et-submit');
+  if(btn){btn.disabled=true;btn.textContent='Guardando...';}
+  var reglUrl=document.getElementById('et-reglamento-url')?document.getElementById('et-reglamento-url').value.trim():'';
+  var reglTexto=document.getElementById('et-reglamento-texto')?document.getElementById('et-reglamento-texto').value.trim():'';
+  var reglFinal=reglUrl||reglTexto||null;
+  api('actualizarTorneo',{
+    id:t.id,
+    nombre:document.getElementById('et-nombre').value.trim(),
+    ciudad:document.getElementById('et-ciudad')?document.getElementById('et-ciudad').value.trim():t.ciudad,
+    temporada:document.getElementById('et-temporada').value.trim(),
+    descripcion:document.getElementById('et-desc').value.trim()||null,
+    fecha_inicio:document.getElementById('et-finicio')?document.getElementById('et-finicio').value||null:null,
+    fecha_fin:document.getElementById('et-ffin')?document.getElementById('et-ffin').value||null:null,
+    reglamento_url:reglFinal
+  }).then(function(r){
+    if(r.success){toast('Torneo actualizado','ok');closeInlineModal();renderDashboard();}
+    else{toast(r.message,'err');if(btn){btn.disabled=false;btn.textContent='GUARDAR CAMBIOS';}}
+  });
 }
 function abrirCrearCategoria(tid){openInlineModal('<div class="modal-title">Nueva categoría</div><div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="cc-nombre" placeholder="Senior, Sub-23..."></div><div class="f-row"><div class="f-group"><label class="f-label">Victoria</label><input class="f-input" id="cc-vic" type="number" value="2"></div><div class="f-group"><label class="f-label">Empate</label><input class="f-input" id="cc-emp" type="number" value="0"></div><div class="f-group"><label class="f-label">Derrota</label><input class="f-input" id="cc-der" type="number" value="1"></div></div><button class="f-submit" onclick="guardarCategoria(\''+tid+'\')">CREAR</button>');}
 async function guardarCategoria(tid){var n=document.getElementById('cc-nombre').value.trim();if(!n){toast('Nombre obligatorio','err');return;}var r=await api('crearCategoria',{torneo_id:tid,nombre:n,pts_victoria:parseInt(document.getElementById('cc-vic').value)||2,pts_empate:parseInt(document.getElementById('cc-emp').value)||0,pts_derrota:parseInt(document.getElementById('cc-der').value)||1});if(r.success){toast('Categoría creada ✓','ok');closeInlineModal();_catsCache=null;renderCategorias();}else toast(r.message,'err');}
@@ -987,7 +1033,7 @@ async function renderFixturePanel(){
   h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap"><select class="f-select" id="fx-cat-sel" onchange="cargarFixturePanel(this.value)" style="max-width:220px">';
   cats.forEach(function(c){h+='<option value="'+c.id+'">'+c.nombre+'</option>';});
   h+='</select><button class="btn-sm btn-sm-primary" onclick="abrirCrearPartido()">+ Nuevo partido</button>'
-  +'<button class="btn-sm" onclick="exportarFixtureCSV()" style="background:var(--green);color:#fff">Exportar Excel</button>'
+  +'<button class="btn-sm" onclick="exportarFixtureCSV()" style="background:var(--green);color:#fff">Exportar XLS</button>'
   +'<button class="btn-sm" onclick="importarFixtureCSV()" style="background:var(--blue);color:#fff">Importar Excel</button>'
   +'</div><div id="fixture-panel-list"></div></div>';
   setMain(h);cargarFixturePanel(cats[0].id);
@@ -1157,6 +1203,29 @@ async function eliminarSancion(id){var catId=document.getElementById('san-cat-se
 
 
 /* == EXCEL IMPORT/EXPORT == */
+async function xlsDescarga(rows, filename){
+  // Generar XLS real usando formato XML de Excel (no requiere libreria)
+  var xml='<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?>';
+  xml+='<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"';
+  xml+=' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">';
+  xml+='<Worksheet ss:Name="Fixture"><Table>';
+  rows.forEach(function(row){
+    xml+='<Row>';
+    row.forEach(function(cell){
+      var t=typeof cell==='number'?'Number':'String';
+      xml+='<Cell><Data ss:Type="'+t+'">'+String(cell||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</Data></Cell>';
+    });
+    xml+='</Row>';
+  });
+  xml+='</Table></Worksheet></Workbook>';
+  var blob=new Blob([xml],{type:'application/vnd.ms-excel;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+
 async function exportarFixtureCSV(){
   var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:'';
   if(!catId){toast('Selecciona una categoria','err');return;}
@@ -1175,47 +1244,21 @@ async function exportarFixtureCSV(){
       p.estado||'programado'
     ]);
   });
-  var csv=rows.map(function(row){
-    return row.map(function(v){return '"'+(String(v||'').replace(/"/g,'""'))+'"';}).join(',');
-  }).join('\n');
-  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url;
-  a.download='fixture.csv';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  await xlsDescarga(rows,'fixture.xls');
   toast('Fixture exportado','ok');
 }
 
 async function descargarPlantillaCSV(){
   var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:'';
-  var equiposRef='';
+  var equiposRef=[];
   if(catId){
     var re=await api('getEquiposCategoria',{categoria_id:catId});
-    if(re.success&&re.data&&re.data.length){
-      equiposRef=re.data.map(function(e){return e.nombre;}).join(', ');
-    }
+    if(re.success&&re.data&&re.data.length){equiposRef=re.data.map(function(e){return e.nombre;});}
   }
-  var rows=[
-    ['Nro Fecha','Fecha (YYYY-MM-DD)','Hora (HH:MM)','Cancha','Fase','Equipo Local','Equipo Visita'],
-    ['1','2026-06-15','19:00','Gimnasio Central','Fase Regular','Equipo A','Equipo B']
-  ];
-  if(equiposRef){rows.push(['','','','','','Equipos: '+equiposRef,'']);}
-  var csv=rows.map(function(row){
-    return row.map(function(v){return '"'+(String(v||'').replace(/"/g,'""'))+'"';}).join(',');
-  }).join('\n');
-  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url;
-  a.download='plantilla_fixture.csv';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  var rows=[['Nro Fecha','Fecha (YYYY-MM-DD)','Hora (HH:MM)','Cancha','Fase','Equipo Local','Equipo Visita']];
+  rows.push(['1','2026-06-15','19:00','Gimnasio','Fase Regular','Equipo A','Equipo B']);
+  if(equiposRef.length){rows.push(['','','','','','Equipos disponibles:','']);equiposRef.forEach(function(e){rows.push(['','','','','',e,'']);});}
+  await xlsDescarga(rows,'plantilla_fixture.xls');
   toast('Plantilla descargada','ok');
 }
 
@@ -1476,41 +1519,7 @@ loadTorneos();
 })();
 </script>
 </body>
-</html>function abrirEditarTorneo(t){
-  var html='<div class="modal-title">Editar torneo</div>'
-    +'<div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="et-nombre" value="'+esc(t.nombre||'')+'"></div>'
-    +'<div class="f-row">'
-    +'<div class="f-group"><label class="f-label">Ciudad</label><input class="f-input" id="et-ciudad" value="'+esc(t.ciudad||'')+'"></div>'
-    +'<div class="f-group"><label class="f-label">Temporada</label><input class="f-input" id="et-temporada" value="'+esc(t.temporada||'')+'"></div>'
-    +'</div>'
-    +'<div class="f-row">'
-    +'<div class="f-group"><label class="f-label">Fecha inicio</label><input class="f-input" id="et-finicio" type="date" value="'+(t.fecha_inicio||'')+'"></div>'
-    +'<div class="f-group"><label class="f-label">Fecha termino</label><input class="f-input" id="et-ffin" type="date" value="'+(t.fecha_fin||'')+'"></div>'
-    +'</div>'
-    +'<div class="f-group"><label class="f-label">Descripcion</label><textarea class="f-input" id="et-desc" rows="2" style="resize:none">'+esc(t.descripcion||'')+'</textarea></div>'
-    +'<div class="f-group"><label class="f-label">Reglamento — texto o link PDF</label>'
-    +'<div style="display:flex;gap:8px;margin-bottom:6px">'
-    +'<button type="button" class="btn-sm" id="reg-tab-texto" onclick="toggleRegTab(\'texto\')" style="background:var(--blue);color:#fff">Texto</button>'
-    +'<button type="button" class="btn-sm" id="reg-tab-link" onclick="toggleRegTab(\'link\')">Link PDF</button>'
-    +'</div>'
-    +'<div id="reg-texto-div"><textarea class="f-input" id="et-reglamento-texto" rows="4" placeholder="Escribe el reglamento aqui...">'+esc((!t.reglamento_url||t.reglamento_url.startsWith('http'))?'':t.reglamento_url)+'</textarea></div>'
-    +'<div id="reg-link-div" style="display:none"><input class="f-input" id="et-reglamento-url" type="url" placeholder="https://drive.google.com/..." value="'+(t.reglamento_url&&t.reglamento_url.startsWith('http')?esc(t.reglamento_url):'')+'"></div>'
-    +'</div>'
-    +'<button class="f-submit" id="et-submit" onclick="guardarEditarTorneo()">GUARDAR CAMBIOS</button>';
-  window._etTorneo=t;
-  openInlineModal(html);
-  if(t.reglamento_url&&t.reglamento_url.startsWith('http'))toggleRegTab('link');
-}
-function toggleRegTab(tab){
-  document.getElementById('reg-texto-div').style.display=tab==='texto'?'block':'none';
-  document.getElementById('reg-link-div').style.display=tab==='link'?'block':'none';
-  document.getElementById('reg-tab-texto').style.background=tab==='texto'?'var(--blue)':'var(--surface)';
-  document.getElementById('reg-tab-texto').style.color=tab==='texto'?'#fff':'var(--text)';
-  document.getElementById('reg-tab-link').style.background=tab==='link'?'var(--blue)':'var(--surface)';
-  document.getElementById('reg-tab-link').style.color=tab==='link'?'#fff':'var(--text)';
-}
-DOCTYPE html>
-<html lang="es" data-theme="dark">
+</html><html lang="es" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
@@ -1947,1073 +1956,6 @@ textarea.f-input{resize:none}
     </form>
   </div>
 </div>
-<script>
-const SUPA_URL='https://bhnmdkfvfpvvddqalazl.supabase.co';
-const SUPA_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJobm1ka2Z2ZnB2dmRkcWFsYXpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NDQ0NDUsImV4cCI6MjA5NDQyMDQ0NX0.6KSs8JsZG2Dt70XePy2bOrTnWazju3Y--d7OXIZg9xw';
-const FN='/.netlify/functions/admin';
-let SESSION=null,TORNEO_ACTUAL=null,CATEGORIAS=[],EQUIPOS={};
-var CAT_ACTUAL=null,_torneoId=null,_catsCache=null;
 
-async function supa(t,p){p=p||'';const r=await fetch(SUPA_URL+'/rest/v1/'+t+p,{headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}});return r.json();}
-async function api(action,data){data=data||{};const body=Object.assign({action},data);if(SESSION&&SESSION.token)body.token=SESSION.token;const r=await fetch(FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return r.json();}
-function toggleTheme(){
-  var dark=document.documentElement.getAttribute('data-theme')==='dark';
-  document.documentElement.setAttribute('data-theme',dark?'light':'dark');
-  try{localStorage.setItem('ap_theme',dark?'light':'dark');}catch(e){}
-  var btn=document.querySelector('.pub-nav-btns .btn-ghost');
-  if(btn)btn.textContent=dark?'\u263D':'\u2600';
-}
-(function(){try{var t=localStorage.getItem('ap_theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
-function toast(msg,type){type=type||'';var el=document.getElementById('toast');el.textContent=msg;el.className='toast show '+type;setTimeout(function(){el.classList.remove('show');},3200);}
-function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
-function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
-function handleOverlay(e,id){if(e.target===document.getElementById(id))closeModal(id);}
-document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.modal-overlay.open').forEach(function(m){m.classList.remove('open');});});
-function openInlineModal(html){var o=document.getElementById('inline-modal-overlay');if(!o){o=document.createElement('div');o.id='inline-modal-overlay';o.className='modal-overlay';o.onclick=function(e){if(e.target===o)closeInlineModal();};document.body.appendChild(o);}o.innerHTML='<div class="modal" style="position:relative"><button class="modal-close" onclick="closeInlineModal()">✕</button>'+html+'</div>';o.classList.add('open');document.body.style.overflow='hidden';}
-function closeInlineModal(){var o=document.getElementById('inline-modal-overlay');if(o){o.classList.remove('open');document.body.style.overflow='';}}
-function showView(id){document.getElementById('pub-view').style.display=id==='pub-view'?'flex':'none';document.getElementById('torneo-view').style.display=id==='torneo-view'?'flex':'none';document.getElementById('panel-view').style.display=id==='panel-view'?'flex':'none';}
-function esc(s){return(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
-function confirmAction(msg,cb){if(confirm(msg))cb();}
-function setMain(html){document.getElementById('panel-main').innerHTML=html;}
-function pbnClick(panelId,btn,navId){
-  document.querySelectorAll('#'+navId+' .pbn-btn').forEach(function(b){b.classList.remove('active');});
-  btn.classList.add('active');
-  if(panelId==='p-mas'){
-    var masHtml='<div class="modal-title" style="margin-bottom:16px">Mas opciones</div>'
-      +'<div style="display:grid;gap:8px">'
-      +'<button class="f-submit" style="margin:0" onclick="closeInlineModal();showPanel(\'p-fixture\',null)">Fixture</button>'
-      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-resultados\',null)">Resultados</button>'
-      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-categorias\',null)">Categorias</button>'
-      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-noticias\',null)">Mensajes</button>'
-      +'<button class="f-submit" style="margin:0;background:var(--surface);color:var(--text);border:1px solid var(--border)" onclick="closeInlineModal();showPanel(\'p-sanciones\',null)">Sanciones</button>'
-      +'</div>';
-    openInlineModal(masHtml);
-    return;
-  }
-  showPanel(panelId,null);
-}
-
-function metricCard(num,lbl){return'<div class="metric-card"><div class="metric-num">'+num+'</div><div class="metric-lbl">'+lbl+'</div></div>';}
-function quickAction(label,icon,onclick){return'<button class="p-card" onclick="'+onclick+'" style="cursor:pointer;text-align:center"><div style="font-size:28px;margin-bottom:8px">'+icon+'</div><div style="font-size:13px;font-weight:700;color:var(--text)">'+label+'</div></button>';}
-
-/* ── PÚBLICA ── */
-async function loadTorneos(){
-  var list=document.getElementById('torneos-list');
-  try{
-    var torneos=await supa('torneos','?select=id,nombre,ciudad,deporte,temporada,descripcion,visible&visible=eq.true&estado=neq.eliminado&select=id,nombre,ciudad,deporte,temporada,estado,visible,fecha_inicio,fecha_fin,organizadores(nombre)&order=created_at.desc');
-    if(!torneos||torneos.error||!torneos.length){list.innerHTML='<div style="text-align:center;padding:48px 20px"><div style="font-size:48px;margin-bottom:16px;opacity:.2"></div><div style="font-family:\'Oswald\',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px">Sin torneos activos aún</div><div style="font-size:13px;color:var(--text2);margin-bottom:20px">Sé el primero en publicar tu torneo</div><button class="btn-solid btn-orange" onclick="openModal(\'modal-solicitud\')" style="padding:12px 28px;font-size:14px;border-radius:12px">PUBLICAR MI LIGA →</button></div>';return;}
-    list.innerHTML=torneos.map(function(t){
-    var org=t.organizadores?t.organizadores.nombre:'';
-    var fi=t.fecha_inicio?new Date(t.fecha_inicio+'T12:00:00').toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'}):'';
-    var ff=t.fecha_fin?new Date(t.fecha_fin+'T12:00:00').toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'}):'';
-    return '<div class="torneo-card" onclick="abrirTorneo(\''+t.id+'\',\''+esc(t.nombre)+'\',\''+esc(t.ciudad)+'\',\''+esc(t.temporada||'')+'\')">'+
-      '<div class="torneo-card-header"><div>'+
-      '<div class="torneo-nombre">'+t.nombre+'</div>'+
-      '<div class="torneo-ciudad">'+t.ciudad+(t.temporada?' · '+t.temporada:'')+'</div>'+
-      (org?'<div style="font-size:11px;color:var(--text3);margin-top:3px">Organiza: '+org+'</div>':'')+
-      ((fi||ff)?'<div style="font-size:11px;color:var(--text3);margin-top:2px">'+(fi?fi:'')+(ff?' — '+ff:'')+'</div>':'')+
-      '</div><span class="badge badge-active">● Activo</span></div>'+
-      (t.descripcion?'<div style="font-size:13px;color:var(--text2);margin-bottom:10px">'+t.descripcion+'</div>':'')+
-      '<div style="font-size:11px;color:var(--text3)">'+(t.deporte||'Básquetbol')+' · Toca para ver tabla y fixture</div></div>';
-  }).join('');
-  }catch(e){list.innerHTML='<div style="text-align:center;padding:32px;color:var(--text2);font-size:13px">Error al cargar torneos</div>';}
-}
-
-async function abrirTorneo(id,nombre,ciudad,temporada){
-  TORNEO_ACTUAL={id:id,nombre:nombre,ciudad:ciudad,temporada:temporada};
-  document.getElementById('tv-nombre').textContent=nombre;
-  document.getElementById('tv-temporada-lbl').textContent=(temporada?temporada.toUpperCase():'')+(ciudad?' · '+ciudad.toUpperCase():'');
-  // URL única para compartir
-  try{history.replaceState(null,'','?liga='+id);}catch(e){}
-  showView('torneo-view');
-  document.querySelector('.tv-navbar').style.display='flex';
-  document.querySelectorAll('.tv-nav-btn').forEach(function(b){b.classList.remove('active');});
-  document.getElementById('tnav-fixture').classList.add('active');
-  ['tab-fixture','tab-resultados','tab-posiciones','tab-clubes','tab-noticias','tab-sanciones','tab-programacion'].forEach(function(t){var el=document.getElementById(t);if(el){el.style.display=t==='tab-fixture'?'block':'none';el.innerHTML='';}});
-  CAT_ACTUAL=null;
-  await loadCategorias(id);
-}
-
-function volverPublico(){TORNEO_ACTUAL=null;try{history.replaceState(null,'',window.location.pathname);}catch(e){}document.querySelector('.tv-navbar').style.display='none';showView('pub-view');loadTorneos();}
-
-function showTab(tabId,btn){
-  document.querySelectorAll('.tv-nav-btn').forEach(function(b){b.classList.remove('active');});
-  if(btn)btn.classList.add('active');
-  ['tab-fixture','tab-resultados','tab-posiciones','tab-clubes','tab-noticias','tab-sanciones','tab-programacion'].forEach(function(t){var el=document.getElementById(t);if(el)el.style.display=t===tabId?'block':'none';});
-  if(!TORNEO_ACTUAL)return;
-  var tab=tabId.replace('tab-','');
-  if(tab==='fixture')renderFixture();
-  if(tab==='resultados')renderResultados();
-  if(tab==='posiciones')renderPosiciones();
-  if(tab==='clubes')renderClubes();
-  if(tab==='noticias')renderNoticias();
-  if(tab==='sanciones')renderSanciones();
-  if(tab==='programacion')renderProgramacion();
-}
-
-async function loadCategorias(torneo_id){
-  CATEGORIAS=[];EQUIPOS={};
-  var cats=await supa('categorias','?torneo_id=eq.'+torneo_id+'&activo=eq.true&order=orden');
-  CATEGORIAS=cats||[];
-  var grid=document.getElementById('tv-ligas-grid');
-  if(!grid)return;
-  if(!CATEGORIAS.length){grid.innerHTML='<div style="color:rgba(255,255,255,.4);font-size:12px;padding:8px">Sin categorías registradas.</div>';}
-  else{
-    grid.innerHTML=CATEGORIAS.map(function(c,i){return'<button class="tv-liga-btn'+(i===0?' active':'')+'" data-id="'+c.id+'" onclick="selCat(this,this.dataset.id)"><div class="tv-liga-btn-name">'+c.nombre+'</div></button>';}).join('');
-    CAT_ACTUAL=CATEGORIAS[0].id;
-    var eqs=await supa('equipos','?categoria_id=eq.'+CATEGORIAS[0].id+'&activo=eq.true&order=nombre');
-    EQUIPOS[CATEGORIAS[0].id]=eqs||[];
-  }
-  renderFixture();
-}
-
-function selCat(btn,catId){document.querySelectorAll('.tv-liga-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');CAT_ACTUAL=catId;renderTabActual();}
-function getCatActual(){if(CAT_ACTUAL)return CATEGORIAS.find(function(c){return c.id===CAT_ACTUAL;})||CATEGORIAS[0]||null;return CATEGORIAS[0]||null;}
-function renderTabActual(){var ab=document.querySelector('.tv-nav-btn.active');if(!ab){renderFixture();return;}var m=(ab.getAttribute('onclick')||'').match(/tab-(\w+)/);if(m)showTab('tab-'+m[1],null);else renderFixture();}
-
-function formatFecha(str,tipo){if(!str)return'';try{var d=new Date(str);if(isNaN(d))return str;if(tipo==='corto')return d.toLocaleDateString('es-CL',{day:'2-digit',month:'short'});if(tipo==='fecha')return d.toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'});return d.toLocaleDateString('es-CL',{weekday:'short',day:'2-digit',month:'short'});}catch(e){return str;}}
-
-function buildPartidoCard(p,finalizado){
-  var local=p.local||{nombre:'?'},visita=p.visita||{nombre:'?'};
-  var lWin=finalizado&&(p.pts_local>p.pts_visita),vWin=finalizado&&(p.pts_visita>p.pts_local),enVivo=p.estado==='en_vivo';
-  // Fecha completa
-  var fechaCompleta='';
-  if(p.fecha){try{fechaCompleta=new Date(p.fecha+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long'});}catch(e){fechaCompleta=p.fecha;}}
-  var hora=p.hora||'';
-  var h='<div class="mc">';
-  // Top: fecha + badge estado
-  h+='<div class="mc-top">';
-  h+='<span class="mc-top-info">'+(fechaCompleta+(hora?' · '+hora:''))+'</span>';
-  if(finalizado)h+='<span class="mc-badge mc-badge-final">Final</span>';
-  else if(enVivo)h+='<span class="mc-badge mc-badge-live">● En Vivo</span>';
-  else h+='<span class="mc-badge mc-badge-prox">Próximo</span>';
-  h+='</div>';
-  // Labels Local / Visita
-  h+='<div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:4px;margin-bottom:4px;padding:0 2px">';
-  h+='<div style="font-size:9px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase">Local</div>';
-  h+='<div></div>';
-  h+='<div style="font-size:9px;font-weight:700;color:var(--orange);letter-spacing:1px;text-transform:uppercase;text-align:right">Visita</div>';
-  h+='</div>';
-  // Equipos + marcador
-  h+='<div class="mc-teams">';
-  h+='<div class="mc-team'+(lWin?' win':'')+'">'+(local.nombre)+'</div>';
-  if(finalizado)h+='<div class="mc-score">'+(p.pts_local||0)+'–'+(p.pts_visita||0)+'</div>';
-  else h+='<div class="mc-vs">VS</div>';
-  h+='<div class="mc-team right'+(vWin?' win':'')+'">'+(visita.nombre)+'</div>';
-  h+='</div>';
-  // Footer centrado: nro fecha, fase, cancha
-  h+='<div style="padding-top:8px;border-top:1px solid var(--border);text-align:center">';
-  h+='<div class="mc-meta" style="justify-content:center">';
-  h+='<span>Partido N° '+(p.nro_fecha||'—')+'</span>';
-  if(p.fase&&p.fase!=='Fase Regular')h+='<span class="mc-meta-sep">·</span><span style="color:var(--orange);font-weight:700">'+p.fase+'</span>';
-  if(p.cancha)h+='<span class="mc-meta-sep">·</span><span>'+p.cancha+'</span>';
-  h+='</div>';
-  if(p.url_transmision)h+='<div style="margin-top:6px"><a href="'+p.url_transmision+'" target="_blank" class="mc-yt" style="justify-content:center">▶ Ver en vivo</a></div>';
-  // WhatsApp share
-  if(!finalizado){
-    var lN2=(p.local&&p.local.nombre)||local.nombre||'?';
-    var vN2=(p.visita&&p.visita.nombre)||visita.nombre||'?';
-    var waFecha=p.fecha?new Date(p.fecha+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long'}):'';
-    var waHora=p.hora?(' · '+p.hora):'';
-    var waCancha=p.cancha?(' · '+p.cancha):'';
-    var waBase=window.location.origin+window.location.pathname;
-    var waLiga=TORNEO_ACTUAL?(waBase+'?liga='+TORNEO_ACTUAL.id):waBase;
-    var waMsg='Partido: '+lN2+' vs '+vN2
-      +'\nFecha: '+(waFecha+waHora+waCancha)
-      +'\nSigue en vivo: '+waLiga;
-    h+='<div style="margin-top:6px;text-align:center">'
-      +'<a href="https://wa.me/?text='+encodeURIComponent(waMsg)+'" target="_blank" '
-      +'style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#25d366;text-decoration:none;padding:5px 12px;background:rgba(37,211,102,.1);border-radius:20px;border:1px solid rgba(37,211,102,.25)">'
-      +'&#9742; Compartir por WhatsApp</a></div>';
-  }
-  h+='</div></div>';
-  return h;
-}
-
-async function renderFixture(){
-  var el=document.getElementById('tab-fixture'),cat=getCatActual();
-  if(!cat){el.innerHTML='<div style="padding:20px;color:var(--text2);text-align:center">Sin categorías.</div>';return;}
-  el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
-  var p=await supa('partidos','?categoria_id=eq.'+cat.id+'&select=*,local:equipo_local(nombre),visita:equipo_visita(nombre)&estado=neq.finalizado&order=nro_fecha,fecha,hora');
-  if(!p||!p.length){el.innerHTML='<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin partidos programados en '+cat.nombre+'.</div>';return;}
-  var h='<div class="tv-sec-label">Próximos partidos</div>';
-  p.forEach(function(x){h+=buildPartidoCard(x,false);});el.innerHTML=h;
-}
-
-async function renderResultados(){
-  var el=document.getElementById('tab-resultados'),cat=getCatActual();
-  if(!cat){el.innerHTML='<div style="padding:20px;color:var(--text2)">Sin categorías.</div>';return;}
-  el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
-  var p=await supa('partidos','?categoria_id=eq.'+cat.id+'&select=*,local:equipo_local(nombre),visita:equipo_visita(nombre)&estado=eq.finalizado&order=nro_fecha.desc,fecha.desc');
-  if(!p||!p.length){el.innerHTML='<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin resultados en '+cat.nombre+'.</div>';return;}
-  var h='<div class="tv-sec-label">Resultados</div>';
-  p.forEach(function(x){h+=buildPartidoCard(x,true);});el.innerHTML=h;
-}
-
-async function renderPosiciones(){
-  var el=document.getElementById('tab-posiciones'),cat=getCatActual();
-  if(!cat){el.innerHTML='<div style="padding:20px;color:var(--text2)">Sin categorías.</div>';return;}
-  el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando tabla...</div>';
-  var rows=null;
-  try{var r=await supa('standings','?categoria_id=eq.'+cat.id+'&order=pts.desc');if(r&&!r.error&&r.length)rows=r;}catch(e){}
-  var h='<div class="tv-sec-label">Tabla de posiciones</div>';
-  if(!rows||!rows.length){h+='<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin partidos finalizados aún.</div>';}
-  else{
-    rows.sort(function(a,b){var da=Number(a.gf||0)-Number(a.gc||0),db=Number(b.gf||0)-Number(b.gc||0);return(Number(b.pts)||0)-(Number(a.pts)||0)||db-da||(Number(b.gf||0))-(Number(a.gf||0));});
-    h+='<div class="st-wrap"><table class="st-table"><thead><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>Dif</th><th>Pts</th></tr></thead><tbody>';
-    rows.forEach(function(r,i){var dg=Number(r.gf||0)-Number(r.gc||0),rc=i===0?'rk-1':i===1?'rk-2':i===2?'rk-3':'';h+='<tr><td><span class="rk '+rc+'">'+(i+1)+'</span></td><td><span class="color-dot" style="background:'+(r.color||'#475569')+'"></span>'+r.equipo_nombre+'</td><td>'+r.pj+'</td><td>'+r.pg+'</td><td>'+r.pe+'</td><td>'+r.pp+'</td><td>'+r.gf+'</td><td>'+r.gc+'</td><td class="'+(dg>0?'dif-pos':dg<0?'dif-neg':'')+'">'+(dg>0?'+':'')+dg+'</td><td><span class="pts-cell">'+r.pts+'</span></td></tr>';});
-    h+='</tbody></table></div>';
-  }
-  h+='<div class="tv-sec-label">Reportes y documentos</div>';
-  h+='<button class="pdf-btn-dark" onclick="generarPDFFixture()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar Programación PDF</button>';
-  h+='<button class="pdf-btn-dark" onclick="generarPDFTabla()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar Tabla de Posiciones PDF</button>';
-  h+='<button class="pdf-btn-dark pdf-btn-ghost" onclick="generarPDFResultados()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar Resultados PDF</button>';
-  h+='<div style="text-align:center;padding:8px 0"><button class="tv-admin-btn" onclick="pdfopenAdmin()">⚙ Acceso administrador</button></div>';
-  el.innerHTML=h;
-}
-
-async function renderClubes(){
-  var el=document.getElementById('tab-clubes'),cat=getCatActual();
-  if(!cat){el.innerHTML='<div style="padding:20px;color:var(--text2)">Sin categorías.</div>';return;}
-  var equipos=EQUIPOS[cat.id]||await supa('equipos','?categoria_id=eq.'+cat.id+'&activo=eq.true&order=nombre');
-  EQUIPOS[cat.id]=equipos||[];
-  var h='<div class="tv-sec-label">Clubes participantes</div>';
-  if(!equipos||!equipos.length){h+='<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin equipos en '+cat.nombre+'.</div>';}
-  else equipos.forEach(function(e){h+='<div class="club-card"><div class="club-color" style="background:'+(e.color_local||'#1d4ed8')+'"></div><div class="club-name">'+e.nombre+'</div></div>';});
-  el.innerHTML=h;
-}
-
-async function renderNoticias(){
-  var el=document.getElementById('tab-noticias');
-  el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
-  var news=await supa('noticias','?torneo_id=eq.'+TORNEO_ACTUAL.id+'&publicado=eq.true&order=created_at.desc');
-  var h='<div class="tv-sec-label">Mensajes</div>';
-  if(!news||!news.length){h+='<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin noticias publicadas.</div>';}
-  else news.forEach(function(n){h+='<div class="news-card-tv"><div class="news-card-body"><div class="news-date-tv">'+formatFecha(n.created_at,'fecha')+'</div><div class="news-title-tv">'+n.titulo+'</div>'+(n.contenido?'<div class="news-desc-tv">'+n.contenido+'</div>':'')+'</div></div>';});
-  el.innerHTML=h;
-}
-
-async function renderSanciones(){
-  var el=document.getElementById('tab-sanciones'),cat=getCatActual();
-  if(!cat){el.innerHTML='<div style="padding:20px;color:var(--text2)">Sin categorías.</div>';return;}
-  el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
-  var sancs=await supa('sanciones','?categoria_id=eq.'+cat.id+'&order=created_at.desc');
-  var h='<div class="tv-sec-label">Sanciones</div>';
-  if(!sancs||!sancs.length){h+='<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin sanciones en '+cat.nombre+'.</div>';}
-  else sancs.forEach(function(s,i){h+='<div class="san-card" onclick="toggleSanAcc('+i+')"><div class="san-header"><span class="san-type">'+(s.tipo||'Sanción')+'</span><span style="background:rgba(239,68,68,.12);color:var(--red);font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px">Sancionado</span></div><div class="san-player">'+(s.jugador_nombre||'Sin nombre')+'</div><div class="san-detail" id="san-body-'+i+'" style="display:none">'+(s.descripcion||'')+(s.fecha_fin?'<br><span style="color:var(--orange);font-size:11px">Hasta: '+formatFecha(s.fecha_fin,'corto')+'</span>':'')+'</div></div>';});
-  el.innerHTML=h;
-  window.toggleSanAcc=function(i){var b=document.getElementById('san-body-'+i);if(b)b.style.display=b.style.display==='none'?'block':'none';};
-}
-
-function compartirTorneo(){
-  var base=window.location.origin+window.location.pathname;
-  var u=TORNEO_ACTUAL?base+'?liga='+TORNEO_ACTUAL.id:window.location.href;
-  var titulo=TORNEO_ACTUAL?TORNEO_ACTUAL.nombre+' — ACTIVA PLAY':'ACTIVA PLAY';
-  if(navigator.share)navigator.share({title:titulo,text:'Sigue el torneo en tiempo real',url:u});
-  else if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){toast('Link copiado ✓','ok');});
-}
-function pdfalert(){toast('Próximamente disponible','');}
-function pdfopenAdmin(){openModal('modal-login-admin');}
-
-/* ── AUTH ── */
-async function loginAdmin(e){
-  e.preventDefault();var errEl=document.getElementById('admin-error'),btn=document.getElementById('admin-btn');
-  errEl.style.display='none';btn.disabled=true;btn.textContent='Ingresando...';
-  try{var json=await api('checkLogin',{email:document.getElementById('admin-email').value.trim(),password:document.getElementById('admin-pass').value});
-    if(json.success&&json.rol==='admin'){SESSION={rol:'admin',token:json.token,nombre:json.nombre,email:json.email};closeModal('modal-login-admin');initPanel();}
-    else if(json.success&&json.rol!=='admin'){errEl.textContent='Acceso denegado. Esta cuenta no es administrador.';errEl.style.display='block';}
-    else{errEl.textContent=json.message||'Email o contraseña incorrectos';errEl.style.display='block';}}
-  catch(err){errEl.textContent='Error de conexión';errEl.style.display='block';}
-  finally{btn.disabled=false;btn.textContent='INGRESAR';}
-}
-
-async function loginOrg(e){
-  e.preventDefault();var errEl=document.getElementById('org-error'),btn=document.getElementById('org-btn');
-  errEl.style.display='none';btn.disabled=true;btn.textContent='Ingresando...';
-  try{var json=await api('checkLogin',{email:document.getElementById('org-email').value.trim(),password:document.getElementById('org-pass').value});
-    if(json.success){SESSION={rol:'organizador',token:json.token,nombre:json.nombre,org_id:json.org_id,ciudad:json.ciudad};closeModal('modal-login-org');initPanel();}
-    else{errEl.textContent=json.message||'Email o clave incorrectos';errEl.style.display='block';}}
-  catch(err){errEl.textContent='Error de conexión';errEl.style.display='block';}
-  finally{btn.disabled=false;btn.textContent='INGRESAR';}
-}
-
-async function enviarSolicitud(e){
-  e.preventDefault();var errEl=document.getElementById('sol-error'),btn=document.getElementById('sol-btn');
-  errEl.style.display='none';btn.disabled=true;btn.textContent='Enviando...';
-  try{var json=await api('crearSolicitud',{nombre:document.getElementById('sol-nombre').value.trim(),email:document.getElementById('sol-email').value.trim(),telefono:document.getElementById('sol-tel').value.trim(),ciudad:document.getElementById('sol-ciudad').value.trim(),deporte:document.getElementById('sol-deporte').value.trim()||'Básquetbol',descripcion:document.getElementById('sol-desc').value.trim(),cant_categorias:parseInt(document.getElementById('sol-cats').value)||1});
-    if(json.success){document.getElementById('sol-email-confirm').textContent=document.getElementById('sol-email').value;document.getElementById('sol-form-wrap').style.display='none';document.getElementById('sol-success').style.display='block';}
-    else{errEl.textContent=json.message;errEl.style.display='block';}}
-  catch(err){errEl.textContent='Error de conexión';errEl.style.display='block';}
-  finally{btn.disabled=false;btn.textContent='ENVIAR SOLICITUD';}
-}
-
-function logout(){SESSION=null;_torneoId=null;_catsCache=null;var nb=document.querySelector('.tv-navbar');if(nb)nb.style.display='none';showView('pub-view');loadTorneos();}
-
-function initPanel(){
-  showView('panel-view');
-  document.getElementById('panel-user-name').textContent=SESSION.nombre;
-  var badge=document.getElementById('panel-role-badge');
-  if(SESSION.rol==='admin'){
-    badge.textContent='Admin';badge.style.cssText='background:rgba(29,78,216,.2);color:#93c5fd;border:1px solid rgba(29,78,216,.3);font-size:10px;padding:2px 8px;border-radius:100px';
-    document.getElementById('sidebar-admin').style.display='flex';document.getElementById('sidebar-org').style.display='none';
-    document.getElementById('pbn-admin').style.display='flex';document.getElementById('pbn-org').style.display='none';
-    showPanel('p-solicitudes',document.querySelector('#sidebar-admin .sb-btn'));
-  } else {
-    badge.textContent='Org '+(SESSION.org_id||'');badge.style.cssText='background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3);font-size:10px;padding:2px 8px;border-radius:100px';
-    document.getElementById('sidebar-admin').style.display='none';document.getElementById('sidebar-org').style.display='flex';
-    document.getElementById('pbn-org').style.display='flex';document.getElementById('pbn-admin').style.display='none';
-    showPanel('p-dashboard',document.querySelector('#sidebar-org .sb-btn'));
-  }
-}
-
-/* ── PANEL ROUTER ── */
-function showPanel(panelId,btn){
-  var sid=SESSION&&SESSION.rol==='admin'?'sidebar-admin':'sidebar-org';
-  var sb=document.getElementById(sid);if(sb)sb.querySelectorAll('.sb-btn').forEach(function(b){b.classList.remove('active');});
-  if(btn)btn.classList.add('active');
-  var main=document.getElementById('panel-main');main.innerHTML='<div style="padding:40px;text-align:center;color:var(--text2);font-size:13px">Cargando...</div>';
-  switch(panelId){
-    case'p-solicitudes':renderSolicitudes();break;case'p-torneos':renderTorneosAdmin();break;
-    case'p-organizadores':renderOrganizadores();break;case'p-metricas':renderMetricas();break;
-    case'p-dashboard':if(SESSION&&SESSION.rol==='admin'){renderAdminHome();}else{renderDashboard();}break;
-    case'p-categorias':renderCategorias();break;
-    case'p-equipos':renderEquipos();break;case'p-fixture':renderFixturePanel();break;
-    case'p-resultados':renderResultadosPanel();break;case'p-noticias':renderNoticiasPanel();break;
-    case'p-sanciones':renderSancionesPanel();break;
-    default:main.innerHTML='<div style="padding:40px;color:var(--text2)">Panel no encontrado</div>';
-  }
-}
-
-/* ── ADMIN: SOLICITUDES ── */
-async function renderSolicitudes(){
-  var r=await api('listarSolicitudes');
-  if(!r.success){setMain('<div class="panel-content"><div class="p-card" style="color:var(--red)">'+r.message+'</div></div>');return;}
-  var pend=r.data.filter(function(s){return s.estado==='pendiente';});
-  var badge=document.getElementById('sb-badge-sol');if(badge){badge.textContent=pend.length;badge.style.display=pend.length?'inline':'none';}
-  var h='<div class="panel-content"><div class="panel-title">Solicitudes</div><div class="panel-sub">'+pend.length+' pendiente(s)</div>';
-  if(!r.data.length){h+='<div class="p-card" style="text-align:center;padding:32px;color:var(--text2)">Sin solicitudes</div>';}
-  else r.data.forEach(function(s){
-    var ip=s.estado==='pendiente',bc=s.estado==='aprobada'?'var(--green)':s.estado==='rechazada'?'var(--red)':'var(--orange)';
-    h+='<div class="sol-card" style="border-left-color:'+bc+'"><div class="p-card-header"><div><div class="p-card-title">'+s.nombre+'</div><div class="p-card-sub">'+s.email+(s.telefono?' · '+s.telefono:'')+'</div></div>';
-    h+='<span class="badge'+(s.estado==='aprobada'?' badge-active':'')+(s.estado==='rechazada'?' badge-draft':'')+'" style="'+(s.estado==='pendiente'?'background:var(--orange-dim);color:var(--orange);border:1px solid rgba(249,115,22,.2)':'')+'">'+s.estado.toUpperCase()+'</span></div>';
-    h+='<div class="sol-info"><div class="sol-info-item"><div class="sol-info-lbl">Ciudad</div><div class="sol-info-val">'+s.ciudad+'</div></div><div class="sol-info-item"><div class="sol-info-lbl">Deporte</div><div class="sol-info-val">'+(s.deporte||'Básquetbol')+'</div></div><div class="sol-info-item"><div class="sol-info-lbl">Categorías</div><div class="sol-info-val">'+(s.cant_categorias||1)+'</div></div><div class="sol-info-item"><div class="sol-info-lbl">Fecha</div><div class="sol-info-val">'+new Date(s.created_at).toLocaleDateString('es-CL')+'</div></div></div>';
-    if(s.descripcion)h+='<div style="font-size:12px;color:var(--text2);margin-bottom:10px;padding:8px;background:var(--bg3);border-radius:8px">'+s.descripcion+'</div>';
-    if(s.org_id)h+='<div class="org-id-display"><div><div style="font-size:10px;color:var(--text2);margin-bottom:2px">ORG ID</div><div class="org-id-val">'+s.org_id+'</div></div><div><div style="font-size:10px;color:var(--text2);margin-bottom:2px">Clave</div><div class="org-clave">'+(s.clave_acceso||'—')+'</div></div></div>';
-    if(ip)h+='<div style="display:flex;gap:8px;margin-top:8px"><button class="btn-sm btn-sm-primary" style="flex:1;padding:8px" onclick="aprobarSolicitud(\''+s.id+'\',\''+s.nombre.replace(/'/g,"\\'")+'\')">✓ Aprobar</button><button class="btn-sm" style="flex:1;padding:8px" onclick="rechazarSolicitud(\''+s.id+'\')">✕ Rechazar</button></div>';
-    h+='</div>';
-  });
-  setMain(h+'</div>');
-}
-async function aprobarSolicitud(id,nombre){var n=prompt('Notas opcionales para '+nombre+':')||'';var r=await api('aprobarSolicitud',{id:id,notas:n});if(r.success){toast('✓ Aprobado — '+r.org_id+' / Clave: '+r.clave_acceso,'ok');renderSolicitudes();}else toast(r.message,'err');}
-async function rechazarSolicitud(id){confirmAction('¿Rechazar?',async function(){var r=await api('rechazarSolicitud',{id:id});if(r.success){toast('Rechazada','');renderSolicitudes();}else toast(r.message,'err');});}
-
-/* ── ADMIN: TORNEOS ── */
-async function renderTorneosAdmin(){
-  var r=await api('getTorneosAdmin');
-  if(!r.success){setMain('<div class="panel-content"><div class="p-card" style="color:var(--red)">'+r.message+'</div></div>');return;}
-  var h='<div class="panel-content"><div class="panel-title">Torneos</div><div class="panel-sub">'+r.data.length+' torneo(s)</div>';
-  if(!r.data.length)h+='<div class="p-card" style="text-align:center;padding:32px;color:var(--text2)">Sin torneos</div>';
-  else r.data.forEach(function(t){h+='<div class="p-card"><div class="p-card-header"><div><div class="p-card-title">'+t.nombre+'</div><div class="p-card-sub">'+t.ciudad+(t.temporada?' · '+t.temporada:'')+(t.org_id?' — org: '+t.org_id:'')+'</div></div><div class="p-card-actions"><span class="badge '+(t.visible?'badge-active':'badge-draft')+'">'+(t.visible?'Visible':'Oculto')+'</span><button class="btn-sm" onclick="eliminarTorneoAdmin(\''+t.id+'\',\''+t.nombre.replace(/'/g,"\\'")+'\')">Eliminar</button></div></div>'+(t.organizadores?'<div style="font-size:12px;color:var(--text2)">Org: '+t.organizadores.nombre+'</div>':'')+'</div>';});
-  setMain(h+'</div>');
-}
-async function eliminarTorneoAdmin(id,nombre){confirmAction('¿Eliminar "'+nombre+'"?',async function(){var r=await api('eliminarTorneo',{id:id});if(r.success){toast('Eliminado','');renderTorneosAdmin();}else toast(r.message,'err');});}
-
-/* ── ADMIN: ORGANIZADORES ── */
-async function renderOrganizadores(){
-  var r=await api('listarOrganizadores');
-  if(!r.success){setMain('<div class="panel-content"><div class="p-card" style="color:var(--red)">'+r.message+'</div></div>');return;}
-  var h='<div class="panel-content"><div class="panel-title">Organizadores</div><div class="panel-sub">'+r.data.length+' registrado(s)</div>';
-  if(!r.data.length)h+='<div class="p-card" style="text-align:center;padding:32px;color:var(--text2)">Sin organizadores</div>';
-  else r.data.forEach(function(o){
-    h+='<div class="p-card"><div class="p-card-header"><div><div class="p-card-title">'+o.nombre+' <span style="font-family:\'Oswald\',sans-serif;font-size:14px;color:var(--blue);letter-spacing:1.5px">'+o.org_id+'</span></div><div class="p-card-sub">'+o.email+' · '+o.ciudad+' · '+(o.torneos_count||0)+' torneo(s)</div></div>';
-    h+='<div class="p-card-actions"><span class="badge '+(o.activo?'badge-active':'')+'" style="'+(o.activo?'':'background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)')+'">'+( o.activo?'Activo':'Suspendido')+'</span>';
-    h+='<button class="btn-sm" onclick="toggleOrg(\''+o.org_id+'\','+!o.activo+',\''+o.nombre.replace(/'/g,"\\'")+'\')">'+( o.activo?'Suspender':'Activar')+'</button>';
-    h+='<button class="btn-sm" onclick="resetearClave(\''+o.org_id+'\',\''+o.nombre.replace(/'/g,"\\'")+'\')">Reset clave</button></div></div>';
-    if(o.suscripcion_inicio)h+='<div style="font-size:11px;color:var(--text3);margin-top:4px">Desde: '+new Date(o.suscripcion_inicio).toLocaleDateString('es-CL')+(o.suscripcion_fin?' · Hasta: '+new Date(o.suscripcion_fin).toLocaleDateString('es-CL'):'')+'</div>';
-    h+='</div>';
-  });
-  setMain(h+'</div>');
-}
-async function toggleOrg(org_id,activo,nombre){confirmAction((activo?'¿Activar':'¿Suspender')+' a '+nombre+'?',async function(){var r=await api('toggleOrganizador',{org_id:org_id,activo:activo});if(r.success){toast(r.message,'ok');renderOrganizadores();}else toast(r.message,'err');});}
-async function resetearClave(org_id,nombre){confirmAction('¿Nueva clave para '+nombre+'?',async function(){var r=await api('resetPassword',{org_id:org_id});if(r.success){alert('Nueva clave para '+nombre+':\n\n'+r.clave_acceso+'\n\nGuárdala antes de cerrar.');toast('Clave regenerada','ok');}else toast(r.message,'err');});}
-
-/* ── ADMIN: HOME (mobile grid) ── */
-function renderAdminHome(){
-  setMain('<div class="panel-content"><div class="panel-title">Gestion</div><div class="panel-sub">Selecciona una seccion</div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px">'
-    +'<button class="p-card" onclick="showPanel(\'p-solicitudes\',null)" style="cursor:pointer;text-align:center;padding:24px 16px">'
-    +'<div style="font-size:32px;margin-bottom:8px">&#128203;</div>'
-    +'<div style="font-size:16px;font-weight:700;color:var(--text)">Solicitudes</div>'
-    +'<div style="font-size:11px;color:var(--text2);margin-top:4px">Revisar y aprobar</div></button>'
-    +'<button class="p-card" onclick="showPanel(\'p-torneos\',null)" style="cursor:pointer;text-align:center;padding:24px 16px">'
-    +'<div style="font-size:32px;margin-bottom:8px">&#127942;</div>'
-    +'<div style="font-size:16px;font-weight:700;color:var(--text)">Torneos</div>'
-    +'<div style="font-size:11px;color:var(--text2);margin-top:4px">Todos los torneos</div></button>'
-    +'<button class="p-card" onclick="showPanel(\'p-organizadores\',null)" style="cursor:pointer;text-align:center;padding:24px 16px">'
-    +'<div style="font-size:32px;margin-bottom:8px">&#128101;</div>'
-    +'<div style="font-size:16px;font-weight:700;color:var(--text)">Organizadores</div>'
-    +'<div style="font-size:11px;color:var(--text2);margin-top:4px">Gestionar cuentas</div></button>'
-    +'<button class="p-card" onclick="showPanel(\'p-metricas\',null)" style="cursor:pointer;text-align:center;padding:24px 16px">'
-    +'<div style="font-size:32px;margin-bottom:8px">&#128202;</div>'
-    +'<div style="font-size:16px;font-weight:700;color:var(--text)">Metricas</div>'
-    +'<div style="font-size:11px;color:var(--text2);margin-top:4px">Estado del sistema</div></button>'
-    +'</div></div>');
-}
-
-/* ── ADMIN: METRICAS ── */
-async function renderMetricas(){var r=await api('getMetricas');if(!r.success){setMain('<div class="panel-content"><div class="p-card" style="color:var(--red)">'+r.message+'</div></div>');return;}var d=r.data;setMain('<div class="panel-content"><div class="panel-title">Métricas</div><div class="panel-sub">Estado del sistema</div><div class="metrics-grid">'+metricCard(d.solicitudes,'Solicitudes')+metricCard(d.organizadores,'Organizadores')+metricCard(d.torneos,'Torneos')+metricCard(d.equipos,'Equipos')+'</div></div>');}
-
-/* ── ORG HELPERS ── */
-async function getTorneoId(){if(_torneoId)return _torneoId;var r=await api('getMiTorneo');if(r.success&&r.data){_torneoId=r.data.id;return _torneoId;}return null;}
-async function getCats(){if(_catsCache)return _catsCache;var tid=await getTorneoId();if(!tid)return[];var r=await api('getMisCategorias',{torneo_id:tid});_catsCache=(r.success&&r.data)?r.data.filter(function(c){return c.activo;}):[]; return _catsCache;}
-
-/* ── ORG: DASHBOARD ── */
-async function verHistorialTorneos(){
-  setMain('<div class="panel-content"><div class="panel-title">Historial de torneos</div><div class="panel-sub">Todos tus torneos</div><div id="historial-list"><div style="color:var(--text2);padding:20px;text-align:center">Cargando...</div></div></div>');
-  var r=await api('getMisTorneos');
-  var el=document.getElementById('historial-list');
-  if(!el)return;
-  if(!r.success||!r.data||!r.data.length){el.innerHTML='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin torneos anteriores.</div>';return;}
-  var h='';
-  r.data.forEach(function(t){
-    var fi=t.fecha_inicio?new Date(t.fecha_inicio+'T12:00:00').toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'}):'';
-    var ff=t.fecha_fin?new Date(t.fecha_fin+'T12:00:00').toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'}):'';
-    var estadoColor=t.estado==='activo'?'var(--green)':t.estado==='eliminado'?'var(--red)':'var(--text3)';
-    h+='<div class="p-card" style="margin-bottom:8px">'
-      +'<div class="p-card-header">'
-      +'<div><div class="p-card-title">'+t.nombre+'</div>'
-      +'<div class="p-card-sub">'+(t.ciudad||'')+(t.temporada?' · '+t.temporada:'')+'</div>'
-      +((fi||ff)?'<div style="font-size:11px;color:var(--text3)">'+(fi||'')+(ff?' — '+ff:'')+'</div>':'')
-      +'</div>'
-      +'<span style="font-size:11px;font-weight:700;color:'+estadoColor+'">'+t.estado.toUpperCase()+'</span>'
-      +'</div>'
-      +(t.reglamento_url?'<div style="margin-top:8px"><a href="'+(t.reglamento_url.indexOf('http')===0?t.reglamento_url:'#')+'" '+(t.reglamento_url.indexOf('http')===0?'target="_blank" ':'')+'class="btn-sm">Ver reglamento</a></div>':'')
-      +'</div>';
-  });
-  el.innerHTML=h;
-}
-
-async function renderDashboard(){
-  var r=await api('getMiTorneo');
-  var h='<div class="panel-content"><div class="panel-title">Dashboard</div><div class="panel-sub">Bienvenido, '+(SESSION.nombre||'')+'</div>';
-  if(!r.success||!r.data){h+='<div class="p-card" style="text-align:center;padding:32px"><div style="font-size:40px;margin-bottom:16px"></div><div style="font-family:\'Oswald\',sans-serif;font-size:20px;font-weight:900;color:var(--text);margin-bottom:8px">Aún no tienes un torneo</div><div style="font-size:13px;color:var(--text2);margin-bottom:20px">Crea tu torneo para comenzar.</div><button class="f-submit" style="max-width:260px;margin:0 auto" onclick="abrirCrearTorneo()">+ CREAR MI TORNEO</button></div>';}
-  else{var t=r.data;
-    h+='<div class="p-card"><div class="p-card-header"><div><div class="p-card-title">'+t.nombre+'</div><div class="p-card-sub">'+t.ciudad+(t.temporada?' · '+t.temporada:'')+'</div></div><div class="p-card-actions"><span class="badge '+(t.visible?'badge-active':'badge-draft')+'">'+(t.visible?'● Publicado':'○ Borrador')+'</span><button class="btn-sm btn-sm-primary" onclick="editarTorneo(\''+t.id+'\',\''+encodeURIComponent(JSON.stringify(t))+'\')">Editar</button></div></div>';
-    if(t.descripcion)h+='<div style="font-size:13px;color:var(--text2);margin-top:8px">'+t.descripcion+'</div>';
-    h+='<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;color:var(--text2)">'+(t.visible?'Visible al público':'Oculto al público')+'</span><button class="btn-sm '+(t.visible?'':'btn-sm-primary')+'" onclick="toggleVisible(\''+t.id+'\','+!t.visible+')">'+(t.visible?'Ocultar':'Publicar')+'</button></div></div>';
-    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">'
-      +quickAction('Categorías','',"showPanel('p-categorias',null)")
-      +quickAction('Equipos','',"showPanel('p-equipos',null)")
-      +quickAction('Fixture','',"showPanel('p-fixture',null)")
-      +quickAction('Resultados','',"showPanel('p-resultados',null)")
-      +quickAction('Mensajes','',"showPanel('p-noticias',null)")
-      +quickAction('Sanciones','',"showPanel('p-sanciones',null)")
-      +'</div>';
-  }
-  setMain(h+'</div>');
-}
-async function toggleVisible(id,visible){var r=await api('publicarTorneo',{id:id,visible:visible});if(r.success){toast(r.message,'ok');_torneoId=null;renderDashboard();}else toast(r.message,'err');}
-function abrirCrearTorneo(){openInlineModal('<div class="modal-title">Crear torneo</div><div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="ct-nombre" placeholder="Liga Municipal 2026"></div><div class="f-row"><div class="f-group"><label class="f-label">Ciudad</label><input class="f-input" id="ct-ciudad" value="'+(SESSION.ciudad||'')+'"></div><div class="f-group"><label class="f-label">Temporada</label><input class="f-input" id="ct-temporada" placeholder="2026"></div></div><div class="f-group"><label class="f-label">Descripción (opcional)</label><textarea class="f-input" id="ct-desc" rows="2"></textarea></div><button class="f-submit" onclick="guardarNuevoTorneo()">CREAR TORNEO</button>');}
-async function guardarNuevoTorneo(){var nombre=document.getElementById('ct-nombre').value.trim(),ciudad=document.getElementById('ct-ciudad').value.trim();if(!nombre||!ciudad){toast('Nombre y ciudad son obligatorios','err');return;}var r=await api('crearTorneo',{nombre:nombre,ciudad:ciudad,temporada:document.getElementById('ct-temporada').value.trim(),fecha_inicio:document.getElementById('ct-finicio').value||null,fecha_fin:document.getElementById('ct-ffin').value||null,descripcion:document.getElementById('ct-desc').value.trim()});if(r.success){toast('Torneo creado ✓','ok');closeInlineModal();_torneoId=null;renderDashboard();}else toast(r.message,'err');}
-function editarTorneo(id,encoded){var t=JSON.parse(decodeURIComponent(encoded));openInlineModal('<div class="modal-title">Editar torneo</div><div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="et-nombre" value="'+esc(t.nombre||'')+'"></div><div class="f-group"><label class="f-label">Temporada</label><input class="f-input" id="et-temporada" value="'+(t.temporada||'')+'"></div><div class="f-group"><label class="f-label">Descripción</label><textarea class="f-input" id="et-desc" rows="2">'+(t.descripcion||'')+'</textarea></div><div class="f-group"><label class="f-label">URL Reglamento</label><input class="f-input" id="et-reglamento" value="'+(t.reglamento_url||'')+'" placeholder="https://..."></div><button class="f-submit" onclick="guardarEdicionTorneo(\''+id+'\')">GUARDAR CAMBIOS</button>');}
-async function guardarEdicionTorneo(id){var r=await api('actualizarTorneo',{id:id,nombre:document.getElementById('et-nombre').value.trim(),temporada:document.getElementById('et-temporada').value.trim(),descripcion:document.getElementById('et-desc').value.trim(),reglamento_url:document.getElementById('et-reglamento').value.trim()});if(r.success){toast('Actualizado ✓','ok');closeInlineModal();_torneoId=null;renderDashboard();}else toast(r.message,'err');}
-
-/* ── ORG: CATEGORIAS ── */
-async function renderCategorias(){
-  var tid=await getTorneoId();var h='<div class="panel-content"><div class="panel-title">Categorías</div>';
-  if(!tid){setMain(h+'<div class="panel-sub">Crea un torneo primero</div></div>');return;}
-  var r=await api('getMisCategorias',{torneo_id:tid});var cats=(r.success&&r.data)?r.data.filter(function(c){return c.activo;}):[]; 
-  h+='<div class="panel-sub">'+cats.length+' categoría(s)</div><button class="btn-sm btn-sm-primary" style="margin-bottom:16px" onclick="abrirCrearCategoria(\''+tid+'\')">+ Nueva categoría</button>';
-  if(!cats.length)h+='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin categorías aún.</div>';
-  else cats.forEach(function(c){h+='<div class="p-card"><div class="p-card-header"><div><div class="p-card-title">'+c.nombre+'</div><div class="p-card-sub">V:'+c.pts_victoria+' E:'+c.pts_empate+' D:'+c.pts_derrota+'</div></div><div class="p-card-actions"><button class="btn-sm" onclick="abrirEditarCategoria(\''+c.id+'\','+encodeURIComponent(JSON.stringify(c))+')">Editar</button><button class="btn-sm btn-sm-danger" onclick="eliminarCategoria(\''+c.id+'\',\''+c.nombre.replace(/'/g,"\\'")+'\')">Eliminar</button></div></div></div>';});
-  setMain(h+'</div>');
-}
-function abrirCrearCategoria(tid){openInlineModal('<div class="modal-title">Nueva categoría</div><div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="cc-nombre" placeholder="Senior, Sub-23..."></div><div class="f-row"><div class="f-group"><label class="f-label">Victoria</label><input class="f-input" id="cc-vic" type="number" value="2"></div><div class="f-group"><label class="f-label">Empate</label><input class="f-input" id="cc-emp" type="number" value="0"></div><div class="f-group"><label class="f-label">Derrota</label><input class="f-input" id="cc-der" type="number" value="1"></div></div><button class="f-submit" onclick="guardarCategoria(\''+tid+'\')">CREAR</button>');}
-async function guardarCategoria(tid){var n=document.getElementById('cc-nombre').value.trim();if(!n){toast('Nombre obligatorio','err');return;}var r=await api('crearCategoria',{torneo_id:tid,nombre:n,pts_victoria:parseInt(document.getElementById('cc-vic').value)||2,pts_empate:parseInt(document.getElementById('cc-emp').value)||0,pts_derrota:parseInt(document.getElementById('cc-der').value)||1});if(r.success){toast('Categoría creada ✓','ok');closeInlineModal();_catsCache=null;renderCategorias();}else toast(r.message,'err');}
-function abrirEditarCategoria(id,enc){var c=JSON.parse(decodeURIComponent(enc));openInlineModal('<div class="modal-title">Editar categoría</div><div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="ec-nombre" value="'+(c.nombre||'')+'"></div><div class="f-row"><div class="f-group"><label class="f-label">Victoria</label><input class="f-input" id="ec-vic" type="number" value="'+(c.pts_victoria||2)+'"></div><div class="f-group"><label class="f-label">Empate</label><input class="f-input" id="ec-emp" type="number" value="'+(c.pts_empate||0)+'"></div><div class="f-group"><label class="f-label">Derrota</label><input class="f-input" id="ec-der" type="number" value="'+(c.pts_derrota||1)+'"></div></div><button class="f-submit" onclick="guardarEditarCategoria(\''+id+'\')">GUARDAR</button>');}
-async function guardarEditarCategoria(id){var r=await api('actualizarCategoria',{id:id,nombre:document.getElementById('ec-nombre').value.trim(),pts_victoria:parseInt(document.getElementById('ec-vic').value)||2,pts_empate:parseInt(document.getElementById('ec-emp').value)||0,pts_derrota:parseInt(document.getElementById('ec-der').value)||1});if(r.success){toast('Actualizada ✓','ok');closeInlineModal();_catsCache=null;renderCategorias();}else toast(r.message,'err');}
-async function eliminarCategoria(id,nombre){confirmAction('¿Eliminar "'+nombre+'"?',async function(){var r=await api('eliminarCategoria',{id:id});if(r.success){toast('Eliminada','');_catsCache=null;renderCategorias();}else toast(r.message,'err');});}
-
-/* ── ORG: EQUIPOS ── */
-async function renderEquipos(){
-  var cats=await getCats();var h='<div class="panel-content"><div class="panel-title">Equipos</div>';
-  if(!cats.length){setMain(h+'<div class="panel-sub">Crea categorías primero</div></div>');return;}
-  h+='<div class="f-group" style="margin-bottom:16px"><label class="f-label">Categoría</label><select class="f-select" id="eq-cat-sel" onchange="cargarEquiposCategoria(this.value)" style="max-width:220px">';
-  cats.forEach(function(c){h+='<option value="'+c.id+'">'+c.nombre+'</option>';});
-  h+='</select></div><button class="btn-sm btn-sm-primary" style="margin-bottom:16px" onclick="abrirCrearEquipo()">+ Nuevo equipo</button><div id="equipos-list"></div></div>';
-  setMain(h);cargarEquiposCategoria(cats[0].id);
-}
-async function cargarEquiposCategoria(catId){
-  var el=document.getElementById('equipos-list');if(!el)return;
-  el.innerHTML='<div style="color:var(--text2);font-size:13px;padding:12px">Cargando...</div>';
-  var r=await api('getEquiposCategoria',{categoria_id:catId});
-  if(!r.success||!r.data.length){el.innerHTML='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin equipos.</div>';return;}
-  window._equipoRegistry=window._equipoRegistry||{};
-  var h='';
-  r.data.forEach(function(e){
-    window._equipoRegistry[e.id]=e;
-    var colorL=e.color_local||'#1d4ed8',colorV=e.color_visita||'#ffffff';
-    h+='<div class="p-card"><div class="p-card-header">'
-      +'<div style="display:flex;align-items:center;gap:10px">'
-      +'<div style="width:32px;height:32px;border-radius:50%;background:'+colorL+';border:2px solid var(--border2);flex-shrink:0"></div>'
-      +'<div><div class="p-card-title">'+e.nombre+'</div>'
-      +'<div class="p-card-sub">'
-      +'<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:'+colorL+';margin-right:4px"></span>Local '
-      +'<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:'+colorV+';border:1px solid var(--border2);margin-left:6px;margin-right:4px"></span>Visita'
-      +'</div></div></div>'
-      +'<div class="p-card-actions">'
-      +'<button class="btn-sm" onclick="abrirEditarEquipo(\''+e.id+'\')"  >Editar</button>'
-      +'<button class="btn-sm btn-sm-danger" onclick="eliminarEquipo(\''+e.id+'\',' +JSON.stringify(e.nombre)+ ')" >Eliminar</button>'
-      +'</div></div></div>';
-  });
-  el.innerHTML=h;
-}
-function abrirCrearEquipo(){var sel=document.getElementById('eq-cat-sel'),catId=sel?sel.value:'';openInlineModal('<div class="modal-title">Nuevo equipo</div><div class="f-group"><label class="f-label">Nombre del equipo</label><input class="f-input" id="ne-nombre" placeholder="Club Atlético..."></div><div class="f-row"><div class="f-group"><label class="f-label">Color local</label><input class="f-input" id="ne-local" type="color" value="#1d4ed8" style="height:42px;padding:4px"></div><div class="f-group"><label class="f-label">Color visita</label><input class="f-input" id="ne-visita" type="color" value="#ffffff" style="height:42px;padding:4px"></div></div><button class="f-submit" onclick="guardarNuevoEquipo(\''+catId+'\')">CREAR EQUIPO</button>');}
-async function guardarNuevoEquipo(catId){var n=document.getElementById('ne-nombre').value.trim();if(!n){toast('Nombre obligatorio','err');return;}var r=await api('crearEquipo',{categoria_id:catId,nombre:n,color_local:document.getElementById('ne-local').value,color_visita:document.getElementById('ne-visita').value});if(r.success){toast('Creado ✓','ok');closeInlineModal();cargarEquiposCategoria(catId);}else toast(r.message,'err');}
-function abrirEditarEquipo(id){
-  var e=(window._equipoRegistry&&window._equipoRegistry[id])||{};
-  window._eeId=id; window._eeCatId=e.categoria_id||'';
-  var html='<div class="modal-title">Editar equipo</div>'
-    +'<div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="ee-nombre" value="'+esc(e.nombre||'')+'"></div>'
-    +'<div class="f-row">'
-    +'<div class="f-group"><label class="f-label">Color local</label><input class="f-input" id="ee-local" type="color" value="'+(e.color_local||'#1d4ed8')+'" style="height:42px;padding:4px"></div>'
-    +'<div class="f-group"><label class="f-label">Color visita</label><input class="f-input" id="ee-visita" type="color" value="'+(e.color_visita||'#ffffff')+'" style="height:42px;padding:4px"></div>'
-    +'</div>'
-    +'<button class="f-submit" id="ee-submit" onclick="guardarEditarEquipo()">GUARDAR CAMBIOS</button>';
-  openInlineModal(html);
-}
-async function guardarEditarEquipo(){
-  var id=window._eeId||'',catId=window._eeCatId||'';
-  var btn=document.getElementById('ee-submit');if(btn){btn.disabled=true;btn.textContent='Guardando...';}
-  var r=await api('actualizarEquipo',{id:id,nombre:document.getElementById('ee-nombre').value.trim(),color_local:document.getElementById('ee-local').value,color_visita:document.getElementById('ee-visita').value});
-  if(r.success){toast('Equipo actualizado ✓','ok');closeInlineModal();cargarEquiposCategoria(catId);}
-  else{toast(r.message,'err');if(btn){btn.disabled=false;btn.textContent='GUARDAR CAMBIOS';}}
-}
-async function eliminarEquipo(id,nombre){var sel=document.getElementById('eq-cat-sel'),catId=sel?sel.value:'';confirmAction('¿Eliminar "'+nombre+'"?',async function(){var r=await api('eliminarEquipo',{id:id});if(r.success){toast('Eliminado','');cargarEquiposCategoria(catId);}else toast(r.message,'err');});}
-
-/* ── ORG: FIXTURE ── */
-async function renderFixturePanel(){
-  var cats=await getCats();var h='<div class="panel-content"><div class="panel-title">Fixture</div>';
-  if(!cats.length){setMain(h+'<div class="panel-sub">Crea categorías primero</div></div>');return;}
-  h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap"><select class="f-select" id="fx-cat-sel" onchange="cargarFixturePanel(this.value)" style="max-width:220px">';
-  cats.forEach(function(c){h+='<option value="'+c.id+'">'+c.nombre+'</option>';});
-  h+='</select><button class="btn-sm btn-sm-primary" onclick="abrirCrearPartido()">+ Nuevo partido</button>'
-  +'<button class="btn-sm" onclick="exportarFixtureCSV()" style="background:var(--green);color:#fff">Exportar Excel</button>'
-  +'<button class="btn-sm" onclick="importarFixtureCSV()" style="background:var(--blue);color:#fff">Importar Excel</button>'
-  +'</div><div id="fixture-panel-list"></div></div>';
-  setMain(h);cargarFixturePanel(cats[0].id);
-}
-async function cargarFixturePanel(catId){
-  var el=document.getElementById('fixture-panel-list');if(!el)return;
-  el.innerHTML='<div style="color:var(--text2);font-size:13px;padding:12px">Cargando...</div>';
-  var r=await api('getPartidosCategoria',{categoria_id:catId});
-  if(!r.success||!r.data.length){el.innerHTML='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin partidos.</div>';return;}
-  var grupos={};r.data.forEach(function(p){var k='Fecha '+(p.nro_fecha||'—');if(!grupos[k])grupos[k]=[];grupos[k].push(p);});
-  var h='';Object.keys(grupos).forEach(function(g){h+='<div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 6px">'+g+'</div>';grupos[g].forEach(function(p){var lN=p.local?p.local.nombre:'?',vN=p.visita?p.visita.nombre:'?',fin=p.estado==='finalizado';var fechaCompleta=p.fecha?new Date(p.fecha+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'Sin fecha';
-      window._partidoRegistry=window._partidoRegistry||{};
-      window._partidoRegistry[p.id]=p;
-      h+='<div class="p-card" style="margin-bottom:6px"><div class="p-card-header"><div style="flex:1">'
-        +'<div style="font-size:13px;font-weight:700;color:var(--text)">'+lN+' <span style="color:var(--blue);font-size:11px">LOCAL</span> vs '+vN+' <span style="color:var(--orange);font-size:11px">VISITA</span></div>'
-        +'<div class="p-card-sub">'+fechaCompleta+(p.hora?' · '+p.hora:'')+(p.cancha?' · '+p.cancha:'')+' · '+(p.fase||'')+'</div>'
-        +(fin?'<div style="font-size:12px;color:var(--orange);font-weight:700;margin-top:2px">Resultado: '+p.pts_local+' – '+p.pts_visita+'</div>':'')
-        +'</div><div class="p-card-actions">'
-        +((!fin)?'<button class="btn-sm" onclick="abrirEditarPartido(\''+p.id+'\')">Editar</button>':'')
-        +'<button class="btn-sm btn-sm-danger" onclick="eliminarPartido(\''+p.id+'\')">✕</button>'
-        +'</div></div></div>';});});
-  el.innerHTML=h;
-}
-async function abrirCrearPartido(){
-  var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:'';
-  var re=await api('getEquiposCategoria',{categoria_id:catId});
-  var eqs=(re.success&&re.data)?re.data:[];
-  if(eqs.length<2){toast('Necesitas al menos 2 equipos en esta categoría','err');return;}
-  var opts=eqs.map(function(e){return'<option value="'+e.id+'">'+e.nombre+'</option>';}).join('');
-  var html='<div class="modal-title">Nuevo partido</div>'
-    +'<div class="f-row">'
-    +'<div class="f-group"><label class="f-label">Local</label><select class="f-select" id="np-local">'+opts+'</select></div>'
-    +'<div class="f-group"><label class="f-label">✈ Visita</label><select class="f-select" id="np-visita">'+opts+'</select></div>'
-    +'</div>'
-    +'<div class="f-row">'
-    +'<div class="f-group"><label class="f-label">Nro. fecha</label><input class="f-input" id="np-nfecha" type="number" value="1" min="1"></div>'
-    +'<div class="f-group"><label class="f-label">Fase</label><select class="f-select" id="np-fase"><option>Fase Regular</option><option>Cuartos de Final</option><option>Semifinal</option><option>Final</option></select></div>'
-    +'</div>'
-    +'<div class="f-row">'
-    +'<div class="f-group"><label class="f-label">Fecha</label><input class="f-input" id="np-fecha" type="date"></div>'
-    +'<div class="f-group"><label class="f-label">Hora</label><input class="f-input" id="np-hora" type="time"></div>'
-    +'</div>'
-    +'<div class="f-group"><label class="f-label">Cancha (opcional)</label><input class="f-input" id="np-cancha" placeholder="Gimnasio Municipal..."></div>'
-    +'<div class="f-group"><label class="f-label">URL transmisión (opcional)</label><input class="f-input" id="np-url" type="url" placeholder="https://youtube.com/..."></div>'
-    +'<button class="f-submit" id="np-submit" onclick="guardarNuevoPartido()">PROGRAMAR PARTIDO</button>';
-  window._npCatId=catId;
-  openInlineModal(html);
-}
-async function guardarNuevoPartido(){
-  var catId=window._npCatId||'';
-  var loc=document.getElementById('np-local').value,vis=document.getElementById('np-visita').value;
-  if(loc===vis){toast('Local y visita no pueden ser el mismo equipo','err');return;}
-  var btn=document.getElementById('np-submit');if(btn){btn.disabled=true;btn.textContent='Guardando...';}
-  var r=await api('crearPartido',{
-    categoria_id:catId,equipo_local:loc,equipo_visita:vis,
-    nro_fecha:parseInt(document.getElementById('np-nfecha').value)||1,
-    fase:document.getElementById('np-fase').value,
-    fecha:document.getElementById('np-fecha').value||null,
-    hora:document.getElementById('np-hora').value||null,
-    cancha:document.getElementById('np-cancha').value.trim()||null,
-    url_transmision:document.getElementById('np-url').value.trim()||null
-  });
-  if(r.success){toast('Partido programado ✓','ok');closeInlineModal();cargarFixturePanel(catId);}
-  else{toast(r.message,'err');if(btn){btn.disabled=false;btn.textContent='PROGRAMAR PARTIDO';}}
-}
-async function abrirEditarPartido(id){
-  var p=(window._partidoRegistry&&window._partidoRegistry[id])||{};
-  var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:p.categoria_id;
-  var re=await api('getEquiposCategoria',{categoria_id:catId});var eqs=(re.success&&re.data)?re.data:[];
-  var opts=eqs.map(function(e){return'<option value="'+e.id+'"'+(e.id===p.equipo_local?' selected':'')+'>'+e.nombre+'</option>';}).join('');
-  var optsV=eqs.map(function(e){return'<option value="'+e.id+'"'+(e.id===p.equipo_visita?' selected':'')+'>'+e.nombre+'</option>';}).join('');
-  var fases=['Fase Regular','Cuartos de Final','Semifinal','Final'];
-  openInlineModal('<div class="modal-title">Editar partido</div><div class="f-row"><div class="f-group"><label class="f-label">Local</label><select class="f-select" id="ep-local">'+opts+'</select></div><div class="f-group"><label class="f-label">Visita</label><select class="f-select" id="ep-visita">'+optsV+'</select></div></div><div class="f-row"><div class="f-group"><label class="f-label">Nro. fecha</label><input class="f-input" id="ep-nfecha" type="number" value="'+(p.nro_fecha||1)+'" min="1"></div><div class="f-group"><label class="f-label">Fase</label><select class="f-select" id="ep-fase">'+fases.map(function(f){return'<option'+(f===p.fase?' selected':'')+'>'+f+'</option>';}).join('')+'</select></div></div><div class="f-row"><div class="f-group"><label class="f-label">Fecha</label><input class="f-input" id="ep-fecha" type="date" value="'+(p.fecha||'')+'"></div><div class="f-group"><label class="f-label">Hora</label><input class="f-input" id="ep-hora" type="time" value="'+(p.hora||'')+'"></div></div><div class="f-group"><label class="f-label">Cancha</label><input class="f-input" id="ep-cancha" value="'+(p.cancha||'')+'"></div><div class="f-group"><label class="f-label">URL transmisión</label><input class="f-input" id="ep-url" value="'+(p.url_transmision||'')+'"></div><button class="f-submit" onclick="guardarEditarPartido(\''+id+'\',\''+catId+'\')">GUARDAR</button>');
-}
-async function guardarEditarPartido(){
-  var id=window._epId||'',catId=window._epCatId||'';
-  var btn=document.getElementById('ep-submit');if(btn){btn.disabled=true;btn.textContent='Guardando...';}
-  var r=await api('actualizarPartido',{
-    id:id,
-    equipo_local:document.getElementById('ep-local').value,
-    equipo_visita:document.getElementById('ep-visita').value,
-    nro_fecha:parseInt(document.getElementById('ep-nfecha').value)||1,
-    fase:document.getElementById('ep-fase').value,
-    fecha:document.getElementById('ep-fecha').value||null,
-    hora:document.getElementById('ep-hora').value||null,
-    cancha:document.getElementById('ep-cancha').value.trim()||null,
-    url_transmision:document.getElementById('ep-url').value.trim()||null
-  });
-  if(r.success){toast('Partido actualizado ✓','ok');closeInlineModal();cargarFixturePanel(catId);}
-  else{toast(r.message,'err');if(btn){btn.disabled=false;btn.textContent='GUARDAR CAMBIOS';}}
-}
-async function eliminarPartido(id){var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:'';confirmAction('¿Eliminar este partido?',async function(){var r=await api('eliminarPartido',{id:id});if(r.success){toast('Eliminado','');if(catId)cargarFixturePanel(catId);}else toast(r.message,'err');});}
-
-/* ── ORG: RESULTADOS ── */
-async function renderResultadosPanel(){
-  var cats=await getCats();var h='<div class="panel-content"><div class="panel-title">Resultados</div>';
-  if(!cats.length){setMain(h+'</div>');return;}
-  h+='<div style="margin-bottom:16px"><select class="f-select" id="res-cat-sel" onchange="cargarResultadosPanel(this.value)" style="max-width:220px">';
-  cats.forEach(function(c){h+='<option value="'+c.id+'">'+c.nombre+'</option>';});
-  h+='</select></div><div id="resultados-panel-list"></div></div>';setMain(h);cargarResultadosPanel(cats[0].id);
-}
-async function cargarResultadosPanel(catId){
-  var el=document.getElementById('resultados-panel-list');if(!el)return;
-  el.innerHTML='<div style="color:var(--text2);font-size:13px;padding:12px">Cargando...</div>';
-  var r=await api('getPartidosCategoria',{categoria_id:catId});
-  if(!r.success||!r.data.length){el.innerHTML='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin partidos.</div>';return;}
-  var h='';r.data.forEach(function(p){var lN=p.local?p.local.nombre:'?',vN=p.visita?p.visita.nombre:'?',fin=p.estado==='finalizado';
-    h+='<div class="p-card" style="margin-bottom:8px"><div style="font-size:11px;color:var(--text2);margin-bottom:8px">Fecha '+(p.nro_fecha||'—')+(p.fecha?' · '+p.fecha:'')+' · '+(p.fase||'')+'</div>';
-    h+='<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-bottom:12px"><div style="font-family:\'Oswald\',sans-serif;font-size:15px;font-weight:700;color:var(--text)">'+lN+'</div>';
-    h+=(fin?'<div style="font-family:\'Oswald\',sans-serif;font-size:22px;font-weight:900;color:var(--orange);text-align:center">'+p.pts_local+'–'+p.pts_visita+'</div>':'<div style="font-size:12px;font-weight:700;color:var(--text2);text-align:center">VS</div>');
-    h+='<div style="font-family:\'Oswald\',sans-serif;font-size:15px;font-weight:700;color:var(--text);text-align:right">'+vN+'</div></div>';
-    h+='<div style="display:flex;gap:6px;justify-content:flex-end"><button class="btn-sm btn-sm-primary" onclick="abrirCargarResultado(\''+p.id+'\',\''+lN.replace(/'/g,"\\'")+'\',\''+vN.replace(/'/g,"\\'")+'\','+(p.pts_local||0)+','+(p.pts_visita||0)+')">'+(fin?'Editar resultado':'Cargar resultado')+'</button>';
-    h+=(!fin?'<button class="btn-sm" onclick="marcarEnVivo(\''+p.id+'\')">En vivo</button>':'');h+='</div></div>';
-  });el.innerHTML=h;
-}
-function abrirCargarResultado(id,lN,vN,ptsL,ptsV){
-  var html='<div class="modal-title">Cargar resultado</div>'
-    +'<div class="modal-sub" style="margin-bottom:20px">'+lN+' vs '+vN+'</div>'
-    +'<div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin-bottom:24px">'
-    +'<div><div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;text-align:center"> '+lN+'</div>'
-    +'<input class="f-input" id="cr-local" type="number" min="0" value="'+(ptsL||0)+'" style="font-size:40px;font-weight:700;text-align:center;height:80px;border-radius:14px"></div>'
-    +'<div style="font-family:\'Oswald\',sans-serif;font-size:24px;font-weight:700;color:var(--text2);text-align:center">-</div>'
-    +'<div><div style="font-size:10px;font-weight:700;color:var(--orange);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;text-align:center">'+vN+'</div>'
-    +'<input class="f-input" id="cr-visita" type="number" min="0" value="'+(ptsV||0)+'" style="font-size:40px;font-weight:700;text-align:center;height:80px;border-radius:14px"></div>'
-    +'</div>'
-    +'<button class="f-submit" id="cr-submit" onclick="guardarResultado(\''+id+'\')">CONFIRMAR RESULTADO</button>';
-  openInlineModal(html);
-}
-async function guardarResultado(id){
-  var btn=document.getElementById('cr-submit');if(btn){btn.disabled=true;btn.textContent='Guardando...';}
-  var pl={id:id,pts_local:parseInt(document.getElementById('cr-local').value)||0,pts_visita:parseInt(document.getElementById('cr-visita').value)||0};
-  var r=await api('actualizarResultado',pl);
-  if(r.success){toast('Resultado guardado ✓','ok');closeInlineModal();var cs=document.getElementById('res-cat-sel');if(cs)cargarResultadosPanel(cs.value);}
-  else{toast(r.message,'err');if(btn){btn.disabled=false;btn.textContent='CONFIRMAR RESULTADO';}}
-}
-async function marcarEnVivo(id){var r=await api('actualizarEstadoPartido',{id:id,estado:'en_vivo'});if(r.success){toast('En vivo ✓','ok');var c=document.getElementById('res-cat-sel');if(c)cargarResultadosPanel(c.value);}else toast(r.message,'err');}
-
-/* == ORG: NOTICIAS == */
-async function renderNoticiasPanel(){var tid=await getTorneoId();var h='<div class="panel-content"><div class="panel-title">Mensajes</div>';if(!tid){setMain(h+'<div class="panel-sub">Crea un torneo primero</div></div>');return;}h+='<button class="btn-sm btn-sm-primary" style="margin-bottom:16px" onclick="abrirCrearNoticia(\''+tid+'\')">+ Nuevo mensaje</button><div id="noticias-panel-list"></div></div>';setMain(h);cargarNoticiasPanel(tid);}
-async function cargarNoticiasPanel(tid){var el=document.getElementById('noticias-panel-list');if(!el)return;var todas=await supa('noticias','?torneo_id=eq.'+tid+'&order=created_at.desc');if(!todas||!todas.length){el.innerHTML='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin noticias.</div>';return;}var h='';todas.forEach(function(n){h+='<div class="p-card"><div class="p-card-header"><div><div class="p-card-title">'+n.titulo+'</div><div class="p-card-sub">'+new Date(n.created_at).toLocaleDateString('es-CL')+'</div></div><div class="p-card-actions"><span class="badge '+(n.publicado?'badge-active':'badge-draft')+'">'+(n.publicado?'Publicado':'Borrador')+'</span><button class="btn-sm" onclick="abrirEditarNoticia(\''+n.id+'\','+encodeURIComponent(JSON.stringify(n))+')">Editar</button><button class="btn-sm btn-sm-danger" onclick="eliminarNoticia(\''+n.id+'\',\''+tid+'\')">✕</button></div></div>'+(n.contenido?'<div style="font-size:12px;color:var(--text2);margin-top:8px;line-height:1.5">'+n.contenido.substring(0,120)+(n.contenido.length>120?'...':'')+'</div>':'')+'</div>';});el.innerHTML=h;}
-function abrirCrearNoticia(tid){openInlineModal('<div class="modal-title">Nuevo mensaje</div><div class="f-group"><label class="f-label">Título</label><input class="f-input" id="nn-titulo" placeholder="Título de la noticia"></div><div class="f-group"><label class="f-label">Contenido</label><textarea class="f-input" id="nn-contenido" rows="4" placeholder="Escribe el contenido..."></textarea></div><div class="f-group"><label class="f-label">URL imagen (opcional)</label><input class="f-input" id="nn-img" placeholder="https://..."></div><div class="f-group" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="nn-pub" checked style="width:16px;height:16px"><label style="font-size:13px;color:var(--text)">Publicar inmediatamente</label></div><button class="f-submit" onclick="guardarNuevaNoticia(\''+tid+'\')">PUBLICAR</button>');}
-async function guardarNuevaNoticia(tid){var t=document.getElementById('nn-titulo').value.trim();if(!t){toast('Título obligatorio','err');return;}var r=await api('crearNoticia',{torneo_id:tid,titulo:t,contenido:document.getElementById('nn-contenido').value.trim()||null,imagen_url:document.getElementById('nn-img').value.trim()||null,publicado:document.getElementById('nn-pub').checked});if(r.success){toast('Mensaje publicado ✓','ok');closeInlineModal();cargarNoticiasPanel(tid);}else toast(r.message,'err');}
-function abrirEditarNoticia(id,enc){var n=JSON.parse(decodeURIComponent(enc));openInlineModal('<div class="modal-title">Editar noticia</div><div class="f-group"><label class="f-label">Título</label><input class="f-input" id="en-titulo" value="'+esc(n.titulo||'')+'"></div><div class="f-group"><label class="f-label">Contenido</label><textarea class="f-input" id="en-contenido" rows="4">'+(n.contenido||'')+'</textarea></div><div class="f-group" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="en-pub" '+(n.publicado?'checked':'')+' style="width:16px;height:16px"><label style="font-size:13px;color:var(--text)">Publicado</label></div><button class="f-submit" onclick="guardarEditarNoticia(\''+id+'\',\''+(n.torneo_id||'')+'\')">GUARDAR</button>');}
-async function guardarEditarNoticia(id,tid){var r=await api('actualizarNoticia',{id:id,titulo:document.getElementById('en-titulo').value.trim(),contenido:document.getElementById('en-contenido').value.trim(),publicado:document.getElementById('en-pub').checked});if(r.success){toast('Actualizada ✓','ok');closeInlineModal();if(tid)cargarNoticiasPanel(tid);}else toast(r.message,'err');}
-async function eliminarNoticia(id,tid){confirmAction('¿Eliminar esta noticia?',async function(){var r=await api('eliminarNoticia',{id:id});if(r.success){toast('Eliminada','');cargarNoticiasPanel(tid);}else toast(r.message,'err');});}
-
-/* ── ORG: SANCIONES ── */
-async function renderSancionesPanel(){var cats=await getCats();var h='<div class="panel-content"><div class="panel-title">Sanciones</div>';if(!cats.length){setMain(h+'<div class="panel-sub">Crea categorías primero</div></div>');return;}h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap"><select class="f-select" id="san-cat-sel" onchange="cargarSancionesPanel(this.value)" style="max-width:220px">';cats.forEach(function(c){h+='<option value="'+c.id+'">'+c.nombre+'</option>';});h+='</select><button class="btn-sm btn-sm-primary" onclick="abrirCrearSancion()">+ Nueva sanción</button></div><div id="sanciones-panel-list"></div></div>';setMain(h);cargarSancionesPanel(cats[0].id);}
-async function cargarSancionesPanel(catId){var el=document.getElementById('sanciones-panel-list');if(!el)return;el.innerHTML='<div style="color:var(--text2);font-size:13px;padding:12px">Cargando...</div>';var r=await api('getSancionesCategoria',{categoria_id:catId});if(!r.success||!r.data.length){el.innerHTML='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin sanciones.</div>';return;}var h='';r.data.forEach(function(s){h+='<div class="san-card" style="cursor:default"><div class="san-header"><span class="san-type">'+(s.tipo||'Sanción')+'</span><div class="p-card-actions" style="margin:0"><button class="btn-sm" onclick="abrirEditarSancion(\''+s.id+'\','+encodeURIComponent(JSON.stringify(s))+')">Editar</button><button class="btn-sm btn-sm-danger" onclick="eliminarSancion(\''+s.id+'\')">✕</button></div></div><div class="san-player">'+(s.jugador_nombre||'Sin nombre')+'</div>'+(s.descripcion?'<div class="san-detail" style="display:block">'+s.descripcion+'</div>':'')+(s.fecha_fin?'<div style="font-size:11px;color:var(--orange);margin-top:4px">Hasta: '+s.fecha_fin+'</div>':'')+'</div>';});el.innerHTML=h;}
-async function abrirCrearSancion(){var catId=document.getElementById('san-cat-sel')?document.getElementById('san-cat-sel').value:'';var re=await api('getEquiposCategoria',{categoria_id:catId});var eqs=(re.success&&re.data)?re.data:[];var optsEq='<option value="">Sin equipo</option>'+eqs.map(function(e){return'<option value="'+e.id+'">'+e.nombre+'</option>';}).join('');openInlineModal('<div class="modal-title">Nueva sanción</div><div class="f-group"><label class="f-label">Jugador / Persona</label><input class="f-input" id="ns-jugador" placeholder="Nombre del sancionado"></div><div class="f-group"><label class="f-label">Equipo</label><select class="f-select" id="ns-equipo">'+optsEq+'</select></div><div class="f-group"><label class="f-label">Tipo</label><select class="f-select" id="ns-tipo"><option>Amonestación</option><option>Suspensión</option><option>Expulsión</option><option>Multa</option><option>Otra</option></select></div><div class="f-group"><label class="f-label">Descripción</label><textarea class="f-input" id="ns-desc" rows="2" placeholder="Detalle..."></textarea></div><div class="f-group"><label class="f-label">Fecha de término</label><input class="f-input" id="ns-fin" type="date"></div><button class="f-submit" onclick="guardarNuevaSancion(\''+catId+'\')">REGISTRAR</button>');}
-async function guardarNuevaSancion(catId){
-  var j=document.getElementById('ns-jugador').value.trim();
-  if(!j){toast('Nombre obligatorio','err');return;}
-  var r=await api('crearSancion',{categoria_id:catId,jugador_nombre:j,equipo_id:document.getElementById('ns-equipo').value||null,tipo:document.getElementById('ns-tipo').value,descripcion:document.getElementById('ns-desc').value.trim()||null,fecha_fin:document.getElementById('ns-fin').value||null,fecha_apelacion:document.getElementById('ns-apelacion')?document.getElementById('ns-apelacion').value||null:null});
-  if(r.success){toast('Sanción registrada ✓','ok');closeInlineModal();cargarSancionesPanel(catId);}
-  else toast(r.message,'err');
-}
-async function guardarNuevaSancion2(){guardarNuevaSancion(window._nsCatId||'');}
-function abrirEditarSancion(id,enc){var s=JSON.parse(decodeURIComponent(enc));var tipos=['Amonestación','Suspensión','Expulsión','Multa','Otra'];openInlineModal('<div class="modal-title">Editar sanción</div><div class="f-group"><label class="f-label">Jugador</label><input class="f-input" id="es-jugador" value="'+(s.jugador_nombre||'')+'"></div><div class="f-group"><label class="f-label">Tipo</label><select class="f-select" id="es-tipo">'+tipos.map(function(t){return'<option'+(t===s.tipo?' selected':'')+'>'+t+'</option>';}).join('')+'</select></div><div class="f-group"><label class="f-label">Descripción</label><textarea class="f-input" id="es-desc" rows="2">'+(s.descripcion||'')+'</textarea></div><div class="f-group"><label class="f-label">Fecha término</label><input class="f-input" id="es-fin" type="date" value="'+(s.fecha_fin||'')+'"></div><button class="f-submit" onclick="guardarEditarSancion(\''+id+'\')">GUARDAR</button>');}
-async function guardarEditarSancion(id){
-  var catId=document.getElementById('san-cat-sel')?document.getElementById('san-cat-sel').value:'';
-  var r=await api('actualizarSancion',{id:id,jugador_nombre:document.getElementById('es-jugador').value.trim(),tipo:document.getElementById('es-tipo').value,descripcion:document.getElementById('es-desc').value.trim()||null,fecha_fin:document.getElementById('es-fin').value||null,fecha_apelacion:document.getElementById('es-apelacion')?document.getElementById('es-apelacion').value||null:null});
-  if(r.success){toast('Actualizada ✓','ok');closeInlineModal();if(catId)cargarSancionesPanel(catId);}
-  else toast(r.message,'err');
-}
-async function eliminarSancion(id){var catId=document.getElementById('san-cat-sel')?document.getElementById('san-cat-sel').value:'';confirmAction('¿Eliminar esta sanción?',async function(){var r=await api('eliminarSancion',{id:id});if(r.success){toast('Eliminada','');if(catId)cargarSancionesPanel(catId);}else toast(r.message,'err');});}
-
-
-/* == EXCEL IMPORT/EXPORT == */
-async function exportarFixtureExcel(){
-  var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:'';
-  if(!catId){toast('Selecciona una categoria','err');return;}
-  var r=await api('getPartidosCategoria',{categoria_id:catId});
-  if(!r.success){toast('Error al cargar partidos','err');return;}
-
-  // Construir datos para Excel
-  var rows=[['Nro Fecha','Fecha','Hora','Cancha','Fase','Equipo Local','Equipo Visita','Estado']];
-  (r.data||[]).forEach(function(p){
-    rows.push([
-      p.nro_fecha||1,
-      p.fecha||'',
-      p.hora||'',
-      p.cancha||'',
-      p.fase||'Fase Regular',
-      p.local?p.local.nombre:'',
-      p.visita?p.visita.nombre:'',
-      p.estado||'programado'
-    ]);
-  });
-
-  // Crear CSV (sin depender de SheetJS para exportar)
-  var csv=rows.map(function(row){
-    return row.map(function(v){return'"'+(String(v||'').replace(/"/g,'""'))+'"';}).join(',');
-  }).join('
-');
-
-  var blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url;a.download='fixture_'+(catId.substring(0,8))+'.csv';
-  document.body.appendChild(a);a.click();
-  document.body.removeChild(a);URL.revokeObjectURL(url);
-  toast('Fixture exportado ✓','ok');
-}
-
-async function descargarPlantillaExcel(){
-  var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:'';
-  // Traer equipos para incluirlos como referencia
-  var equiposRef='';
-  if(catId){
-    var re=await api('getEquiposCategoria',{categoria_id:catId});
-    if(re.success&&re.data&&re.data.length){
-      equiposRef=re.data.map(function(e){return e.nombre;}).join(', ');
-    }
-  }
-  var rows=[
-    ['Nro Fecha','Fecha (YYYY-MM-DD)','Hora (HH:MM)','Cancha','Fase','Equipo Local','Equipo Visita'],
-    ['1','2026-06-15','19:00','Gimnasio Central','Fase Regular','Nombre Equipo A','Nombre Equipo B'],
-  ];
-  if(equiposRef){
-    rows.push(['','','','','','EQUIPOS DISPONIBLES: '+equiposRef,'']);
-  }
-  var csv=rows.map(function(row){
-    return row.map(function(v){return'"'+(String(v||'').replace(/"/g,'""'))+'"';}).join(',');
-  }).join('
-');
-  var blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url;a.download='plantilla_fixture.csv';
-  document.body.appendChild(a);a.click();
-  document.body.removeChild(a);URL.revokeObjectURL(url);
-  toast('Plantilla descargada ✓','ok');
-}
-
-async function importarFixtureExcel(){
-  var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:'';
-  if(!catId){toast('Selecciona una categoria','err');return;}
-
-  // Traer equipos para mapear nombre → id
-  var re=await api('getEquiposCategoria',{categoria_id:catId});
-  var equipos=(re.success&&re.data)?re.data:[];
-  var equipoMap={};
-  equipos.forEach(function(e){equipoMap[e.nombre.toLowerCase().trim()]=e.id;});
-
-  var optsEq=equipos.map(function(e){return'<option>'+e.nombre+'</option>';}).join('');
-
-  openInlineModal(
-    '<div class="modal-title">Importar fixture</div>'
-    +'<div class="modal-sub" style="margin-bottom:16px">Sube un archivo CSV con el formato de la plantilla</div>'
-    +'<div style="margin-bottom:12px"><button class="btn-sm" onclick="descargarPlantillaExcel()" style="background:var(--green);color:#fff">Descargar plantilla CSV</button></div>'
-    +'<div class="f-group"><label class="f-label">Archivo CSV</label>'
-    +'<input type="file" id="csv-file" accept=".csv" class="f-input" style="padding:8px">'
-    +'</div>'
-    +'<div id="csv-preview" style="margin-top:12px;font-size:12px;color:var(--text2)"></div>'
-    +'<button class="f-submit" id="csv-submit" onclick="procesarImportCSV()" style="display:none;margin-top:12px">IMPORTAR PARTIDOS</button>'
-  );
-
-  // Listener para preview del CSV
-  setTimeout(function(){
-    var fileInput=document.getElementById('csv-file');
-    if(fileInput){
-      fileInput.addEventListener('change',function(e){
-        var file=e.target.files[0];
-        if(!file)return;
-        var reader=new FileReader();
-        reader.onload=function(ev){
-          var text=ev.target.result;
-          // Remover BOM si existe
-          if(text.charCodeAt(0)===0xFEFF)text=text.slice(1);
-          var lines=text.split('
-').filter(function(l){return l.trim();});
-          var count=lines.length-1; // sin header
-          var preview=document.getElementById('csv-preview');
-          var btn=document.getElementById('csv-submit');
-          if(preview)preview.innerHTML='<div style="background:var(--bg3);border-radius:8px;padding:10px">'+count+' partidos detectados en el archivo</div>';
-          if(btn)btn.style.display='block';
-          window._csvText=text;
-          window._csvCatId=catId;
-          window._csvEquipoMap=equipoMap;
-        };
-        reader.readAsText(file,'UTF-8');
-      });
-    }
-  },200);
-}
-
-async function procesarImportCSV(){
-  var text=window._csvText||'';
-  var catId=window._csvCatId||'';
-  var equipoMap=window._csvEquipoMap||{};
-  if(!text||!catId){toast('Error: recarga e intenta de nuevo','err');return;}
-
-  var btn=document.getElementById('csv-submit');
-  if(btn){btn.disabled=true;btn.textContent='Importando...';}
-
-  if(text.charCodeAt(0)===0xFEFF)text=text.slice(1);
-  var lines=text.split('
-').filter(function(l){return l.trim();});
-
-  var errors=[];var imported=0;
-  for(var i=1;i<lines.length;i++){
-    var cols=lines[i].split(',').map(function(v){return v.replace(/^"|"$/g,'').replace(/""/g,'"').trim();});
-    if(cols.length<7)continue;
-    var nroFecha=parseInt(cols[0])||1;
-    var fecha=cols[1]||null;
-    var hora=cols[2]||null;
-    var cancha=cols[3]||null;
-    var fase=cols[4]||'Fase Regular';
-    var localNombre=cols[5].toLowerCase().trim();
-    var visitaNombre=cols[6].toLowerCase().trim();
-    var localId=equipoMap[localNombre];
-    var visitaId=equipoMap[visitaNombre];
-    if(!localId||!visitaId){
-      errors.push('Fila '+(i+1)+': equipo no encontrado ('+cols[5]+' / '+cols[6]+')');
-      continue;
-    }
-    if(localId===visitaId){errors.push('Fila '+(i+1)+': local y visita iguales');continue;}
-    var r=await api('crearPartido',{categoria_id:catId,nro_fecha:nroFecha,fecha:fecha||null,hora:hora||null,cancha:cancha||null,fase:fase,equipo_local:localId,equipo_visita:visitaId});
-    if(r.success)imported++;
-    else errors.push('Fila '+(i+1)+': '+r.message);
-  }
-
-  closeInlineModal();
-  if(errors.length){
-    toast(imported+' importados, '+errors.length+' errores','err');
-    console.warn('Import errors:',errors);
-  } else {
-    toast(imported+' partidos importados ✓','ok');
-  }
-  cargarFixturePanel(catId);
-}
-
-/* ── PROGRAMACIÓN GENERAL ── */
-async function renderProgramacion(){
-  var el=document.getElementById('tab-programacion');
-  if(!el)return;
-  if(!TORNEO_ACTUAL){el.innerHTML='';return;}
-  el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text2);font-size:13px">Cargando programación...</div>';
-  // Un solo fetch para todos los partidos del torneo con joins
-  var data=[];
-  try{
-    // Primero cargar categorías si no están
-    if(!CATEGORIAS||!CATEGORIAS.length){
-      var cr0=await fetch(SUPA_URL+'/rest/v1/categorias?torneo_id=eq.'+TORNEO_ACTUAL.id+'&activo=eq.true&order=orden',
-        {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}});
-      var cd0=await cr0.json();
-      if(Array.isArray(cd0))CATEGORIAS=cd0;
-    }
-    // Buscar por torneo_id directamente
-    var resp=await fetch(
-      SUPA_URL+'/rest/v1/partidos?torneo_id=eq.'+TORNEO_ACTUAL.id
-      +'&select=id,nro_fecha,fecha,hora,cancha,fase,estado,pts_local,pts_visita,url_transmision,categoria_id,equipo_local,equipo_visita,local:equipo_local(nombre),visita:equipo_visita(nombre)'
-      +'&order=fecha.asc,hora.asc',
-      {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON,'Accept':'application/json'}}
-    );
-    var raw=await resp.json();
-    data=Array.isArray(raw)?raw:[];
-    // Fallback: si torneo_id no trae datos, buscar por categorías
-    if(!data.length&&CATEGORIAS&&CATEGORIAS.length){
-      var allP=[];
-      for(var ci=0;ci<CATEGORIAS.length;ci++){
-        var cr2=await fetch(
-          SUPA_URL+'/rest/v1/partidos?categoria_id=eq.'+CATEGORIAS[ci].id
-          +'&select=id,nro_fecha,fecha,hora,cancha,fase,estado,pts_local,pts_visita,url_transmision,categoria_id,equipo_local,equipo_visita,local:equipo_local(nombre),visita:equipo_visita(nombre)'
-          +'&order=fecha.asc,hora.asc',
-          {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON,'Accept':'application/json'}}
-        );
-        var pd=await cr2.json();
-        if(Array.isArray(pd))allP=allP.concat(pd);
-      }
-      data=allP;
-    }
-  }catch(err){el.innerHTML='<div style="padding:20px;color:var(--text2)">Error: '+err.message+'</div>';return;}
-  // Mapear cat por id
-  var catMap={};
-  (CATEGORIAS||[]).forEach(function(cat){catMap[cat.id]=cat;});
-  // Separar próximos y finalizados
-  var proximos=data.filter(function(p){return p.estado!=='finalizado';});
-  var finalizados=data.filter(function(p){return p.estado==='finalizado';});
-  // Agrupar proximos por fecha
-  var porFechaProx={};
-  proximos.forEach(function(p){var dia=p.fecha||'Sin fecha';if(!porFechaProx[dia])porFechaProx[dia]=[];porFechaProx[dia].push(p);});
-  // Agrupar finalizados por fecha
-  var porFechaFin={};
-  finalizados.forEach(function(p){var dia=p.fecha||'Sin fecha';if(!porFechaFin[dia])porFechaFin[dia]=[];porFechaFin[dia].push(p);});
-  var diasProx=Object.keys(porFechaProx).sort();
-  var diasFin=Object.keys(porFechaFin).sort().reverse();
-  var h='';
-  if(!data.length){h='<div style="padding:20px;color:var(--text2);font-size:13px;text-align:center">Sin partidos programados aún.</div>';el.innerHTML=h;return;}
-  // PRÓXIMOS
-  if(proximos.length){
-    h+='<div class="tv-sec-label">Próximos partidos</div>';
-    diasProx.forEach(function(dia){
-      var fechaCompleta=dia!=='Sin fecha'?new Date(dia+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):dia;
-      h+='<div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin:12px 0 6px;display:flex;align-items:center;gap:8px">'+fechaCompleta+'<span style="flex:1;height:1px;background:var(--border);display:inline-block"></span></div>';
-      porFechaProx[dia].sort(function(a,b){return(a.hora||'').localeCompare(b.hora||'');});
-      porFechaProx[dia].forEach(function(p){
-        var cat=catMap[p.categoria_id]||{nombre:''};
-        var lN=(p.local&&p.local.nombre)||'?',vN=(p.visita&&p.visita.nombre)||'?';
-        var enVivo=p.estado==='en_vivo';
-        h+='<div class="mc" style="margin-bottom:8px">';
-        h+='<div class="mc-top" style="display:flex;align-items:center;justify-content:space-between">';
-        h+='<span class="mc-top-info">'+(p.hora||'Sin hora')+(p.cancha?' · '+p.cancha:'')+'</span>';
-        h+='<span style="font-size:10px;font-weight:700;color:var(--orange);letter-spacing:.5px;text-transform:uppercase">'+cat.nombre+'</span>';
-        h+='</div>';
-        h+='<div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:4px;margin-bottom:4px;padding:0 2px">';
-        h+='<div style="font-size:9px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase">Local</div><div></div>';
-        h+='<div style="font-size:9px;font-weight:700;color:var(--orange);letter-spacing:1px;text-transform:uppercase;text-align:right">Visita ✈</div></div>';
-        h+='<div class="mc-teams"><div class="mc-team">'+lN+'</div>';
-        if(enVivo)h+='<div class="mc-badge mc-badge-live" style="text-align:center;animation:pulse-live 1.2s infinite;padding:8px 20px">● EN VIVO</div>';
-        else h+='<div class="mc-vs">VS</div>';
-        h+='<div class="mc-team right">'+vN+'</div></div>';
-        h+='<div style="padding-top:6px;border-top:1px solid var(--border);text-align:center;font-size:11px;color:var(--text2)">Partido N°'+(p.nro_fecha||'—')+(p.fase&&p.fase!=='Fase Regular'?' · '+p.fase:'')+'</div>';
-        h+='</div>';
-      });
-    });
-  }else{h+='<div class="tv-sec-label">Próximos partidos</div><div style="padding:12px;color:var(--text2);font-size:13px;text-align:center">No hay partidos pendientes.</div>';}
-  // RESULTADOS
-  if(finalizados.length){
-    h+='<div class="tv-sec-label" style="margin-top:24px">Resultados</div>';
-    diasFin.forEach(function(dia){
-      var fechaCompleta=dia!=='Sin fecha'?new Date(dia+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):dia;
-      h+='<div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin:12px 0 6px;display:flex;align-items:center;gap:8px">'+fechaCompleta+'<span style="flex:1;height:1px;background:var(--border);display:inline-block"></span></div>';
-      porFechaFin[dia].sort(function(a,b){return(a.hora||'').localeCompare(b.hora||'');});
-      porFechaFin[dia].forEach(function(p){
-        var cat=catMap[p.categoria_id]||{nombre:''};
-        var lN=(p.local&&p.local.nombre)||'?',vN=(p.visita&&p.visita.nombre)||'?';
-        var lWin=p.pts_local>p.pts_visita,vWin=p.pts_visita>p.pts_local;
-        h+='<div class="mc" style="margin-bottom:8px">';
-        h+='<div class="mc-top" style="display:flex;align-items:center;justify-content:space-between">';
-        h+='<span class="mc-top-info">'+(p.hora||'')+(p.cancha?' · '+p.cancha:'')+'</span>';
-        h+='<span style="font-size:10px;font-weight:700;color:var(--orange);letter-spacing:.5px;text-transform:uppercase">'+cat.nombre+'</span>';
-        h+='</div>';
-        h+='<div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:4px;margin-bottom:4px;padding:0 2px">';
-        h+='<div style="font-size:9px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase">Local</div><div></div>';
-        h+='<div style="font-size:9px;font-weight:700;color:var(--orange);letter-spacing:1px;text-transform:uppercase;text-align:right">Visita ✈</div></div>';
-        h+='<div class="mc-teams"><div class="mc-team'+(lWin?' win':'')+' ">'+lN+'</div>';
-        h+='<div class="mc-score">'+p.pts_local+'–'+p.pts_visita+'</div>';
-        h+='<div class="mc-team right'+(vWin?' win':'')+' ">'+vN+'</div></div>';
-        h+='<div style="padding-top:6px;border-top:1px solid var(--border);text-align:center;font-size:11px;color:var(--text2)">Partido N°'+(p.nro_fecha||'—')+(p.fase&&p.fase!=='Fase Regular'?' · '+p.fase:'')+'</div>';
-        h+='</div>';
-      });
-    });
-  }
-  el.innerHTML=h;
-}
-
-/* ── PDF GENERATORS (print via window.print) ── */
-function _pdfPrint(titulo,bodyHtml){
-  var w=window.open('','_blank','width=900,height=700');
-  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+titulo+'</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#1b263b}h1{font-size:22px;margin-bottom:4px}p{color:#6c757d;font-size:13px;margin-bottom:20px}table{width:100%;border-collapse:collapse;font-size:13px}th{background:#1d3557;color:#fff;padding:8px;text-align:left}td{padding:8px;border-bottom:1px solid #dee2e6}.score{font-weight:900;font-size:16px}.section{font-weight:700;font-size:14px;color:#1d3557;margin:16px 0 8px;border-bottom:2px solid #e0e7f0;padding-bottom:4px}@media print{button{display:none}}</style></head><body>');
-  w.document.write('<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div><h1>'+titulo+'</h1><p>'+(TORNEO_ACTUAL?TORNEO_ACTUAL.nombre+' · '+TORNEO_ACTUAL.ciudad:'')+'</p></div><button onclick="window.print()">Imprimir / Guardar PDF</button></div>');
-  w.document.write(bodyHtml);
-  w.document.write('</body></html>');
-  w.document.close();
-}
-
-async function generarPDFFixture(){
-  var cat=getCatActual();if(!cat){toast('Sin categoría seleccionada','err');return;}
-  var r=await fetch(SUPA_URL+'/rest/v1/partidos?categoria_id=eq.'+cat.id+'&select=*,local:equipo_local(nombre),visita:equipo_visita(nombre)&estado=neq.finalizado&order=nro_fecha,fecha,hora',{headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}});
-  var partidos=await r.json();
-  var body='<div class="section">'+cat.nombre+' — Próximos partidos</div><table><tr><th>Fecha</th><th>Local</th><th>Visita</th><th>Día/Hora</th><th>Cancha</th></tr>';
-  (partidos||[]).forEach(function(p){
-    var dia=p.fecha?new Date(p.fecha+'T12:00:00').toLocaleDateString('es-CL',{weekday:'short',day:'2-digit',month:'short'}):'';
-    body+='<tr><td>N°'+p.nro_fecha+'</td><td>'+((p.local&&p.local.nombre)||'?')+'</td><td>'+((p.visita&&p.visita.nombre)||'?')+'</td><td>'+dia+(p.hora?' '+p.hora:'')+'</td><td>'+(p.cancha||'—')+'</td></tr>';
-  });
-  body+='</table>';
-  _pdfPrint('Programación — '+(cat.nombre||''),body);
-}
-
-async function generarPDFTabla(){
-  var cat=getCatActual();if(!cat){toast('Sin categoría seleccionada','err');return;}
-  var r=await fetch(SUPA_URL+'/rest/v1/standings?categoria_id=eq.'+cat.id+'&order=pts.desc',{headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}});
-  var rows=await r.json();
-  var body='<div class="section">'+cat.nombre+' — Tabla de posiciones</div><table><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>Dif</th><th>Pts</th></tr>';
-  (rows||[]).forEach(function(row,i){var dg=(row.gf||0)-(row.gc||0);body+='<tr><td>'+(i+1)+'</td><td>'+row.equipo_nombre+'</td><td>'+row.pj+'</td><td>'+row.pg+'</td><td>'+row.pe+'</td><td>'+row.pp+'</td><td>'+row.gf+'</td><td>'+row.gc+'</td><td>'+(dg>0?'+':'')+dg+'</td><td class="score">'+row.pts+'</td></tr>';});
-  body+='</table>';
-  _pdfPrint('Tabla de Posiciones — '+(cat.nombre||''),body);
-}
-
-async function generarPDFResultados(){
-  var cat=getCatActual();if(!cat){toast('Sin categoría seleccionada','err');return;}
-  var r=await fetch(SUPA_URL+'/rest/v1/partidos?categoria_id=eq.'+cat.id+'&select=*,local:equipo_local(nombre),visita:equipo_visita(nombre)&estado=eq.finalizado&order=nro_fecha.desc,fecha.desc',{headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}});
-  var partidos=await r.json();
-  var body='<div class="section">'+cat.nombre+' — Resultados</div><table><tr><th>Fecha</th><th>Local</th><th>Resultado</th><th>Visita</th><th>Día</th></tr>';
-  (partidos||[]).forEach(function(p){
-    var dia=p.fecha?new Date(p.fecha+'T12:00:00').toLocaleDateString('es-CL',{day:'2-digit',month:'short'}):'';
-    body+='<tr><td>N°'+p.nro_fecha+'</td><td>'+((p.local&&p.local.nombre)||'?')+'</td><td class="score" style="text-align:center">'+p.pts_local+' – '+p.pts_visita+'</td><td>'+((p.visita&&p.visita.nombre)||'?')+'</td><td>'+dia+'</td></tr>';
-  });
-  body+='</table>';
-  _pdfPrint('Resultados — '+(cat.nombre||''),body);
-}
-
-/* ── INIT ── */
-document.getElementById('pub-view').style.display='flex';
-document.getElementById('torneo-view').style.display='none';
-document.getElementById('panel-view').style.display='none';
-loadTorneos();
-// Si hay ?liga=ID en la URL, abrir ese torneo directamente
-(async function(){
-  try{
-    var params=new URLSearchParams(window.location.search);
-    var ligaId=params.get('liga');
-    if(ligaId){
-      var r=await fetch(SUPA_URL+'/rest/v1/torneos?id=eq.'+ligaId+'&select=id,nombre,ciudad,temporada&visible=eq.true&limit=1',
-        {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}});
-      var data=await r.json();
-      if(Array.isArray(data)&&data.length){
-        var t=data[0];
-        await abrirTorneo(t.id,t.nombre,t.ciudad||'',t.temporada||'');
-      }
-    }
-  }catch(e){}
-})();
-</script>
 </body>
 </html>
