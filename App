@@ -902,7 +902,21 @@ async function renderDashboard(){
   setMain(h+'</div>');
 }
 async function toggleVisible(id,visible){var r=await api('publicarTorneo',{id:id,visible:visible});if(r.success){toast(r.message,'ok');_torneoId=null;renderDashboard();}else toast(r.message,'err');}
-function abrirCrearTorneo(){openInlineModal('<div class="modal-title">Crear torneo</div><div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="ct-nombre" placeholder="Liga Municipal 2026"></div><div class="f-row"><div class="f-group"><label class="f-label">Ciudad</label><input class="f-input" id="ct-ciudad" value="'+(SESSION.ciudad||'')+'"></div><div class="f-group"><label class="f-label">Temporada</label><input class="f-input" id="ct-temporada" placeholder="2026"></div></div><div class="f-group"><label class="f-label">Descripción (opcional)</label><textarea class="f-input" id="ct-desc" rows="2"></textarea></div><button class="f-submit" onclick="guardarNuevoTorneo()">CREAR TORNEO</button>');}
+function abrirCrearTorneo(){
+  var html='<div class="modal-title">Crear torneo</div>'
+    +'<div class="f-group"><label class="f-label">Nombre</label><input class="f-input" id="ct-nombre" placeholder="Liga Municipal 2026"></div>'
+    +'<div class="f-row">'
+    +'<div class="f-group"><label class="f-label">Ciudad</label><input class="f-input" id="ct-ciudad" value="'+(SESSION.ciudad||'')+'"></div>'
+    +'<div class="f-group"><label class="f-label">Temporada</label><input class="f-input" id="ct-temporada" placeholder="2026"></div>'
+    +'</div>'
+    +'<div class="f-row">'
+    +'<div class="f-group"><label class="f-label">Fecha inicio</label><input class="f-input" id="ct-finicio" type="date"></div>'
+    +'<div class="f-group"><label class="f-label">Fecha termino</label><input class="f-input" id="ct-ffin" type="date"></div>'
+    +'</div>'
+    +'<div class="f-group"><label class="f-label">Descripcion (opcional)</label><textarea class="f-input" id="ct-desc" rows="2"></textarea></div>'
+    +'<button class="f-submit" onclick="guardarNuevoTorneo()">CREAR TORNEO</button>';
+  openInlineModal(html);
+}
 async function guardarNuevoTorneo(){var nombre=document.getElementById('ct-nombre').value.trim(),ciudad=document.getElementById('ct-ciudad').value.trim();if(!nombre||!ciudad){toast('Nombre y ciudad son obligatorios','err');return;}var r=await api('crearTorneo',{nombre:nombre,ciudad:ciudad,temporada:document.getElementById('ct-temporada').value.trim(),fecha_inicio:document.getElementById('ct-finicio').value||null,fecha_fin:document.getElementById('ct-ffin').value||null,descripcion:document.getElementById('ct-desc').value.trim()});if(r.success){toast('Torneo creado ✓','ok');closeInlineModal();_torneoId=null;renderDashboard();}else toast(r.message,'err');}
 function editarTorneo(id,encoded){
   var t=JSON.parse(decodeURIComponent(encoded));
@@ -1265,10 +1279,16 @@ async function descargarPlantillaCSV(){
 function importarFixtureCSV(){
   var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:'';
   if(!catId){toast('Selecciona una categoria','err');return;}
-  var html='<div class="modal-title">Importar fixture</div>'
+  var html='<div class="modal-title">Importar fixture desde XLS</div>'
+    +'<div style="background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--text2)">'
+    +'<b style="color:var(--text)">Instrucciones:</b><br>'
+    +'1. Descarga la plantilla XLS<br>'
+    +'2. Completa los partidos con los nombres exactos de los equipos<br>'
+    +'3. Sube el archivo completado'
+    +'</div>'
     +'<div style="margin-bottom:12px"><button class="btn-sm" style="background:var(--green);color:#fff" onclick="descargarPlantillaCSV()">Descargar plantilla XLS</button></div>'
-    +'<div class="f-group"><label class="f-label">Archivo XLS</label>'
-    +'<input type="file" id="csv-file" accept=".xls,.xlsx,.csv" class="f-input" style="padding:8px"></div>'
+    +'<div class="f-group"><label class="f-label">Subir archivo XLS completado</label>'
+    +'<input type="file" id="csv-file" accept=".xls,.xlsx" class="f-input" style="padding:8px"></div>'
     +'<div id="csv-preview" style="margin-top:10px;font-size:12px;color:var(--text2)"></div>'
     +'<button class="f-submit" id="csv-btn" style="display:none;margin-top:12px" onclick="procesarCSV()">IMPORTAR PARTIDOS</button>';
   window._csvCatId=catId;
