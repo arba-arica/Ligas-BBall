@@ -490,7 +490,7 @@ function quickAction(label,icon,onclick){return'<button class="p-card" onclick="
 async function loadTorneos(){
   var list=document.getElementById('torneos-list');
   try{
-    var torneos=await supa('torneos','?select=id,nombre,ciudad,deporte,temporada,descripcion,visible&visible=eq.true&estado=neq.eliminado&select=id,nombre,ciudad,deporte,temporada,estado,visible,fecha_inicio,fecha_fin,organizadores(nombre)&order=created_at.desc');
+    var torneos=await supa('torneos','?select=id,nombre,ciudad,deporte,temporada,estado,visible,fecha_inicio,fecha_fin,descripcion,organizadores(nombre)&visible=eq.true&estado=neq.eliminado&order=created_at.desc');
     if(!torneos||torneos.error||!torneos.length){list.innerHTML='<div style="text-align:center;padding:48px 20px"><div style="font-size:48px;margin-bottom:16px;opacity:.2"></div><div style="font-family:\'Oswald\',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px">Sin torneos activos aún</div><div style="font-size:13px;color:var(--text2);margin-bottom:20px">Sé el primero en publicar tu torneo</div><button class="btn-solid btn-orange" onclick="openModal(\'modal-solicitud\')" style="padding:12px 28px;font-size:14px;border-radius:12px">PUBLICAR MI LIGA →</button></div>';return;}
     list.innerHTML=torneos.map(function(t){
     var org=t.organizadores?t.organizadores.nombre:'';
@@ -984,6 +984,34 @@ function abrirEditarCategoria(id,enc){var c=JSON.parse(decodeURIComponent(enc));
 async function guardarEditarCategoria(id){var r=await api('actualizarCategoria',{id:id,nombre:document.getElementById('ec-nombre').value.trim(),pts_victoria:parseInt(document.getElementById('ec-vic').value)||2,pts_empate:parseInt(document.getElementById('ec-emp').value)||0,pts_derrota:parseInt(document.getElementById('ec-der').value)||1});if(r.success){toast('Actualizada ✓','ok');closeInlineModal();_catsCache=null;renderCategorias();}else toast(r.message,'err');}
 async function eliminarCategoria(id,nombre){confirmAction('¿Eliminar "'+nombre+'"?',async function(){var r=await api('eliminarCategoria',{id:id});if(r.success){toast('Eliminada','');_catsCache=null;renderCategorias();}else toast(r.message,'err');});}
 
+/* -- ORG: CATEGORIAS -- */
+async function renderCategorias(){
+  var tid=await getTorneoId();
+  var h='<div class="panel-content"><div class="panel-title">Categorías</div>';
+  if(!tid){setMain(h+'<div class="panel-sub">Crea un torneo primero</div></div>');return;}
+  h+='<button class="btn-sm btn-sm-primary" style="margin-bottom:16px" onclick="abrirCrearCategoria(\''+tid+'\')">+ Nueva categoría</button>';
+  h+='<div id="categorias-list"><div style="color:var(--text2);padding:20px;text-align:center">Cargando...</div></div></div>';
+  setMain(h);
+  var r=await api('getMisCategorias',{torneo_id:tid});
+  var el=document.getElementById('categorias-list');
+  if(!el)return;
+  if(!r.success){el.innerHTML='<div class="p-card" style="color:var(--red)">'+r.message+'</div>';return;}
+  var cats=(r.data||[]);
+  if(!cats.length){el.innerHTML='<div class="p-card" style="text-align:center;padding:32px;color:var(--text2)">Sin categorías. Crea la primera.</div>';return;}
+  var ch='';
+  cats.forEach(function(c){
+    ch+='<div class="p-card"><div class="p-card-header">'
+      +'<div><div class="p-card-title">'+c.nombre+'</div>'
+      +'<div class="p-card-sub">Victoria: '+(c.pts_victoria||2)+' pts · Empate: '+(c.pts_empate||0)+' pts · Derrota: '+(c.pts_derrota||1)+' pts</div></div>'
+      +'<div class="p-card-actions">'
+      +'<span class="badge '+(c.activo?'badge-active':'badge-draft')+'">'+(c.activo?'Activa':'Inactiva')+'</span>'
+      +'<button class="btn-sm" onclick="abrirEditarCategoria(\''+c.id+'\',\''+encodeURIComponent(JSON.stringify(c))+'\')">Editar</button>'
+      +'<button class="btn-sm btn-sm-danger" onclick="eliminarCategoria(\''+c.id+'\',\''+esc(c.nombre)+'\')">✕</button>'
+      +'</div></div></div>';
+  });
+  el.innerHTML=ch;
+}
+
 /* -- ORG: EQUIPOS -- */
 async function renderEquipos(){
   var cats=await getCats();var h='<div class="panel-content"><div class="panel-title">Equipos</div>';
@@ -1117,14 +1145,15 @@ async function guardarNuevoPartido(){
 async function abrirEditarPartido(id){
   var p=(window._partidoRegistry&&window._partidoRegistry[id])||{};
   var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:p.categoria_id;
+  window._epId=id;window._epCatId=catId;
   var re=await api('getEquiposCategoria',{categoria_id:catId});var eqs=(re.success&&re.data)?re.data:[];
   var opts=eqs.map(function(e){return'<option value="'+e.id+'"'+(e.id===p.equipo_local?' selected':'')+'>'+e.nombre+'</option>';}).join('');
   var optsV=eqs.map(function(e){return'<option value="'+e.id+'"'+(e.id===p.equipo_visita?' selected':'')+'>'+e.nombre+'</option>';}).join('');
   var fases=['Fase Regular','Cuartos de Final','Semifinal','Final'];
   openInlineModal('<div class="modal-title">Editar partido</div><div class="f-row"><div class="f-group"><label class="f-label">Local</label><select class="f-select" id="ep-local">'+opts+'</select></div><div class="f-group"><label class="f-label">Visita</label><select class="f-select" id="ep-visita">'+optsV+'</select></div></div><div class="f-row"><div class="f-group"><label class="f-label">Nro. fecha</label><input class="f-input" id="ep-nfecha" type="number" value="'+(p.nro_fecha||1)+'" min="1"></div><div class="f-group"><label class="f-label">Fase</label><select class="f-select" id="ep-fase">'+fases.map(function(f){return'<option'+(f===p.fase?' selected':'')+'>'+f+'</option>';}).join('')+'</select></div></div><div class="f-row"><div class="f-group"><label class="f-label">Fecha</label><input class="f-input" id="ep-fecha" type="date" value="'+(p.fecha||'')+'"></div><div class="f-group"><label class="f-label">Hora</label><input class="f-input" id="ep-hora" type="time" value="'+(p.hora||'')+'"></div></div><div class="f-group"><label class="f-label">Cancha</label><input class="f-input" id="ep-cancha" value="'+(p.cancha||'')+'"></div><div class="f-group"><label class="f-label">URL transmisión</label><input class="f-input" id="ep-url" value="'+(p.url_transmision||'')+'"></div><button class="f-submit" onclick="guardarEditarPartido(\''+id+'\',\''+catId+'\')">GUARDAR</button>');
 }
-async function guardarEditarPartido(){
-  var id=window._epId||'',catId=window._epCatId||'';
+async function guardarEditarPartido(id,catId){
+  id=id||window._epId||'';catId=catId||window._epCatId||'';
   var btn=document.getElementById('ep-submit');if(btn){btn.disabled=true;btn.textContent='Guardando...';}
   var r=await api('actualizarPartido',{
     id:id,
