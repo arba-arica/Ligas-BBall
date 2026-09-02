@@ -1406,7 +1406,8 @@ function importarFixtureCSV(){
           previewHtml+='<b style="color:var(--text)">'+dataRows.length+' partidos detectados</b>';
           previewHtml+='<div style="margin-top:8px;font-size:11px;color:var(--text2)">';
           dataRows.slice(0,3).forEach(function(r){
-            var loc=xlsCellStr(r[7])||'Por definir',vis=xlsCellStr(r[8])||'Por definir',fch=xlsCellStr(r[2]);
+            var iL=r.length>=9?7:6, iV=r.length>=9?8:7;
+            var loc=xlsCellStr(r[iL])||'Por definir',vis=xlsCellStr(r[iV])||'Por definir',fch=xlsCellStr(r[2]);
             previewHtml+='<div style="padding:2px 0">['+xlsCellStr(r[0])+'] '+loc+' vs '+vis+(fch?' · '+fch:'')+'</div>';
           });
           if(dataRows.length>3)previewHtml+='<div>... y '+(dataRows.length-3)+' más</div>';
@@ -1444,18 +1445,22 @@ async function procesarCSV(){
   var catsAfectadas={};
   for(var i=0;i<rows.length;i++){
     var cols=rows[i].map(function(v){return xlsCellStr(v);});
-    if(cols.length<9)continue;
-    // Columnas: 0=Categoria, 1=NroFecha, 2=Fecha, 3=Hora, 4=Cancha, 5=Fase, 6=Grupo, 7=Local, 8=Visita
+    if(cols.length<8){errors.push('Fila '+(i+2)+': fila con muy pocas columnas, se omite');continue;}
+    // Formato nuevo (9 cols, con Grupo): 0=Categoria,1=NroFecha,2=Fecha,3=Hora,4=Cancha,5=Fase,6=Grupo,7=Local,8=Visita
+    // Formato antiguo (8 cols, sin Grupo): 0=Categoria,1=NroFecha,2=Fecha,3=Hora,4=Cancha,5=Fase,6=Local,7=Visita
+    var iGrupo,iLocal,iVisita;
+    if(cols.length>=9){iGrupo=6;iLocal=7;iVisita=8;}
+    else{iGrupo=-1;iLocal=6;iVisita=7;}
     var catId=cMap[cols[0].toLowerCase().trim()];
     if(!catId){
       errors.push('Fila '+(i+2)+': categoría no encontrada ("'+cols[0]+'")');
       continue;
     }
     // Equipo local/visita: pueden venir en blanco (partido "por definir", ej. semifinal/final)
-    var localId=cols[7]?eMap[catId+'||'+cols[7].toLowerCase().trim()]:null;
-    var visitaId=cols[8]?eMap[catId+'||'+cols[8].toLowerCase().trim()]:null;
-    if(cols[7]&&!localId){errors.push('Fila '+(i+2)+' ['+cols[0]+']: equipo local no encontrado ("'+cols[7]+'")');continue;}
-    if(cols[8]&&!visitaId){errors.push('Fila '+(i+2)+' ['+cols[0]+']: equipo visita no encontrado ("'+cols[8]+'")');continue;}
+    var localId=cols[iLocal]?eMap[catId+'||'+cols[iLocal].toLowerCase().trim()]:null;
+    var visitaId=cols[iVisita]?eMap[catId+'||'+cols[iVisita].toLowerCase().trim()]:null;
+    if(cols[iLocal]&&!localId){errors.push('Fila '+(i+2)+' ['+cols[0]+']: equipo local no encontrado ("'+cols[iLocal]+'")');continue;}
+    if(cols[iVisita]&&!visitaId){errors.push('Fila '+(i+2)+' ['+cols[0]+']: equipo visita no encontrado ("'+cols[iVisita]+'")');continue;}
     if(localId&&visitaId&&localId===visitaId){errors.push('Fila '+(i+2)+': local y visita iguales');continue;}
     var r=await api('crearPartido',{
       categoria_id:catId,
@@ -1464,7 +1469,7 @@ async function procesarCSV(){
       hora:cols[3]||null,
       cancha:cols[4]||null,
       fase:cols[5]||'Fase Regular',
-      grupo:cols[6]||null,
+      grupo:iGrupo>=0?(cols[iGrupo]||null):null,
       equipo_local:localId,
       equipo_visita:visitaId
     });
