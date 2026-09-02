@@ -1290,6 +1290,20 @@ async function eliminarSancion(id){var catId=document.getElementById('san-cat-se
 
 
 /* == EXCEL IMPORT/EXPORT == */
+function xlsCellStr(v){
+  if(v instanceof Date&&!isNaN(v)){
+    // Excel entrega fechas/horas en UTC. Las celdas de solo-hora quedan ancladas
+    // a la fecha época 1899-12-30/31 — en ese caso devolver HH:MM en vez de la fecha.
+    var y=v.getUTCFullYear(),mo=v.getUTCMonth(),d=v.getUTCDate();
+    if(y===1899&&mo===11&&(d===30||d===31)){
+      var hh=String(v.getUTCHours()).padStart(2,'0'),mm=String(v.getUTCMinutes()).padStart(2,'0');
+      return hh+':'+mm;
+    }
+    var m=String(mo+1).padStart(2,'0'),dd=String(d).padStart(2,'0');
+    return y+'-'+m+'-'+dd;
+  }
+  return String(v||'').trim();
+}
 function xlsDescarga(rows, filename){
   // XLSX real usando SheetJS
   var ws = XLSX.utils.aoa_to_sheet(rows);
@@ -1370,7 +1384,7 @@ function importarFixtureCSV(){
         try{
           // Leer XLSX con SheetJS
           var data=new Uint8Array(ev.target.result);
-          var wb=XLSX.read(data,{type:'array'});
+          var wb=XLSX.read(data,{type:'array',cellDates:true});
           var ws=wb.Sheets[wb.SheetNames[0]];
           var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
           // Filtrar filas vacías, filas de referencia y quitar header
@@ -1392,8 +1406,8 @@ function importarFixtureCSV(){
           previewHtml+='<b style="color:var(--text)">'+dataRows.length+' partidos detectados</b>';
           previewHtml+='<div style="margin-top:8px;font-size:11px;color:var(--text2)">';
           dataRows.slice(0,3).forEach(function(r){
-            var loc=String(r[7]||'').trim()||'Por definir',vis=String(r[8]||'').trim()||'Por definir';
-            previewHtml+='<div style="padding:2px 0">['+String(r[0]||'').trim()+'] '+loc+' vs '+vis+(r[2]?' · '+r[2]:'')+'</div>';
+            var loc=xlsCellStr(r[7])||'Por definir',vis=xlsCellStr(r[8])||'Por definir',fch=xlsCellStr(r[2]);
+            previewHtml+='<div style="padding:2px 0">['+xlsCellStr(r[0])+'] '+loc+' vs '+vis+(fch?' · '+fch:'')+'</div>';
           });
           if(dataRows.length>3)previewHtml+='<div>... y '+(dataRows.length-3)+' más</div>';
           previewHtml+='</div></div>';
@@ -1429,7 +1443,7 @@ async function procesarCSV(){
   var imported=0;
   var catsAfectadas={};
   for(var i=0;i<rows.length;i++){
-    var cols=rows[i].map(function(v){return String(v||'').trim();});
+    var cols=rows[i].map(function(v){return xlsCellStr(v);});
     if(cols.length<9)continue;
     // Columnas: 0=Categoria, 1=NroFecha, 2=Fecha, 3=Hora, 4=Cancha, 5=Fase, 6=Grupo, 7=Local, 8=Visita
     var catId=cMap[cols[0].toLowerCase().trim()];
