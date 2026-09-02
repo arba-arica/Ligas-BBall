@@ -1087,7 +1087,7 @@ async function cargarFixturePanel(catId){
   var r=await api('getPartidosCategoria',{categoria_id:catId});
   if(!r.success||!r.data.length){el.innerHTML='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin partidos.</div>';return;}
   var grupos={};r.data.forEach(function(p){var k='Fecha '+(p.nro_fecha||'—');if(!grupos[k])grupos[k]=[];grupos[k].push(p);});
-  var h='';Object.keys(grupos).forEach(function(g){h+='<div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 6px">'+g+'</div>';grupos[g].forEach(function(p){var lN=p.local?p.local.nombre:'?',vN=p.visita?p.visita.nombre:'?',fin=p.estado==='finalizado';var fechaCompleta=p.fecha?new Date(p.fecha+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'Sin fecha';
+  var h='';Object.keys(grupos).forEach(function(g){h+='<div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 6px">'+g+'</div>';grupos[g].forEach(function(p){var falta=(!p.equipo_local||!p.equipo_visita);var lN=p.local?p.local.nombre:'Por definir',vN=p.visita?p.visita.nombre:'Por definir',fin=p.estado==='finalizado';var fechaCompleta=p.fecha?new Date(p.fecha+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'Sin fecha';
       window._partidoRegistry=window._partidoRegistry||{};
       window._partidoRegistry[p.id]=p;
       h+='<div class="p-card" style="margin-bottom:6px"><div class="p-card-header"><div style="flex:1">'
@@ -1095,6 +1095,7 @@ async function cargarFixturePanel(catId){
         +'<div class="p-card-sub">'+fechaCompleta+(p.hora?' · '+p.hora:'')+(p.cancha?' · '+p.cancha:'')+' · '+(p.fase||'')+'</div>'
         +(fin?'<div style="font-size:12px;color:var(--orange);font-weight:700;margin-top:2px">Resultado: '+p.pts_local+' – '+p.pts_visita+'</div>':'')
         +'</div><div class="p-card-actions">'
+        +(falta&&!fin?'<button class="btn-sm" style="background:var(--orange);color:#fff" onclick="abrirAsignarEquipo(\''+p.id+'\')">Asignar equipo</button>':'')
         +((!fin)?'<button class="btn-sm" onclick="abrirEditarPartido(\''+p.id+'\')">Editar</button>':'')
         +'<button class="btn-sm btn-sm-danger" onclick="eliminarPartido(\''+p.id+'\')">✕</button>'
         +'</div></div></div>';});});
@@ -1104,9 +1105,10 @@ async function abrirCrearPartido(){
   var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:'';
   var re=await api('getEquiposCategoria',{categoria_id:catId});
   var eqs=(re.success&&re.data)?re.data:[];
-  if(eqs.length<2){toast('Necesitas al menos 2 equipos en esta categoría','err');return;}
-  var opts=eqs.map(function(e){return'<option value="'+e.id+'">'+e.nombre+'</option>';}).join('');
+  var optsBase='<option value="">Por definir</option>'+eqs.map(function(e){return'<option value="'+e.id+'">'+e.nombre+'</option>';}).join('');
+  var opts=optsBase;
   var html='<div class="modal-title">Nuevo partido</div>'
+    +'<div style="font-size:11px;color:var(--text2);margin-bottom:10px">Deja "Por definir" si aún no se conocen los equipos (ej. semifinal/final pendiente de fase de grupos).</div>'
     +'<div class="f-row">'
     +'<div class="f-group"><label class="f-label">Local</label><select class="f-select" id="np-local">'+opts+'</select></div>'
     +'<div class="f-group"><label class="f-label">✈ Visita</label><select class="f-select" id="np-visita">'+opts+'</select></div>'
@@ -1128,7 +1130,7 @@ async function abrirCrearPartido(){
 async function guardarNuevoPartido(){
   var catId=window._npCatId||'';
   var loc=document.getElementById('np-local').value,vis=document.getElementById('np-visita').value;
-  if(loc===vis){toast('Local y visita no pueden ser el mismo equipo','err');return;}
+  if(loc&&vis&&loc===vis){toast('Local y visita no pueden ser el mismo equipo','err');return;}
   var btn=document.getElementById('np-submit');if(btn){btn.disabled=true;btn.textContent='Guardando...';}
   var r=await api('crearPartido',{
     categoria_id:catId,equipo_local:loc,equipo_visita:vis,
@@ -1147,8 +1149,8 @@ async function abrirEditarPartido(id){
   var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:p.categoria_id;
   window._epId=id;window._epCatId=catId;
   var re=await api('getEquiposCategoria',{categoria_id:catId});var eqs=(re.success&&re.data)?re.data:[];
-  var opts=eqs.map(function(e){return'<option value="'+e.id+'"'+(e.id===p.equipo_local?' selected':'')+'>'+e.nombre+'</option>';}).join('');
-  var optsV=eqs.map(function(e){return'<option value="'+e.id+'"'+(e.id===p.equipo_visita?' selected':'')+'>'+e.nombre+'</option>';}).join('');
+  var opts='<option value=""'+(!p.equipo_local?' selected':'')+'>Por definir</option>'+eqs.map(function(e){return'<option value="'+e.id+'"'+(e.id===p.equipo_local?' selected':'')+'>'+e.nombre+'</option>';}).join('');
+  var optsV='<option value=""'+(!p.equipo_visita?' selected':'')+'>Por definir</option>'+eqs.map(function(e){return'<option value="'+e.id+'"'+(e.id===p.equipo_visita?' selected':'')+'>'+e.nombre+'</option>';}).join('');
   var fases=['Fase Regular','Cuartos de Final','Semifinal','Final'];
   openInlineModal('<div class="modal-title">Editar partido</div><div class="f-row"><div class="f-group"><label class="f-label">Local</label><select class="f-select" id="ep-local">'+opts+'</select></div><div class="f-group"><label class="f-label">Visita</label><select class="f-select" id="ep-visita">'+optsV+'</select></div></div><div class="f-row"><div class="f-group"><label class="f-label">Nro. fecha</label><input class="f-input" id="ep-nfecha" type="number" value="'+(p.nro_fecha||1)+'" min="1"></div><div class="f-group"><label class="f-label">Fase</label><select class="f-select" id="ep-fase">'+fases.map(function(f){return'<option'+(f===p.fase?' selected':'')+'>'+f+'</option>';}).join('')+'</select></div></div><div class="f-row"><div class="f-group"><label class="f-label">Fecha</label><input class="f-input" id="ep-fecha" type="date" value="'+(p.fecha||'')+'"></div><div class="f-group"><label class="f-label">Hora</label><input class="f-input" id="ep-hora" type="time" value="'+(p.hora||'')+'"></div></div><div class="f-group"><label class="f-label">Cancha</label><input class="f-input" id="ep-cancha" value="'+(p.cancha||'')+'"></div><div class="f-group"><label class="f-label">URL transmisión</label><input class="f-input" id="ep-url" value="'+(p.url_transmision||'')+'"></div><button class="f-submit" onclick="guardarEditarPartido(\''+id+'\',\''+catId+'\')">GUARDAR</button>');
 }
@@ -1170,6 +1172,43 @@ async function guardarEditarPartido(id,catId){
   else{toast(r.message,'err');if(btn){btn.disabled=false;btn.textContent='GUARDAR CAMBIOS';}}
 }
 async function eliminarPartido(id){var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:'';confirmAction('¿Eliminar este partido?',async function(){var r=await api('eliminarPartido',{id:id});if(r.success){toast('Eliminado','');if(catId)cargarFixturePanel(catId);}else toast(r.message,'err');});}
+
+async function abrirAsignarEquipo(id){
+  var p=(window._partidoRegistry&&window._partidoRegistry[id])||{};
+  var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:p.categoria_id;
+  window._aeId=id;window._aeCatId=catId;
+  var re=await api('getEquiposCategoria',{categoria_id:catId});var eqs=(re.success&&re.data)?re.data:[];
+  var optsFor=function(sel){return'<option value="">Por definir</option>'+eqs.map(function(e){return'<option value="'+e.id+'"'+(e.id===sel?' selected':'')+'>'+e.nombre+'</option>';}).join('');};
+  var faseTxt=p.fase?' · '+p.fase:'';
+  var html='<div class="modal-title">Asignar equipo</div>'
+    +'<div style="font-size:12px;color:var(--text2);margin-bottom:12px">Partido'+faseTxt+(p.fecha?' · '+p.fecha:'')+'</div>'
+    +'<div class="f-row">'
+    +'<div class="f-group"><label class="f-label">Local</label><select class="f-select" id="ae-local">'+optsFor(p.equipo_local)+'</select></div>'
+    +'<div class="f-group"><label class="f-label">✈ Visita</label><select class="f-select" id="ae-visita">'+optsFor(p.equipo_visita)+'</select></div>'
+    +'</div>'
+    +'<button class="f-submit" id="ae-submit" onclick="guardarAsignarEquipo()">GUARDAR</button>';
+  openInlineModal(html);
+}
+async function guardarAsignarEquipo(){
+  var id=window._aeId||'',catId=window._aeCatId||'';
+  var p=(window._partidoRegistry&&window._partidoRegistry[id])||{};
+  var loc=document.getElementById('ae-local').value,vis=document.getElementById('ae-visita').value;
+  if(loc&&vis&&loc===vis){toast('Local y visita no pueden ser el mismo equipo','err');return;}
+  var btn=document.getElementById('ae-submit');if(btn){btn.disabled=true;btn.textContent='Guardando...';}
+  var r=await api('actualizarPartido',{
+    id:id,
+    equipo_local:loc,
+    equipo_visita:vis,
+    nro_fecha:p.nro_fecha||1,
+    fase:p.fase||'Fase Regular',
+    fecha:p.fecha||null,
+    hora:p.hora||null,
+    cancha:p.cancha||null,
+    url_transmision:p.url_transmision||null
+  });
+  if(r.success){toast('Equipo asignado ✓','ok');closeInlineModal();cargarFixturePanel(catId);}
+  else{toast(r.message,'err');if(btn){btn.disabled=false;btn.textContent='GUARDAR';}}
+}
 
 /* -- ORG: RESULTADOS -- */
 async function renderResultadosPanel(){
@@ -1251,64 +1290,69 @@ function xlsDescarga(rows, filename){
   // XLSX real usando SheetJS
   var ws = XLSX.utils.aoa_to_sheet(rows);
   // Ancho de columnas
-  ws['!cols'] = [{wch:10},{wch:14},{wch:10},{wch:18},{wch:14},{wch:22},{wch:22}];
+  ws['!cols'] = [{wch:16},{wch:10},{wch:14},{wch:10},{wch:18},{wch:14},{wch:22},{wch:22}];
   var wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Fixture');
   XLSX.writeFile(wb, filename);
 }
 
 async function exportarFixtureCSV(){
-  var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:'';
-  if(!catId){toast('Selecciona una categoria','err');return;}
-  var r=await api('getPartidosCategoria',{categoria_id:catId});
-  if(!r.success){toast('Error al cargar partidos','err');return;}
-  var rows=[['Nro Fecha','Fecha','Hora','Cancha','Fase','Equipo Local','Equipo Visita','Estado']];
-  (r.data||[]).forEach(function(p){
-    rows.push([
-      p.nro_fecha||1,
-      p.fecha||'',
-      p.hora||'',
-      p.cancha||'',
-      p.fase||'Fase Regular',
-      p.local?p.local.nombre:'',
-      p.visita?p.visita.nombre:'',
-      p.estado||'programado'
-    ]);
-  });
-  await xlsDescarga(rows,'fixture.xlsx');
+  var cats=await getCats();
+  if(!cats.length){toast('No hay categorías en este torneo','err');return;}
+  var rows=[['Categoria','Nro Fecha','Fecha','Hora','Cancha','Fase','Equipo Local','Equipo Visita','Estado']];
+  for(var c=0;c<cats.length;c++){
+    var r=await api('getPartidosCategoria',{categoria_id:cats[c].id});
+    if(!r.success)continue;
+    (r.data||[]).forEach(function(p){
+      rows.push([
+        cats[c].nombre,
+        p.nro_fecha||1,
+        p.fecha||'',
+        p.hora||'',
+        p.cancha||'',
+        p.fase||'Fase Regular',
+        p.local?p.local.nombre:'',
+        p.visita?p.visita.nombre:'',
+        p.estado||'programado'
+      ]);
+    });
+  }
+  if(rows.length===1){toast('No hay partidos programados en este torneo','err');return;}
+  await xlsDescarga(rows,'fixture_completo.xlsx');
   toast('Fixture exportado','ok');
 }
 
 async function descargarPlantillaCSV(){
-  var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:'';
-  var equiposRef=[];
-  if(catId){
-    var re=await api('getEquiposCategoria',{categoria_id:catId});
-    if(re.success&&re.data&&re.data.length){equiposRef=re.data.map(function(e){return e.nombre;});}
+  var cats=await getCats();
+  var rows=[['Categoria','Nro Fecha','Fecha (YYYY-MM-DD)','Hora (HH:MM)','Cancha','Fase','Equipo Local','Equipo Visita']];
+  var catEjemplo=cats.length?cats[0].nombre:'Ej: U13';
+  rows.push([catEjemplo,'1','2026-06-15','19:00','Gimnasio','Fase Regular','Equipo A','Equipo B']);
+  rows.push(['— Deja Equipo Local / Visita en blanco si aún no se conoce (semifinal, final por definir) —','','','','','','','']);
+  for(var c=0;c<cats.length;c++){
+    var re=await api('getEquiposCategoria',{categoria_id:cats[c].id});
+    var eqs=(re.success&&re.data)?re.data:[];
+    if(!eqs.length)continue;
+    rows.push(['','','','','','','Equipos '+cats[c].nombre+':','']);
+    eqs.forEach(function(e){rows.push(['','','','','','',e.nombre,'']);});
   }
-  var rows=[['Nro Fecha','Fecha (YYYY-MM-DD)','Hora (HH:MM)','Cancha','Fase','Equipo Local','Equipo Visita']];
-  rows.push(['1','2026-06-15','19:00','Gimnasio','Fase Regular','Equipo A','Equipo B']);
-  if(equiposRef.length){rows.push(['','','','','','Equipos disponibles:','']);equiposRef.forEach(function(e){rows.push(['','','','','',e,'']);});}
   await xlsDescarga(rows,'plantilla_fixture.xlsx');
   toast('Plantilla descargada','ok');
 }
 
 function importarFixtureCSV(){
-  var catId=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:'';
-  if(!catId){toast('Selecciona una categoria','err');return;}
-  var html='<div class="modal-title">Importar fixture desde XLS</div>'
+  var html='<div class="modal-title">Importar fixture completo</div>'
     +'<div style="background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--text2)">'
     +'<b style="color:var(--text)">Instrucciones:</b><br>'
     +'1. Descarga la plantilla XLS<br>'
-    +'2. Completa los partidos con los nombres exactos de los equipos<br>'
-    +'3. Sube el archivo completado'
+    +'2. Completa los partidos de TODAS las categorías, con el nombre de categoría y de equipos exactos<br>'
+    +'3. Deja Equipo Local / Visita en blanco si aún no se define (ej. semifinal/final pendiente) — luego se asigna con el botón "Asignar equipo"<br>'
+    +'4. Sube el archivo completado'
     +'</div>'
     +'<div style="margin-bottom:12px"><button class="btn-sm" style="background:var(--green);color:#fff" onclick="descargarPlantillaCSV()">Descargar plantilla XLS</button></div>'
     +'<div class="f-group"><label class="f-label">Subir archivo XLS completado</label>'
     +'<input type="file" id="csv-file" accept=".xlsx,.xls" class="f-input" style="padding:8px"></div>'
     +'<div id="csv-preview" style="margin-top:10px;font-size:12px;color:var(--text2)"></div>'
     +'<button class="f-submit" id="csv-btn" style="display:none;margin-top:12px" onclick="procesarCSV()">IMPORTAR PARTIDOS</button>';
-  window._csvCatId=catId;
   openInlineModal(html);
   setTimeout(function(){
     var fi=document.getElementById('csv-file');
@@ -1324,10 +1368,14 @@ function importarFixtureCSV(){
           var wb=XLSX.read(data,{type:'array'});
           var ws=wb.Sheets[wb.SheetNames[0]];
           var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-          // Filtrar filas vacías y quitar header
-          var dataRows=rows.slice(1).filter(function(r){return r.some(function(v){return String(v||'').trim();});});
+          // Filtrar filas vacías, filas de referencia y quitar header
+          var dataRows=rows.slice(1).filter(function(r){
+            var c0=String(r[0]||'').trim();
+            if(!c0)return false;
+            if(c0.indexOf('Equipos ')===0||c0.indexOf('—')===0)return false;
+            return r.some(function(v){return String(v||'').trim();});
+          });
           window._xlsRows=dataRows;
-          window._csvCatId=catId;
           var prev=document.getElementById('csv-preview');
           var btn=document.getElementById('csv-btn');
           if(dataRows.length===0){
@@ -1339,7 +1387,8 @@ function importarFixtureCSV(){
           previewHtml+='<b style="color:var(--text)">'+dataRows.length+' partidos detectados</b>';
           previewHtml+='<div style="margin-top:8px;font-size:11px;color:var(--text2)">';
           dataRows.slice(0,3).forEach(function(r){
-            previewHtml+='<div style="padding:2px 0">'+[r[5],r[6]].join(' vs ')+(r[1]?' · '+r[1]:'')+'</div>';
+            var loc=String(r[6]||'').trim()||'Por definir',vis=String(r[7]||'').trim()||'Por definir';
+            previewHtml+='<div style="padding:2px 0">['+String(r[0]||'').trim()+'] '+loc+' vs '+vis+(r[2]?' · '+r[2]:'')+'</div>';
           });
           if(dataRows.length>3)previewHtml+='<div>... y '+(dataRows.length-3)+' más</div>';
           previewHtml+='</div></div>';
@@ -1357,45 +1406,56 @@ function importarFixtureCSV(){
 
 async function procesarCSV(){
   var rows=window._xlsRows||[];
-  var catId=window._csvCatId||'';
-  if(!rows.length||!catId){toast('Carga un archivo primero','err');return;}
+  if(!rows.length){toast('Carga un archivo primero','err');return;}
   var btn=document.getElementById('csv-btn');
   if(btn){btn.disabled=true;btn.textContent='Importando...';}
-  // Traer equipos para mapear nombre -> id
-  var re=await api('getEquiposCategoria',{categoria_id:catId});
-  var equipos=(re.success&&re.data)?re.data:[];
+  // Mapa categoria nombre -> id
+  var cats=await getCats();
+  var cMap={};
+  cats.forEach(function(c){cMap[c.nombre.toLowerCase().trim()]=c.id;});
+  // Mapa equipos por categoria: catId + '||' + nombre -> id
   var eMap={};
-  equipos.forEach(function(e){eMap[e.nombre.toLowerCase().trim()]=e.id;});
+  for(var c=0;c<cats.length;c++){
+    var re=await api('getEquiposCategoria',{categoria_id:cats[c].id});
+    var eqs=(re.success&&re.data)?re.data:[];
+    eqs.forEach(function(e){eMap[cats[c].id+'||'+e.nombre.toLowerCase().trim()]=e.id;});
+  }
   var errors=[];
   var imported=0;
+  var catsAfectadas={};
   for(var i=0;i<rows.length;i++){
     var cols=rows[i].map(function(v){return String(v||'').trim();});
-    if(cols.length<7)continue;
-    // Columnas: 0=NroFecha, 1=Fecha, 2=Hora, 3=Cancha, 4=Fase, 5=Local, 6=Visita
-    var localId=eMap[cols[5].toLowerCase().trim()];
-    var visitaId=eMap[cols[6].toLowerCase().trim()];
-    if(!localId||!visitaId){
-      errors.push('Fila '+(i+2)+': equipo no encontrado ("'+cols[5]+'" / "'+cols[6]+'")');
+    if(cols.length<8)continue;
+    // Columnas: 0=Categoria, 1=NroFecha, 2=Fecha, 3=Hora, 4=Cancha, 5=Fase, 6=Local, 7=Visita
+    var catId=cMap[cols[0].toLowerCase().trim()];
+    if(!catId){
+      errors.push('Fila '+(i+2)+': categoría no encontrada ("'+cols[0]+'")');
       continue;
     }
-    if(localId===visitaId){errors.push('Fila '+(i+2)+': local y visita iguales');continue;}
+    // Equipo local/visita: pueden venir en blanco (partido "por definir", ej. semifinal/final)
+    var localId=cols[6]?eMap[catId+'||'+cols[6].toLowerCase().trim()]:null;
+    var visitaId=cols[7]?eMap[catId+'||'+cols[7].toLowerCase().trim()]:null;
+    if(cols[6]&&!localId){errors.push('Fila '+(i+2)+' ['+cols[0]+']: equipo local no encontrado ("'+cols[6]+'")');continue;}
+    if(cols[7]&&!visitaId){errors.push('Fila '+(i+2)+' ['+cols[0]+']: equipo visita no encontrado ("'+cols[7]+'")');continue;}
+    if(localId&&visitaId&&localId===visitaId){errors.push('Fila '+(i+2)+': local y visita iguales');continue;}
     var r=await api('crearPartido',{
       categoria_id:catId,
-      nro_fecha:parseInt(cols[0])||1,
-      fecha:cols[1]||null,
-      hora:cols[2]||null,
-      cancha:cols[3]||null,
-      fase:cols[4]||'Fase Regular',
+      nro_fecha:parseInt(cols[1])||1,
+      fecha:cols[2]||null,
+      hora:cols[3]||null,
+      cancha:cols[4]||null,
+      fase:cols[5]||'Fase Regular',
       equipo_local:localId,
       equipo_visita:visitaId
     });
-    if(r.success)imported++;
+    if(r.success){imported++;catsAfectadas[catId]=true;}
     else errors.push('Fila '+(i+2)+': '+r.message);
   }
   closeInlineModal();
   if(errors.length){toast(imported+' importados, '+errors.length+' errores','err');console.warn(errors);}
   else toast(imported+' partidos importados','ok');
-  cargarFixturePanel(catId);
+  var catActual=document.getElementById('fx-cat-sel')?document.getElementById('fx-cat-sel').value:'';
+  if(catActual)cargarFixturePanel(catActual);
 }
 
 
