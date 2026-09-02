@@ -1087,12 +1087,12 @@ async function cargarFixturePanel(catId){
   var r=await api('getPartidosCategoria',{categoria_id:catId});
   if(!r.success||!r.data.length){el.innerHTML='<div class="p-card" style="text-align:center;padding:24px;color:var(--text2)">Sin partidos.</div>';return;}
   var grupos={};r.data.forEach(function(p){var k='Fecha '+(p.nro_fecha||'—');if(!grupos[k])grupos[k]=[];grupos[k].push(p);});
-  var h='';Object.keys(grupos).forEach(function(g){h+='<div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 6px">'+g+'</div>';grupos[g].forEach(function(p){var falta=(!p.equipo_local||!p.equipo_visita);var lN=p.local?p.local.nombre:'Por definir',vN=p.visita?p.visita.nombre:'Por definir',fin=p.estado==='finalizado';var fechaCompleta=p.fecha?new Date(p.fecha+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'Sin fecha';
+  var h='';Object.keys(grupos).forEach(function(g){h+='<div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 6px">'+g+'</div>';grupos[g].forEach(function(p){var falta=(!p.equipo_local||!p.equipo_visita);var lN=p.local?p.local.nombre:'Por definir',vN=p.visita?p.visita.nombre:'Por definir',fin=p.estado==='finalizado';var fechaCompleta=p.fecha?new Date(p.fecha+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'Sin fecha';var faseInfo=p.grupo?(p.fase||'')+' · Grupo '+p.grupo:(p.fase||'');
       window._partidoRegistry=window._partidoRegistry||{};
       window._partidoRegistry[p.id]=p;
       h+='<div class="p-card" style="margin-bottom:6px"><div class="p-card-header"><div style="flex:1">'
         +'<div style="font-size:13px;font-weight:700;color:var(--text)">'+lN+' <span style="color:var(--blue);font-size:11px">LOCAL</span> vs '+vN+' <span style="color:var(--orange);font-size:11px">VISITA</span></div>'
-        +'<div class="p-card-sub">'+fechaCompleta+(p.hora?' · '+p.hora:'')+(p.cancha?' · '+p.cancha:'')+' · '+(p.fase||'')+'</div>'
+        +'<div class="p-card-sub">'+fechaCompleta+(p.hora?' · '+p.hora:'')+(p.cancha?' · '+p.cancha:'')+' · '+faseInfo+'</div>'
         +(fin?'<div style="font-size:12px;color:var(--orange);font-weight:700;margin-top:2px">Resultado: '+p.pts_local+' – '+p.pts_visita+'</div>':'')
         +'</div><div class="p-card-actions">'
         +(falta&&!fin?'<button class="btn-sm" style="background:var(--orange);color:#fff" onclick="abrirAsignarEquipo(\''+p.id+'\')">Asignar equipo</button>':'')
@@ -1117,6 +1117,7 @@ async function abrirCrearPartido(){
     +'<div class="f-group"><label class="f-label">Nro. fecha</label><input class="f-input" id="np-nfecha" type="number" value="1" min="1"></div>'
     +'<div class="f-group"><label class="f-label">Fase</label><select class="f-select" id="np-fase"><option>Fase Regular</option><option>Cuartos de Final</option><option>Semifinal</option><option>Final</option></select></div>'
     +'</div>'
+    +'<div class="f-group"><label class="f-label">Grupo (opcional, solo fase de grupos)</label><input class="f-input" id="np-grupo" placeholder="Ej: A"></div>'
     +'<div class="f-row">'
     +'<div class="f-group"><label class="f-label">Fecha</label><input class="f-input" id="np-fecha" type="date"></div>'
     +'<div class="f-group"><label class="f-label">Hora</label><input class="f-input" id="np-hora" type="time"></div>'
@@ -1136,6 +1137,7 @@ async function guardarNuevoPartido(){
     categoria_id:catId,equipo_local:loc,equipo_visita:vis,
     nro_fecha:parseInt(document.getElementById('np-nfecha').value)||1,
     fase:document.getElementById('np-fase').value,
+    grupo:document.getElementById('np-grupo').value.trim()||null,
     fecha:document.getElementById('np-fecha').value||null,
     hora:document.getElementById('np-hora').value||null,
     cancha:document.getElementById('np-cancha').value.trim()||null,
@@ -1152,7 +1154,7 @@ async function abrirEditarPartido(id){
   var opts='<option value=""'+(!p.equipo_local?' selected':'')+'>Por definir</option>'+eqs.map(function(e){return'<option value="'+e.id+'"'+(e.id===p.equipo_local?' selected':'')+'>'+e.nombre+'</option>';}).join('');
   var optsV='<option value=""'+(!p.equipo_visita?' selected':'')+'>Por definir</option>'+eqs.map(function(e){return'<option value="'+e.id+'"'+(e.id===p.equipo_visita?' selected':'')+'>'+e.nombre+'</option>';}).join('');
   var fases=['Fase Regular','Cuartos de Final','Semifinal','Final'];
-  openInlineModal('<div class="modal-title">Editar partido</div><div class="f-row"><div class="f-group"><label class="f-label">Local</label><select class="f-select" id="ep-local">'+opts+'</select></div><div class="f-group"><label class="f-label">Visita</label><select class="f-select" id="ep-visita">'+optsV+'</select></div></div><div class="f-row"><div class="f-group"><label class="f-label">Nro. fecha</label><input class="f-input" id="ep-nfecha" type="number" value="'+(p.nro_fecha||1)+'" min="1"></div><div class="f-group"><label class="f-label">Fase</label><select class="f-select" id="ep-fase">'+fases.map(function(f){return'<option'+(f===p.fase?' selected':'')+'>'+f+'</option>';}).join('')+'</select></div></div><div class="f-row"><div class="f-group"><label class="f-label">Fecha</label><input class="f-input" id="ep-fecha" type="date" value="'+(p.fecha||'')+'"></div><div class="f-group"><label class="f-label">Hora</label><input class="f-input" id="ep-hora" type="time" value="'+(p.hora||'')+'"></div></div><div class="f-group"><label class="f-label">Cancha</label><input class="f-input" id="ep-cancha" value="'+(p.cancha||'')+'"></div><div class="f-group"><label class="f-label">URL transmisión</label><input class="f-input" id="ep-url" value="'+(p.url_transmision||'')+'"></div><button class="f-submit" onclick="guardarEditarPartido(\''+id+'\',\''+catId+'\')">GUARDAR</button>');
+  openInlineModal('<div class="modal-title">Editar partido</div><div class="f-row"><div class="f-group"><label class="f-label">Local</label><select class="f-select" id="ep-local">'+opts+'</select></div><div class="f-group"><label class="f-label">Visita</label><select class="f-select" id="ep-visita">'+optsV+'</select></div></div><div class="f-row"><div class="f-group"><label class="f-label">Nro. fecha</label><input class="f-input" id="ep-nfecha" type="number" value="'+(p.nro_fecha||1)+'" min="1"></div><div class="f-group"><label class="f-label">Fase</label><select class="f-select" id="ep-fase">'+fases.map(function(f){return'<option'+(f===p.fase?' selected':'')+'>'+f+'</option>';}).join('')+'</select></div></div><div class="f-group"><label class="f-label">Grupo (opcional, solo fase de grupos)</label><input class="f-input" id="ep-grupo" value="'+(p.grupo||'')+'" placeholder="Ej: A"></div><div class="f-row"><div class="f-group"><label class="f-label">Fecha</label><input class="f-input" id="ep-fecha" type="date" value="'+(p.fecha||'')+'"></div><div class="f-group"><label class="f-label">Hora</label><input class="f-input" id="ep-hora" type="time" value="'+(p.hora||'')+'"></div></div><div class="f-group"><label class="f-label">Cancha</label><input class="f-input" id="ep-cancha" value="'+(p.cancha||'')+'"></div><div class="f-group"><label class="f-label">URL transmisión</label><input class="f-input" id="ep-url" value="'+(p.url_transmision||'')+'"></div><button class="f-submit" onclick="guardarEditarPartido(\''+id+'\',\''+catId+'\')">GUARDAR</button>');
 }
 async function guardarEditarPartido(id,catId){
   id=id||window._epId||'';catId=catId||window._epCatId||'';
@@ -1163,6 +1165,7 @@ async function guardarEditarPartido(id,catId){
     equipo_visita:document.getElementById('ep-visita').value,
     nro_fecha:parseInt(document.getElementById('ep-nfecha').value)||1,
     fase:document.getElementById('ep-fase').value,
+    grupo:document.getElementById('ep-grupo').value.trim()||null,
     fecha:document.getElementById('ep-fecha').value||null,
     hora:document.getElementById('ep-hora').value||null,
     cancha:document.getElementById('ep-cancha').value.trim()||null,
@@ -1201,6 +1204,7 @@ async function guardarAsignarEquipo(){
     equipo_visita:vis,
     nro_fecha:p.nro_fecha||1,
     fase:p.fase||'Fase Regular',
+    grupo:p.grupo||null,
     fecha:p.fecha||null,
     hora:p.hora||null,
     cancha:p.cancha||null,
@@ -1290,7 +1294,7 @@ function xlsDescarga(rows, filename){
   // XLSX real usando SheetJS
   var ws = XLSX.utils.aoa_to_sheet(rows);
   // Ancho de columnas
-  ws['!cols'] = [{wch:16},{wch:10},{wch:14},{wch:10},{wch:18},{wch:14},{wch:22},{wch:22}];
+  ws['!cols'] = [{wch:16},{wch:10},{wch:14},{wch:10},{wch:18},{wch:14},{wch:10},{wch:22},{wch:22}];
   var wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Fixture');
   XLSX.writeFile(wb, filename);
@@ -1299,7 +1303,7 @@ function xlsDescarga(rows, filename){
 async function exportarFixtureCSV(){
   var cats=await getCats();
   if(!cats.length){toast('No hay categorías en este torneo','err');return;}
-  var rows=[['Categoria','Nro Fecha','Fecha','Hora','Cancha','Fase','Equipo Local','Equipo Visita','Estado']];
+  var rows=[['Categoria','Nro Fecha','Fecha','Hora','Cancha','Fase','Grupo','Equipo Local','Equipo Visita','Estado']];
   for(var c=0;c<cats.length;c++){
     var r=await api('getPartidosCategoria',{categoria_id:cats[c].id});
     if(!r.success)continue;
@@ -1311,6 +1315,7 @@ async function exportarFixtureCSV(){
         p.hora||'',
         p.cancha||'',
         p.fase||'Fase Regular',
+        p.grupo||'',
         p.local?p.local.nombre:'',
         p.visita?p.visita.nombre:'',
         p.estado||'programado'
@@ -1324,16 +1329,16 @@ async function exportarFixtureCSV(){
 
 async function descargarPlantillaCSV(){
   var cats=await getCats();
-  var rows=[['Categoria','Nro Fecha','Fecha (YYYY-MM-DD)','Hora (HH:MM)','Cancha','Fase','Equipo Local','Equipo Visita']];
+  var rows=[['Categoria','Nro Fecha','Fecha (YYYY-MM-DD)','Hora (HH:MM)','Cancha','Fase','Grupo (opcional)','Equipo Local','Equipo Visita']];
   var catEjemplo=cats.length?cats[0].nombre:'Ej: U13';
-  rows.push([catEjemplo,'1','2026-06-15','19:00','Gimnasio','Fase Regular','Equipo A','Equipo B']);
-  rows.push(['— Deja Equipo Local / Visita en blanco si aún no se conoce (semifinal, final por definir) —','','','','','','','']);
+  rows.push([catEjemplo,'1','2026-06-15','19:00','Gimnasio','Fase Regular','A','Equipo A','Equipo B']);
+  rows.push(['— Deja Equipo Local / Visita en blanco si aún no se conoce (semifinal, final por definir). Grupo solo aplica si juegas fase de grupos —','','','','','','','','']);
   for(var c=0;c<cats.length;c++){
     var re=await api('getEquiposCategoria',{categoria_id:cats[c].id});
     var eqs=(re.success&&re.data)?re.data:[];
     if(!eqs.length)continue;
-    rows.push(['','','','','','','Equipos '+cats[c].nombre+':','']);
-    eqs.forEach(function(e){rows.push(['','','','','','',e.nombre,'']);});
+    rows.push(['','','','','','','','Equipos '+cats[c].nombre+':','']);
+    eqs.forEach(function(e){rows.push(['','','','','','','',e.nombre,'']);});
   }
   await xlsDescarga(rows,'plantilla_fixture.xlsx');
   toast('Plantilla descargada','ok');
@@ -1387,7 +1392,7 @@ function importarFixtureCSV(){
           previewHtml+='<b style="color:var(--text)">'+dataRows.length+' partidos detectados</b>';
           previewHtml+='<div style="margin-top:8px;font-size:11px;color:var(--text2)">';
           dataRows.slice(0,3).forEach(function(r){
-            var loc=String(r[6]||'').trim()||'Por definir',vis=String(r[7]||'').trim()||'Por definir';
+            var loc=String(r[7]||'').trim()||'Por definir',vis=String(r[8]||'').trim()||'Por definir';
             previewHtml+='<div style="padding:2px 0">['+String(r[0]||'').trim()+'] '+loc+' vs '+vis+(r[2]?' · '+r[2]:'')+'</div>';
           });
           if(dataRows.length>3)previewHtml+='<div>... y '+(dataRows.length-3)+' más</div>';
@@ -1425,18 +1430,18 @@ async function procesarCSV(){
   var catsAfectadas={};
   for(var i=0;i<rows.length;i++){
     var cols=rows[i].map(function(v){return String(v||'').trim();});
-    if(cols.length<8)continue;
-    // Columnas: 0=Categoria, 1=NroFecha, 2=Fecha, 3=Hora, 4=Cancha, 5=Fase, 6=Local, 7=Visita
+    if(cols.length<9)continue;
+    // Columnas: 0=Categoria, 1=NroFecha, 2=Fecha, 3=Hora, 4=Cancha, 5=Fase, 6=Grupo, 7=Local, 8=Visita
     var catId=cMap[cols[0].toLowerCase().trim()];
     if(!catId){
       errors.push('Fila '+(i+2)+': categoría no encontrada ("'+cols[0]+'")');
       continue;
     }
     // Equipo local/visita: pueden venir en blanco (partido "por definir", ej. semifinal/final)
-    var localId=cols[6]?eMap[catId+'||'+cols[6].toLowerCase().trim()]:null;
-    var visitaId=cols[7]?eMap[catId+'||'+cols[7].toLowerCase().trim()]:null;
-    if(cols[6]&&!localId){errors.push('Fila '+(i+2)+' ['+cols[0]+']: equipo local no encontrado ("'+cols[6]+'")');continue;}
-    if(cols[7]&&!visitaId){errors.push('Fila '+(i+2)+' ['+cols[0]+']: equipo visita no encontrado ("'+cols[7]+'")');continue;}
+    var localId=cols[7]?eMap[catId+'||'+cols[7].toLowerCase().trim()]:null;
+    var visitaId=cols[8]?eMap[catId+'||'+cols[8].toLowerCase().trim()]:null;
+    if(cols[7]&&!localId){errors.push('Fila '+(i+2)+' ['+cols[0]+']: equipo local no encontrado ("'+cols[7]+'")');continue;}
+    if(cols[8]&&!visitaId){errors.push('Fila '+(i+2)+' ['+cols[0]+']: equipo visita no encontrado ("'+cols[8]+'")');continue;}
     if(localId&&visitaId&&localId===visitaId){errors.push('Fila '+(i+2)+': local y visita iguales');continue;}
     var r=await api('crearPartido',{
       categoria_id:catId,
@@ -1445,6 +1450,7 @@ async function procesarCSV(){
       hora:cols[3]||null,
       cancha:cols[4]||null,
       fase:cols[5]||'Fase Regular',
+      grupo:cols[6]||null,
       equipo_local:localId,
       equipo_visita:visitaId
     });
@@ -1477,7 +1483,7 @@ async function renderProgramacion(){
     // Buscar por torneo_id directamente
     var resp=await fetch(
       SUPA_URL+'/rest/v1/partidos?torneo_id=eq.'+TORNEO_ACTUAL.id
-      +'&select=id,nro_fecha,fecha,hora,cancha,fase,estado,pts_local,pts_visita,url_transmision,categoria_id,equipo_local,equipo_visita,local:equipo_local(nombre),visita:equipo_visita(nombre)'
+      +'&select=id,nro_fecha,fecha,hora,cancha,fase,grupo,estado,pts_local,pts_visita,url_transmision,categoria_id,equipo_local,equipo_visita,local:equipo_local(nombre),visita:equipo_visita(nombre)'
       +'&order=fecha.asc,hora.asc',
       {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON,'Accept':'application/json'}}
     );
@@ -1489,7 +1495,7 @@ async function renderProgramacion(){
       for(var ci=0;ci<CATEGORIAS.length;ci++){
         var cr2=await fetch(
           SUPA_URL+'/rest/v1/partidos?categoria_id=eq.'+CATEGORIAS[ci].id
-          +'&select=id,nro_fecha,fecha,hora,cancha,fase,estado,pts_local,pts_visita,url_transmision,categoria_id,equipo_local,equipo_visita,local:equipo_local(nombre),visita:equipo_visita(nombre)'
+          +'&select=id,nro_fecha,fecha,hora,cancha,fase,grupo,estado,pts_local,pts_visita,url_transmision,categoria_id,equipo_local,equipo_visita,local:equipo_local(nombre),visita:equipo_visita(nombre)'
           +'&order=fecha.asc,hora.asc',
           {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON,'Accept':'application/json'}}
         );
