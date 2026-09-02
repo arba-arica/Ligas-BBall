@@ -1115,7 +1115,7 @@ async function abrirCrearPartido(){
     +'</div>'
     +'<div class="f-row">'
     +'<div class="f-group"><label class="f-label">Nro. fecha</label><input class="f-input" id="np-nfecha" type="number" value="1" min="1"></div>'
-    +'<div class="f-group"><label class="f-label">Fase</label><select class="f-select" id="np-fase"><option>Fase Regular</option><option>Cuartos de Final</option><option>Semifinal</option><option>Final</option></select></div>'
+    +'<div class="f-group"><label class="f-label">Fase</label><select class="f-select" id="np-fase"><option>Fase Regular</option><option>Cuartos de Final</option><option>Semifinal</option><option>Tercer Lugar</option><option>Quinto Lugar</option><option>Final</option></select></div>'
     +'</div>'
     +'<div class="f-group"><label class="f-label">Grupo (opcional, solo fase de grupos)</label><input class="f-input" id="np-grupo" placeholder="Ej: A"></div>'
     +'<div class="f-row">'
@@ -1153,7 +1153,7 @@ async function abrirEditarPartido(id){
   var re=await api('getEquiposCategoria',{categoria_id:catId});var eqs=(re.success&&re.data)?re.data:[];
   var opts='<option value=""'+(!p.equipo_local?' selected':'')+'>Por definir</option>'+eqs.map(function(e){return'<option value="'+e.id+'"'+(e.id===p.equipo_local?' selected':'')+'>'+e.nombre+'</option>';}).join('');
   var optsV='<option value=""'+(!p.equipo_visita?' selected':'')+'>Por definir</option>'+eqs.map(function(e){return'<option value="'+e.id+'"'+(e.id===p.equipo_visita?' selected':'')+'>'+e.nombre+'</option>';}).join('');
-  var fases=['Fase Regular','Cuartos de Final','Semifinal','Final'];
+  var fases=['Fase Regular','Cuartos de Final','Semifinal','Tercer Lugar','Quinto Lugar','Final'];
   openInlineModal('<div class="modal-title">Editar partido</div><div class="f-row"><div class="f-group"><label class="f-label">Local</label><select class="f-select" id="ep-local">'+opts+'</select></div><div class="f-group"><label class="f-label">Visita</label><select class="f-select" id="ep-visita">'+optsV+'</select></div></div><div class="f-row"><div class="f-group"><label class="f-label">Nro. fecha</label><input class="f-input" id="ep-nfecha" type="number" value="'+(p.nro_fecha||1)+'" min="1"></div><div class="f-group"><label class="f-label">Fase</label><select class="f-select" id="ep-fase">'+fases.map(function(f){return'<option'+(f===p.fase?' selected':'')+'>'+f+'</option>';}).join('')+'</select></div></div><div class="f-group"><label class="f-label">Grupo (opcional, solo fase de grupos)</label><input class="f-input" id="ep-grupo" value="'+(p.grupo||'')+'" placeholder="Ej: A"></div><div class="f-row"><div class="f-group"><label class="f-label">Fecha</label><input class="f-input" id="ep-fecha" type="date" value="'+(p.fecha||'')+'"></div><div class="f-group"><label class="f-label">Hora</label><input class="f-input" id="ep-hora" type="time" value="'+(p.hora||'')+'"></div></div><div class="f-group"><label class="f-label">Cancha</label><input class="f-input" id="ep-cancha" value="'+(p.cancha||'')+'"></div><div class="f-group"><label class="f-label">URL transmisión</label><input class="f-input" id="ep-url" value="'+(p.url_transmision||'')+'"></div><button class="f-submit" onclick="guardarEditarPartido(\''+id+'\',\''+catId+'\')">GUARDAR</button>');
 }
 async function guardarEditarPartido(id,catId){
