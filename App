@@ -649,10 +649,25 @@ async function renderPosiciones(){
   var h='<div class="tv-sec-label">Tabla de posiciones</div>';
   if(!rows||!rows.length){h+='<div style="padding:16px;color:var(--text2);font-size:13px;text-align:center">Sin partidos finalizados aún.</div>';}
   else{
-    rows.sort(function(a,b){var da=Number(a.gf||0)-Number(a.gc||0),db=Number(b.gf||0)-Number(b.gc||0);return(Number(b.pts)||0)-(Number(a.pts)||0)||db-da||(Number(b.gf||0))-(Number(a.gf||0));});
-    h+='<div class="st-wrap"><table class="st-table"><thead><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>Dif</th><th>Pts</th></tr></thead><tbody>';
-    rows.forEach(function(r,i){var dg=Number(r.gf||0)-Number(r.gc||0),rc=i===0?'rk-1':i===1?'rk-2':i===2?'rk-3':'';h+='<tr><td><span class="rk '+rc+'">'+(i+1)+'</span></td><td><span class="color-dot" style="background:'+(r.color||'#475569')+'"></span>'+r.equipo_nombre+'</td><td>'+r.pj+'</td><td>'+r.pg+'</td><td>'+r.pe+'</td><td>'+r.pp+'</td><td>'+r.gf+'</td><td>'+r.gc+'</td><td class="'+(dg>0?'dif-pos':dg<0?'dif-neg':'')+'">'+(dg>0?'+':'')+dg+'</td><td><span class="pts-cell">'+r.pts+'</span></td></tr>';});
-    h+='</tbody></table></div>';
+    var gruposSet={};rows.forEach(function(r){gruposSet[r.grupo||'']=true;});
+    var gruposKeys=Object.keys(gruposSet).sort();
+    var hayGrupos=gruposKeys.length>1||(gruposKeys.length===1&&gruposKeys[0]!=='');
+    var buildTabla=function(subrows){
+      subrows.sort(function(a,b){var da=Number(a.gf||0)-Number(a.gc||0),db=Number(b.gf||0)-Number(b.gc||0);return(Number(b.pts)||0)-(Number(a.pts)||0)||db-da||(Number(b.gf||0))-(Number(a.gf||0));});
+      var t='<div class="st-wrap"><table class="st-table"><thead><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>Dif</th><th>Pts</th></tr></thead><tbody>';
+      subrows.forEach(function(r,i){var dg=Number(r.gf||0)-Number(r.gc||0),rc=i===0?'rk-1':i===1?'rk-2':i===2?'rk-3':'';t+='<tr><td><span class="rk '+rc+'">'+(i+1)+'</span></td><td><span class="color-dot" style="background:'+(r.color||'#475569')+'"></span>'+r.equipo_nombre+'</td><td>'+r.pj+'</td><td>'+r.pg+'</td><td>'+r.pe+'</td><td>'+r.pp+'</td><td>'+r.gf+'</td><td>'+r.gc+'</td><td class="'+(dg>0?'dif-pos':dg<0?'dif-neg':'')+'">'+(dg>0?'+':'')+dg+'</td><td><span class="pts-cell">'+r.pts+'</span></td></tr>';});
+      t+='</tbody></table></div>';
+      return t;
+    };
+    if(!hayGrupos){h+=buildTabla(rows.slice());}
+    else{
+      gruposKeys.forEach(function(g){
+        var subrows=rows.filter(function(r){return(r.grupo||'')===g;});
+        if(!subrows.length)return;
+        h+='<div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin:14px 0 6px">'+(g?'Grupo '+g:'Sin grupo asignado')+'</div>';
+        h+=buildTabla(subrows);
+      });
+    }
   }
   h+='<div class="tv-sec-label">Reportes y documentos</div>';
   h+='<button class="pdf-btn-dark" onclick="generarPDFFixture()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar Programación PDF</button>';
@@ -1624,13 +1639,28 @@ async function generarPDFFixture(){
 async function generarPDFTabla(){
   var cat=getCatActual();if(!cat){toast('Sin categoria seleccionada','err');return;}
   var r=await fetch(SUPA_URL+'/rest/v1/standings?categoria_id=eq.'+cat.id+'&order=pts.desc',{headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}});
-  var rows=await r.json();
-  var body='<div class="section">'+cat.nombre+' -- Tabla de posiciones</div><table><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>Dif</th><th>Pts</th></tr>';
-  (rows||[]).forEach(function(row,i){
-    var dg=(row.gf||0)-(row.gc||0);
-    body+='<tr><td>'+(i+1)+'</td><td>'+row.equipo_nombre+'</td><td>'+row.pj+'</td><td>'+row.pg+'</td><td>'+row.pe+'</td><td>'+row.pp+'</td><td>'+row.gf+'</td><td>'+row.gc+'</td><td>'+(dg>0?'+':'')+dg+'</td><td class="score">'+row.pts+'</td></tr>';
-  });
-  body+='</table>';
+  var rows=await r.json();rows=rows||[];
+  var gruposSet={};rows.forEach(function(row){gruposSet[row.grupo||'']=true;});
+  var gruposKeys=Object.keys(gruposSet).sort();
+  var hayGrupos=gruposKeys.length>1||(gruposKeys.length===1&&gruposKeys[0]!=='');
+  var buildTabla=function(subrows,titulo){
+    var t='<div class="section">'+titulo+'</div><table><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>Dif</th><th>Pts</th></tr>';
+    subrows.forEach(function(row,i){
+      var dg=(row.gf||0)-(row.gc||0);
+      t+='<tr><td>'+(i+1)+'</td><td>'+row.equipo_nombre+'</td><td>'+row.pj+'</td><td>'+row.pg+'</td><td>'+row.pe+'</td><td>'+row.pp+'</td><td>'+row.gf+'</td><td>'+row.gc+'</td><td>'+(dg>0?'+':'')+dg+'</td><td class="score">'+row.pts+'</td></tr>';
+    });
+    t+='</table>';
+    return t;
+  };
+  var body='';
+  if(!hayGrupos){body=buildTabla(rows,cat.nombre+' -- Tabla de posiciones');}
+  else{
+    gruposKeys.forEach(function(g){
+      var subrows=rows.filter(function(row){return(row.grupo||'')===g;});
+      if(!subrows.length)return;
+      body+=buildTabla(subrows,cat.nombre+' -- '+(g?'Grupo '+g:'Sin grupo asignado'));
+    });
+  }
   _pdfPrint('Tabla de Posiciones -- '+(cat.nombre||''),body);
 }
 
